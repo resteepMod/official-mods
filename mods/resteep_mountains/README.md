@@ -28,3 +28,8 @@ this.
 
 To make your own: copy the folder, change `id`, `title` and the seed, and move the plateau to a place you like in
 the preview (x to the right, y up, 0 / 0 in the middle, 16 km across).
+
+**Multiplayer:** must match: it is a map, so every player on the server needs the same mod, and the server runs it
+too (the server lists it; when you join, ReSteep shows it as missing or different if yours is not the same). ReSteep
+Park, ReSteep Hill and ReSteep Mountains are one world (STP_Slopes): a server runs one of them, and you enable the
+same one.

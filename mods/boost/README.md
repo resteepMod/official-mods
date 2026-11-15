@@ -6,3 +6,6 @@ Works on the ground only, as every change of the rider's velocity (docs/modding/
 the flight path takes over, so it follows the slopes and lifts off over a crest.
 
 A script mod (`main.lua`, ReSteep's Lua API: MODDING.md).
+
+**Multiplayer:** yes, only you need it; others see you race along the ground (the game sends your movement as
+usual). Not for races: the game's challenge times and mod boards would count a boosted run.

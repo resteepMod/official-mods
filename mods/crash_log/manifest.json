@@ -1,6 +1,6 @@
 {
   "name": "Crash_Log",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/resteepMod/official-mods",
   "description": "Counts falls per sport, shows the last one and the sport in the top left corner, remembers the counts. Uses the rider events sport_change / crash / crash_end and resteep.sport() (MODDING.md).",
   "dependencies": []

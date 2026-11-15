@@ -25,3 +25,8 @@ small a world, so other places are hard to pick there; the time of day stands st
 entry is a copy of Alaska's, with its own name), and its progress page lists Alaska's challenges (a new world needs
 a challenge list; an empty one crashed the page). A hill made of a tilted copy of the valley's ground did not show
 (left out; tools/forge/MAPS.md).
+
+**Multiplayer:** must match: it is a map, so every player on the server needs the same mod, and the server runs it
+too (the server lists it; when you join, ReSteep shows it as missing or different if yours is not the same). ReSteep
+Park, ReSteep Hill and ReSteep Mountains are one world (STP_Slopes): a server runs one of them, and you enable the
+same one.

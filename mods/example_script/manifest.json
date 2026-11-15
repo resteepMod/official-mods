@@ -1,6 +1,6 @@
 {
   "name": "Example_Script",
-  "version_number": "0.1.0",
+  "version_number": "0.1.1",
   "website_url": "https://github.com/resteepMod/ReSteep",
   "description": "A Domino script of the mod's own, run by the game's script engine; its Lua lists, stops and starts it.",
   "dependencies": []

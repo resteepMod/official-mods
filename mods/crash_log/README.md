@@ -4,3 +4,5 @@ Counts falls per sport, shows the last one and the sport in the top left corner,
 Uses the rider events sport_change / crash / crash_end and resteep.sport() (MODDING.md).
 
 A script mod (`main.lua`, ReSteep's Lua API: MODDING.md).
+
+**Multiplayer:** yes, only you need it; it counts your own crashes.

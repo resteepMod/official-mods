@@ -5,7 +5,7 @@
    "id": "airtime_contest",
    "name": "Airtime_Contest",
    "title": "Air-time contest",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Every landing after at least one second in the air counts; the longest goes to the server's board \"longest_air\" (higher is better) and the top 3 show for a few seconds.",
    "author": "ReSteep",
    "full_name": "ReSteep-Airtime_Contest",
@@ -16,9 +16,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/airtime_contest-1.0.0.resteep",
-   "sha256": "bf4046d6e75839cf07a8f02d65501c960ec9e6d04ede79e5455010db165a972d",
-   "size": 2123,
+   "file": "packages/airtime_contest-1.0.1.resteep",
+   "sha256": "eb9ec3ad463c2025f552639c4716025196190a0c22f8f49c4f6946cede38b661",
+   "size": 2396,
    "icon": "icons/airtime_contest.png",
    "downloads": []
   },
@@ -26,7 +26,7 @@
    "id": "boost",
    "name": "Boost",
    "title": "Boost",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Hold F7 and the rider goes where the camera looks, at a set speed. For getting around a map quickly (a test world, a mod's own terrain). PAGEUP / PAGEDOWN change the speed (10..300 m/s, 60 at the start).",
    "author": "ReSteep",
    "full_name": "ReSteep-Boost",
@@ -37,9 +37,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/boost-1.0.0.resteep",
-   "sha256": "6e60ebc1f4269e28a0f1ae7b331edb0ce9fd466a2692981a34326e5485d6c8de",
-   "size": 2264,
+   "file": "packages/boost-1.0.1.resteep",
+   "sha256": "fb08f8fa079de5d9b405ac6c318c27570487b908ff3cd173de6290648eadc3d1",
+   "size": 2378,
    "icon": "icons/boost.png",
    "downloads": []
   },
@@ -47,7 +47,7 @@
    "id": "camera_fx",
    "name": "Camera_Fx",
    "title": "Camera effects",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "F6 goes through wide angle, zoom, dutch angle, crane shot, orbit and back to the game's own camera. The effect has to be renewed every frame (it ends 250 ms after the mod stops); the game keeps steering the camera.",
    "author": "ReSteep",
    "full_name": "ReSteep-Camera_Fx",
@@ -58,9 +58,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/camera_fx-1.0.0.resteep",
-   "sha256": "786d99dbdeeb91be180a5f28fd90e13effe91380883afa3a354affef6ecd6d17",
-   "size": 2167,
+   "file": "packages/camera_fx-1.0.1.resteep",
+   "sha256": "f2207a2c09ab5d76adc2ef11948d02257fb85e51ba50f8936387794944eda6d5",
+   "size": 2215,
    "icon": "icons/camera_fx.png",
    "downloads": []
   },
@@ -68,7 +68,7 @@
    "id": "challenge-example",
    "name": "Challenge_Example",
    "title": "Challenge Example",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Adds a short test race on the Alps (declared in Lua) and, when switched on, a jump challenge (declared in resteep.json). Shows how mods add challenges of every kind.",
    "author": "ReSteep",
    "full_name": "ReSteep-Challenge_Example",
@@ -80,9 +80,9 @@
     "music",
     "settings"
    ],
-   "file": "packages/challenge-example-1.0.0.resteep",
-   "sha256": "f5adcc659bea41481c6cf14ae3ddd5ecbd5601c0a03435a03959819a6903fb76",
-   "size": 234328,
+   "file": "packages/challenge-example-1.0.1.resteep",
+   "sha256": "93da5ab3d337fc9ae7270d831adefa1fa900ae6c90f1400f23e19d8e00d4b495",
+   "size": 234498,
    "icon": "icons/challenge-example.png",
    "downloads": []
   },
@@ -90,7 +90,7 @@
    "id": "checkpoint_race",
    "name": "Checkpoint_Race",
    "title": "Checkpoint race",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Build a course where you ride, race it, compare times on the server.",
    "author": "ReSteep",
    "full_name": "ReSteep-Checkpoint_Race",
@@ -101,9 +101,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/checkpoint_race-1.0.0.resteep",
-   "sha256": "d32ccf6f256af763adf5bb3c1e0ed849231e9c642d5a61381a73acc1efbeee7d",
-   "size": 3665,
+   "file": "packages/checkpoint_race-1.0.1.resteep",
+   "sha256": "0b0699d8c1888d8584ae1939d63c8a255794bf9501f7081bf25c9d19c8d26536",
+   "size": 4394,
    "icon": "icons/checkpoint_race.png",
    "downloads": []
   },
@@ -111,7 +111,7 @@
    "id": "crash_log",
    "name": "Crash_Log",
    "title": "Crash log",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Counts falls per sport, shows the last one and the sport in the top left corner, remembers the counts. Uses the rider events sport_change / crash / crash_end and resteep.sport() (MODDING.md).",
    "author": "ReSteep",
    "full_name": "ReSteep-Crash_Log",
@@ -122,9 +122,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/crash_log-1.0.0.resteep",
-   "sha256": "25f99e8e0ad72a51ff5c3e3cc332eff5d1765bab874beb6ecbdd652274cfbc50",
-   "size": 2005,
+   "file": "packages/crash_log-1.0.1.resteep",
+   "sha256": "2e6ba14a0043f4c3a9a5b0d82f16ff9654dc8c388be7dd4f9e301d21e625d081",
+   "size": 2046,
    "icon": "icons/crash_log.png",
    "downloads": []
   },
@@ -132,7 +132,7 @@
    "id": "devtools",
    "name": "Devtools",
    "title": "Dev tools for mod authors",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "F9 writes where you are (position, velocity, air) and the world state to the MODS console and shows it for a moment; hold Ctrl+F9 to keep it on screen.",
    "author": "ReSteep",
    "full_name": "ReSteep-Devtools",
@@ -143,9 +143,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/devtools-1.0.0.resteep",
-   "sha256": "d6130d41d2a92aca3fafc7194f3837d15e7f0e5bbac9e366346daa04e6d3035c",
-   "size": 2083,
+   "file": "packages/devtools-1.0.1.resteep",
+   "sha256": "1968df5f5bdf2101dc73efb0a24668ff1ee84695af1d2ab06fa2e989bd340cd6",
+   "size": 2129,
    "icon": "icons/devtools.png",
    "downloads": []
   },
@@ -153,7 +153,7 @@
    "id": "domino_playground",
    "name": "Domino_Playground",
    "title": "Domino playground",
-   "version": "0.1.0",
+   "version": "0.1.1",
    "description": "A Domino script of its own in the Alps: a few seconds after it starts it drops you from the sky.",
    "author": "ReSteep",
    "full_name": "ReSteep-Domino_Playground",
@@ -163,9 +163,9 @@
     "world",
     "script"
    ],
-   "file": "packages/domino_playground-0.1.0.resteep",
-   "sha256": "c32b3b9a902b9e22c22f8e9406e1993748c2f3e440cfd229a9b8f567c6a6614c",
-   "size": 4524,
+   "file": "packages/domino_playground-0.1.1.resteep",
+   "sha256": "903f81349029111b21811252090c44d39d25e785d1f19b62c34130d43a3cc8e6",
+   "size": 4681,
    "icon": "icons/domino_playground.png",
    "downloads": []
   },
@@ -173,7 +173,7 @@
    "id": "domino_showcase",
    "name": "Domino_Showcase",
    "title": "Domino showcase",
-   "version": "0.1.0",
+   "version": "0.1.1",
    "description": "Everything a mod's Domino script can do today, one key each, next to the Alps' tutorial start.",
    "author": "ReSteep",
    "full_name": "ReSteep-Domino_Showcase",
@@ -184,9 +184,9 @@
     "script",
     "settings"
    ],
-   "file": "packages/domino_showcase-0.1.0.resteep",
-   "sha256": "11b4979129ddf75bf98f09f5a224534fc2edb9f44ce788fb6fe9497cf549029d",
-   "size": 9296,
+   "file": "packages/domino_showcase-0.1.1.resteep",
+   "sha256": "e94ffe0fff578b27340143a34b188af42447b4ac7af7fd97e342dac9a8995162",
+   "size": 9602,
    "icon": "icons/domino_showcase.png",
    "downloads": []
   },
@@ -194,7 +194,7 @@
    "id": "event_notify",
    "name": "Event_Notify",
    "title": "Event notifications",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Every event ReSteep raises shows a notification (and a line in the MODS console) when it fires. For checking that the events work. \"frame\" is left out (it fires every frame); \"key\" shows the key name.",
    "author": "ReSteep",
    "full_name": "ReSteep-Event_Notify",
@@ -205,9 +205,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/event_notify-1.0.0.resteep",
-   "sha256": "71a8b05743d64a2b8e8cfa5de4ae1015bedd0c09bfc35544b95605dec26df79f",
-   "size": 2145,
+   "file": "packages/event_notify-1.0.1.resteep",
+   "sha256": "76ef2403debd33a0a73b37cb24f1ab458d6825fff08a42ab5dcdfd5327685b48",
+   "size": 2190,
    "icon": "icons/event_notify.png",
    "downloads": []
   },
@@ -215,7 +215,7 @@
    "id": "example-animation",
    "name": "Example_Animation",
    "title": "Example: Animations",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Grabs swapped and sped up: an example of content.animations (docs/modding/animations.md).",
    "author": "ReSteep",
    "full_name": "ReSteep-Example_Animation",
@@ -226,9 +226,9 @@
     "script",
     "settings"
    ],
-   "file": "packages/example-animation-1.0.0.resteep",
-   "sha256": "ca2923b0f03cfe2f02407f8937b85af5ee05c3a019c3276c61238fc34d69f783",
-   "size": 2490,
+   "file": "packages/example-animation-1.0.1.resteep",
+   "sha256": "2b442a8dbc5b4e051763f0ac6adcc5a3c48e68667ff0a7265ee3801a3621e9b8",
+   "size": 2567,
    "icon": "icons/example-animation.png",
    "downloads": []
   },
@@ -257,7 +257,7 @@
    "id": "framestep",
    "name": "Framestep",
    "title": "Frame step",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "F10 freezes the whole world (the engine's stop mode), \".\" runs one simulation step, \",\" ten. F10 again lets it run. The game cuts to its pause camera while frozen.",
    "author": "ReSteep",
    "full_name": "ReSteep-Framestep",
@@ -268,9 +268,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/framestep-1.0.0.resteep",
-   "sha256": "5b133beaf6ba62765b7ca33e17c0430fee6de3b07bc9509d5d9242280fa3b8c8",
-   "size": 1600,
+   "file": "packages/framestep-1.0.1.resteep",
+   "sha256": "186217ec872904d2125f5927d2d8f0905868413550b1bd573393c2612c350da7",
+   "size": 1708,
    "icon": "icons/framestep.png",
    "downloads": []
   },
@@ -278,7 +278,7 @@
    "id": "golden_hour",
    "name": "Golden_Hour",
    "title": "Golden hour",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Ctrl+G holds the light at sunset (19:30, clock paused); Ctrl+G again gives the game its clock back.",
    "author": "ReSteep",
    "full_name": "ReSteep-Golden_Hour",
@@ -289,9 +289,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/golden_hour-1.0.0.resteep",
-   "sha256": "53294382730550b19d4e523f25cbe33083c84184f756c0805ddb6ccaaf4031fb",
-   "size": 1678,
+   "file": "packages/golden_hour-1.0.1.resteep",
+   "sha256": "083878723e75c6ce3f930bcac1cc6c3f3677ea23c7ab23721f4ce82b026907d0",
+   "size": 1742,
    "icon": "icons/golden_hour.png",
    "downloads": []
   },
@@ -319,7 +319,7 @@
    "id": "hello-config",
    "name": "Hello_Config",
    "title": "Hello Config",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Settings test for scripts: press F9 in the game to see the strength you set. Changing a setting writes a line to the console (config_change).",
    "author": "ReSteep",
    "full_name": "ReSteep-Hello_Config",
@@ -329,9 +329,9 @@
     "script",
     "settings"
    ],
-   "file": "packages/hello-config-1.0.0.resteep",
-   "sha256": "192e657d6c6604ea8724c82a21b8ee50057d5886fce2f6b383dca48a006377dc",
-   "size": 2280,
+   "file": "packages/hello-config-1.0.1.resteep",
+   "sha256": "03cbcae3cf434b085f5368ed0c14756caae05e9d3862a3d3c11c9a0895f1119c",
+   "size": 2305,
    "icon": "icons/hello-config.png",
    "downloads": []
   },
@@ -339,7 +339,7 @@
    "id": "bluebird.lua-hat-demo",
    "name": "Lua_Hat_Demo",
    "title": "Lua Hat Demo",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "A striped beanie with a pompom, made by a build script (build.lua) from the colours you pick. Shows own models and own textures without a 3D program.",
    "author": "ReSteep",
    "full_name": "ReSteep-Lua_Hat_Demo",
@@ -351,9 +351,9 @@
     "items",
     "settings"
    ],
-   "file": "packages/bluebird.lua-hat-demo-1.0.0.resteep",
-   "sha256": "68f3e1dc23f629837b648d4cd31fe8ebb99675c19f069f59f3cefee6b84ae7ec",
-   "size": 31318,
+   "file": "packages/bluebird.lua-hat-demo-1.0.1.resteep",
+   "sha256": "1169e45b1534bf972b3a8d7ad4132bb1b91ae1078632722b89ae83e4ef846a28",
+   "size": 31488,
    "icon": "icons/bluebird.lua-hat-demo.png",
    "downloads": []
   },
@@ -361,7 +361,7 @@
    "id": "markers",
    "name": "Markers",
    "title": "Markers",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Rings in the world. A ring on you with your speed, and four rings 10 m north/south/east/west at your height. Shows that resteep.marker follows the game's camera (use it with the free camera or the rider turning).",
    "author": "ReSteep",
    "full_name": "ReSteep-Markers",
@@ -372,9 +372,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/markers-1.0.0.resteep",
-   "sha256": "0fe41c26fdb7d4751484cda0ba59d21a953c1a40cfa068fd98cc7267619a7429",
-   "size": 1716,
+   "file": "packages/markers-1.0.1.resteep",
+   "sha256": "61bc569e7400dfc429fc5c360e5e7bfc7e348fa670ad1d3db93f15fe13a619f8",
+   "size": 1758,
    "icon": "icons/markers.png",
    "downloads": []
   },
@@ -382,7 +382,7 @@
    "id": "master_chief_costume",
    "name": "Master_Chief_Costume",
    "title": "Master Chief Costume",
-   "version": "0.2.0",
+   "version": "0.2.1",
    "description": "Master Chief as a costume of his own, owned by every player. You download the model (free, CC-BY); ReSteep fits it to Steep's skeleton on your PC.",
    "author": "ReSteep (model: HarrisonHag1)",
    "full_name": "ReSteep-Master_Chief_Costume",
@@ -391,9 +391,9 @@
    "kinds": [
     "costumes"
    ],
-   "file": "packages/master_chief_costume-0.2.0.resteep",
-   "sha256": "3289e452f95d301b300864e15b17296a348bc8f54477b416c789f3cc3b12ac19",
-   "size": 63730,
+   "file": "packages/master_chief_costume-0.2.1.resteep",
+   "sha256": "d4180a88ee68fff37fe2b54a35464888a572bb50bc90c9a54aa1c78569a8300f",
+   "size": 63855,
    "icon": "icons/master_chief_costume.png",
    "downloads": [
     {
@@ -408,7 +408,7 @@
    "id": "physics_playground",
    "name": "Physics_Playground",
    "title": "Physics playground",
-   "version": "0.1.0",
+   "version": "0.1.1",
    "description": "Change the ski and snowboard physics while you ride (resteep.handling): jump, air drag, mass, snow.",
    "author": "ReSteep",
    "full_name": "ReSteep-Physics_Playground",
@@ -417,9 +417,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/physics_playground-0.1.0.resteep",
-   "sha256": "5f44c2d966e8abcf14a3e37aefc00edb875e16787dcb3c7dea350ec84b2e62da",
-   "size": 3994,
+   "file": "packages/physics_playground-0.1.1.resteep",
+   "sha256": "7ee0ffb56fafea7fd0f71ab6dfcbe301a9eda4a0165bcd5d527b4715eb4d4b7e",
+   "size": 4120,
    "icon": "icons/physics_playground.png",
    "downloads": []
   },
@@ -427,7 +427,7 @@
    "id": "bluebird.boxes",
    "name": "ReSteep_Boxes",
    "title": "ReSteep Boxes",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "A wireframe of the space every slot may use: start here before you model your own gear.",
    "author": "ReSteep",
    "full_name": "ReSteep-ReSteep_Boxes",
@@ -438,9 +438,9 @@
    "kinds": [
     "items"
    ],
-   "file": "packages/bluebird.boxes-1.0.0.resteep",
-   "sha256": "d9605604aedf001e14e0e79490212e70334779eb0c1c6073d2512d269e43bd54",
-   "size": 83222,
+   "file": "packages/bluebird.boxes-1.0.1.resteep",
+   "sha256": "031a95c987fd2097d959ed1d3812b135571b8bbd8d59c03c709f46ca78bebe39",
+   "size": 83339,
    "icon": "icons/bluebird.boxes.png",
    "downloads": []
   },
@@ -448,7 +448,7 @@
    "id": "resteep_hill",
    "name": "ReSteep_Hill",
    "title": "ReSteep Hill",
-   "version": "0.1.0",
+   "version": "0.1.1",
    "description": "A test massif: one smooth snow hill of our own (about 55 m, rollers, banked rims) over the menu world's valley, to ride custom ground. Takes the park's world name: enable one of the two. Built against your install at game start.",
    "author": "ReSteep",
    "full_name": "ReSteep-ReSteep_Hill",
@@ -457,9 +457,9 @@
    "kinds": [
     "map"
    ],
-   "file": "packages/resteep_hill-0.1.0.resteep",
-   "sha256": "6cb49dbc73959b5da7d3bc79a0c4273848697802d0a37afbbaf3d36fca215eae",
-   "size": 387814,
+   "file": "packages/resteep_hill-0.1.1.resteep",
+   "sha256": "c2f5f17868eb0b6c4eada87dfc7d94c8c17017567b23f30b61f0fa13c0537e12",
+   "size": 387983,
    "icon": "icons/resteep_hill.png",
    "downloads": []
   },
@@ -467,7 +467,7 @@
    "id": "resteep_mountains",
    "name": "ReSteep_Mountains",
    "title": "ReSteep Mountains",
-   "version": "0.1.0",
+   "version": "0.1.1",
    "description": "A map with mountains of its own, generated from a seed in resteep.json: change the seed for another range. Takes the park's world name: enable one of park, hill, terrain test, this.",
    "author": "ReSteep",
    "full_name": "ReSteep-ReSteep_Mountains",
@@ -476,9 +476,9 @@
    "kinds": [
     "map"
    ],
-   "file": "packages/resteep_mountains-0.1.0.resteep",
-   "sha256": "c3209d229478e1019f95ef9e831dabe16ca1f0bf77ff04d129c1111f76078e3a",
-   "size": 4432,
+   "file": "packages/resteep_mountains-0.1.1.resteep",
+   "sha256": "5efcaef10a91ce146317d6e54a77871fab9a6491e2a7f55c894b0692feaac86c",
+   "size": 4597,
    "icon": "icons/resteep_mountains.png",
    "downloads": []
   },
@@ -486,7 +486,7 @@
    "id": "resteep_park",
    "name": "ReSteep_Park",
    "title": "ReSteep Park",
-   "version": "0.1.0",
+   "version": "0.1.1",
    "description": "A small fourth massif next to the Alps, Asia and Alaska: the menu world's valley with its huts, and Alaska's wooden in-run as a jump. Built against your install at game start.",
    "author": "ReSteep",
    "full_name": "ReSteep-ReSteep_Park",
@@ -495,9 +495,9 @@
    "kinds": [
     "map"
    ],
-   "file": "packages/resteep_park-0.1.0.resteep",
-   "sha256": "30eb249febf164d8b240ea38284c806060f159778e046add2aea8e75591975b3",
-   "size": 5049,
+   "file": "packages/resteep_park-0.1.1.resteep",
+   "sha256": "34a59e3284310f8ecad181358ac64e9c8319e0568ec757b48927ea0f6e65a112",
+   "size": 5207,
    "icon": "icons/resteep_park.png",
    "downloads": []
   },
@@ -505,7 +505,7 @@
    "id": "rider-colors",
    "name": "Rider_Colors",
    "title": "Rider Colors",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Paints your rider's starter backpack and pants in a colour of your choice. Pick the colour and brightness in the settings; changing them needs a game restart, because the game reads its textures at start.",
    "author": "ReSteep",
    "full_name": "ReSteep-Rider_Colors",
@@ -515,9 +515,9 @@
     "textures",
     "settings"
    ],
-   "file": "packages/rider-colors-1.0.0.resteep",
-   "sha256": "2a3ea48744ec5666c85178ae755ea46cfd48b9551b505f52b329b68040db6e1d",
-   "size": 77553,
+   "file": "packages/rider-colors-1.0.1.resteep",
+   "sha256": "eeee6bf82a3ac02dd478ecec993575d34853eac926667b67169275bc2e74581e",
+   "size": 77629,
    "icon": "icons/rider-colors.png",
    "downloads": []
   },
@@ -525,7 +525,7 @@
    "id": "example_script",
    "name": "Example_Script",
    "title": "Script (example)",
-   "version": "0.1.0",
+   "version": "0.1.1",
    "description": "A Domino script of the mod's own, run by the game's script engine; its Lua lists, stops and starts it.",
    "author": "ReSteep",
    "full_name": "ReSteep-Example_Script",
@@ -535,9 +535,9 @@
     "world",
     "script"
    ],
-   "file": "packages/example_script-0.1.0.resteep",
-   "sha256": "89ca0fa986bed6ef7ee582ab143a7bbdf1aad290c657af7186d026e1da96bd42",
-   "size": 5729,
+   "file": "packages/example_script-0.1.1.resteep",
+   "sha256": "e99e74f84f59c6e648c843df25d36a0cb6f6988d5d96dd3a02fad2d7f812344b",
+   "size": 5850,
    "icon": "icons/example_script.png",
    "downloads": []
   },
@@ -545,7 +545,7 @@
    "id": "speedometer",
    "name": "Speedometer",
    "title": "Speedometer",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Speed and air time in the bottom right corner. The smallest useful mod.",
    "author": "ReSteep",
    "full_name": "ReSteep-Speedometer",
@@ -556,9 +556,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/speedometer-1.0.0.resteep",
-   "sha256": "52012af19403020442633ef7e6c87aa43b736272c628ba710e5bcb8df18b269d",
-   "size": 1592,
+   "file": "packages/speedometer-1.0.1.resteep",
+   "sha256": "4e669b3c11c6dfc296880360b285220125c1265bd783b9b9ac65466c7028a3e6",
+   "size": 1620,
    "icon": "icons/speedometer.png",
    "downloads": []
   },
@@ -566,7 +566,7 @@
    "id": "gopro_stabilized",
    "name": "GoPro_Stabilized",
    "title": "Stabilized GoPro cam",
-   "version": "0.1.0",
+   "version": "0.1.1",
    "description": "Steadies the first-person GoPro head cam: smoothed, the horizon level, a GoPro-like lens.",
    "author": "ReSteep",
    "full_name": "ReSteep-GoPro_Stabilized",
@@ -576,9 +576,9 @@
     "script",
     "settings"
    ],
-   "file": "packages/gopro_stabilized-0.1.0.resteep",
-   "sha256": "12e1875fbdde457ca0ce46b10b60bef89e630efd425a6b1734ec4dfd24bb8922",
-   "size": 9944,
+   "file": "packages/gopro_stabilized-0.1.1.resteep",
+   "sha256": "03d7579cb5a16215b8ccee534348e21721866a4317c367f98c1ea7c0e8aee945",
+   "size": 10008,
    "icon": "icons/gopro_stabilized.png",
    "downloads": []
   }

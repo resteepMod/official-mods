@@ -1,6 +1,6 @@
 {
   "name": "Hello_Config",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "",
   "description": "Settings test for scripts: press F9 in the game to see the strength you set. Changing a setting writes a line to the console (config_change).",
   "dependencies": []

@@ -1,6 +1,6 @@
 {
   "name": "Devtools",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/resteepMod/official-mods",
   "description": "F9 writes where you are (position, velocity, air) and the world state to the MODS console and shows it for a moment; hold Ctrl+F9 to keep it on screen.",
   "dependencies": []

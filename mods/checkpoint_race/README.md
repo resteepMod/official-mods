@@ -8,3 +8,8 @@ The clock starts when you leave the start and stops at the finish; every checkpo
 in order. Times go to the server's leaderboard for this course (each course has its own board).
 
 A script mod (`main.lua`, ReSteep's Lua API: MODDING.md).
+
+**Multiplayer:** yes, only you need it. Your course is yours: others see no checkpoints. Times share a board only
+between players with the same course on the same server (copy the mod's `save.lua` to share one). A run in which a
+mod held the rider, the world was frozen or the rider jumped (a teleport) is timed but not sent; the server takes
+the times as the mod sends them.

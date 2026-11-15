@@ -5,3 +5,5 @@ console and shows it for a moment; hold Ctrl+F9 to keep it on screen. Positions 
 (metres, Z up) - the numbers resteep.zone() and resteep.teleport() take.
 
 A script mod (`main.lua`, ReSteep's Lua API: MODDING.md).
+
+**Multiplayer:** yes, only you need it; it reads and shows, it changes nothing.

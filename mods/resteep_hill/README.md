@@ -22,3 +22,8 @@ In the game (2026-11-06): the MeshShape collision carries the rider down the hil
 the model was not drawn, with the rock's it is (snow on top, rock cracks). The board did not sink in: the snow's
 fluid profile is now copied along and the collision lies 0.3 m under the drawn surface (`solid_depth`). Open: a snow
 material without rock (a prop of another map), the trails the shipped terrain shows.
+
+**Multiplayer:** must match: it is a map, so every player on the server needs the same mod, and the server runs it
+too (the server lists it; when you join, ReSteep shows it as missing or different if yours is not the same). ReSteep
+Park, ReSteep Hill and ReSteep Mountains are one world (STP_Slopes): a server runs one of them, and you enable the
+same one.

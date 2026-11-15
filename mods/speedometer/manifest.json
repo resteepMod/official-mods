@@ -1,6 +1,6 @@
 {
   "name": "Speedometer",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/resteepMod/official-mods",
   "description": "Speed and air time in the bottom right corner. The smallest useful mod.",
   "dependencies": []

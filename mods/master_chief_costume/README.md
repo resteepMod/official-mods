@@ -36,3 +36,7 @@ Removing the mod removes the downloaded file too (Get the file, **Remove the fil
   prefix), its materials into costume 016's (armour -> jacket, suit -> pants, helmet and visor side by side in the
   helmet's maps) and the glass hidden. `costume = STP_M_Costume_016` (and its female twin) is the costume whose slots
   it fills; the item `COSTUME_MF_POWDER_MASTER_CHIEF` is new.
+
+**Multiplayer:** must match: the costume is an item, so every player on the server needs the same mod, and the
+server runs it too (the server lists it; when you join, ReSteep shows it as missing or different if yours is not the
+same). Others see it on you only with the same mod.

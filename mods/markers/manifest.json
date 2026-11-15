@@ -1,6 +1,6 @@
 {
   "name": "Markers",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/resteepMod/official-mods",
   "description": "Rings in the world. A ring on you with your speed, and four rings 10 m north/south/east/west at your height. Shows that resteep.marker follows the game's camera (use it with the free camera or the rider turning).",
   "dependencies": []

@@ -14,3 +14,8 @@ leaderboard of their own (docs/modding/challenges.md).
 
 The challenges are built into the session's patch when the game starts (they need `tools/forge`, a ReSteep checkout,
 so far). Their save names are `RS_CHALLENGE_EXAMPLE_SHORT_DOWNHILL` and `RS_CHALLENGE_EXAMPLE_BIG_AIR`.
+
+**Multiplayer:** must match: the challenges (their ids, gates and leaderboards), so every player on the server needs
+the same mod, and the server runs it too (the server lists it; when you join, ReSteep shows it as missing or
+different if yours is not the same). Its settings (the gold time, the jump challenge) change what it builds and are
+not compared: on a server keep the defaults.

@@ -10,3 +10,6 @@ scene at 60 fps), export a `.glb` into `anims/` and add `{"replace": "ID00_PS00_
 
 `main.lua` shows `resteep.rider.play_anim`: F10 turns the snowboard Melon (every clip of it, both riders) into a Nosegrab while it is
 on, F10 again gives the Melon back. A script decides when, the game still decides the moment of the grab.
+
+**Multiplayer:** yes, only you need it: the clips are replaced on your PC, for every rider you see; others see the
+game's own clips (also on you).

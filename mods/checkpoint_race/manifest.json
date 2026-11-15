@@ -1,6 +1,6 @@
 {
   "name": "Checkpoint_Race",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/resteepMod/official-mods",
   "description": "Build a course where you ride, race it, compare times on the server.",
   "dependencies": []

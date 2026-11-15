@@ -1,6 +1,6 @@
 {
   "name": "Rider_Colors",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "",
   "description": "Paints your rider's starter backpack and pants in a colour of your choice. Pick the colour and brightness in the settings; changing them needs a game restart, because the game reads its textures at start.",
   "dependencies": []

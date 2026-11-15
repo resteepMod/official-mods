@@ -1,6 +1,6 @@
 {
   "name": "Golden_Hour",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/resteepMod/official-mods",
   "description": "Ctrl+G holds the light at sunset (19:30, clock paused); Ctrl+G again gives the game its clock back.",
   "dependencies": []

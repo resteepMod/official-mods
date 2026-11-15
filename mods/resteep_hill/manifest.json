@@ -1,6 +1,6 @@
 {
   "name": "ReSteep_Hill",
-  "version_number": "0.1.0",
+  "version_number": "0.1.1",
   "website_url": "https://github.com/resteepMod/ReSteep",
   "description": "A test massif: one smooth snow hill of our own (about 55 m, rollers, banked rims) over the menu world's valley, to ride custom ground. Takes the park's world name: enable one of the two. Built against your install at game start.",
   "dependencies": []

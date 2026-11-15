@@ -1,6 +1,6 @@
 {
   "name": "Framestep",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/resteepMod/official-mods",
   "description": "F10 freezes the whole world (the engine's stop mode), \".\" runs one simulation step, \",\" ten. F10 again lets it run. The game cuts to its pause camera while frozen.",
   "dependencies": []

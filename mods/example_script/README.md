@@ -7,3 +7,7 @@ it when that part of the map loads. `main.lua` finds it with `resteep.domino.lis
 
 Swap the graph for your own (docs/modding/format.md "Content: scripts" lists the operators a mod may use) and move
 `at` to where it should run. Only a mod's own scripts can be started or stopped, never the game's.
+
+**Multiplayer:** must match: its script is placed in the Alps (content.scripts), so every player on the server needs
+the same mod, and the server runs it too (the server lists it; when you join, ReSteep shows it as missing or
+different if yours is not the same).
