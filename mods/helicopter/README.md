@@ -168,7 +168,7 @@ In the game (test harness, Alps, 2026-11-11): held, climbed +32 m, flew 46 km/h 
 helicopter around the rider (screenshots); F8 off left it parked; the mod reloaded put it back at the map's place.
 In the game (the player, 2026-11-15): the rotors turned (flickering: fixed since, see above); the rider stood.
 Offline (2026-11-15, 0.4.0): `luac -p`; a run of `main.lua` in plain Lua 5.4 against a stand-in `resteep` that
-rebuilds the final pose from the local pose as the game does (ReSteep's `tests/lua/example_helicopter.lua`, 48 checks).
+rebuilds the final pose from the local pose as the game does (ReSteep's `tests/lua/helicopter.lua`, 48 checks).
 Arcade (unchanged): it holds its height; the rotors turn through the local pose at 1000 deg/s, with both fallbacks; the
 seat covers the clips seen in the game and matches new ones by shape; hovering with the rider aboard, the jump out, the
 hover and the parking after. Realistic, flown by a test pilot with stick and trigger values (no assist levelling):

@@ -296,23 +296,23 @@
    "downloads": []
   },
   {
-   "id": "example_helicopter",
-   "name": "Example_Helicopter",
-   "title": "Helicopter (example)",
+   "id": "helicopter",
+   "name": "Helicopter",
+   "title": "Helicopter",
    "version": "0.4.0",
    "description": "Fly the rider like a helicopter, inside the Alps' own Red Bull helicopter; Alaska and Japan get a copy of it, built against your install at game start.",
    "author": "ReSteep",
-   "full_name": "ReSteep-Example_Helicopter",
+   "full_name": "ReSteep-Helicopter",
    "website_url": "https://github.com/resteepMod/ReSteep",
    "dependencies": [],
    "kinds": [
     "script",
     "settings"
    ],
-   "file": "packages/example_helicopter-0.4.0.resteep",
-   "sha256": "c94a93e4f33aa81e39350eded97d012ee9fde3eb72e507b62e1e2a3470855b72",
-   "size": 483064,
-   "icon": "icons/example_helicopter.png",
+   "file": "packages/helicopter-0.4.0.resteep",
+   "sha256": "b206f7b5dd3696dcf6e3e06de15e3e478c1761b5d9ff67c5760b0d831f2c8460",
+   "size": 483036,
+   "icon": "icons/helicopter.png",
    "downloads": []
   },
   {

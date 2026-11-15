@@ -1,7 +1,7 @@
 {
   "format": 1,
-  "id": "example_helicopter",
-  "title": "Helicopter (example)",
+  "id": "helicopter",
+  "title": "Helicopter",
   "author": "ReSteep",
   "license": "AGPL-3.0",
   "script": "main.lua",
