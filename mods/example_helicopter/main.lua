@@ -138,6 +138,8 @@ local rotor_way                    -- "local" (the local pose) or "final" (each 
 local local_check                  -- {angle, frames, good}: is the local pose's turn in the game's final pose?
 local watching = 0                 -- s left of logging the rider's clips
 local seated = {}                  -- clip name -> true: redirected to the sitting idle
+local to_seat = {}                 -- {name, gender} still to redirect: a few per frame (SEAT_PER_FRAME)
+local SEAT_PER_FRAME = 24          -- ~310 names at once took the mod past its 20 ms and made the game stutter
 local sounds = {}                  -- {turbine = id, slap = id} or {loop = id}
 local sound_failed = false         -- no sound could start (no audio device): not tried again every frame
 local cam_prev                     -- the camera's position last frame (the Doppler shift)
@@ -289,26 +291,37 @@ end
 
 ------------------------------------------------------------------------------------------------------------ seat
 
+-- play_anim gives nil for a name this game's clip list lacks (an error on older overlays: pcall covers both)
 local function redirect(name, g)
-    local ok, err = pcall(resteep.rider.play_anim, name, SIT[g])
-    if ok then seated[name] = true end
-    return ok, err
+    local ok, set, why = pcall(resteep.rider.play_anim, name, SIT[g])
+    if ok and set then seated[name] = true return true end
+    return false, ok and why or set
 end
 
 -- the rider sits (true) or stands again (false)
+local seat_count = 0
 local function seat(sit)
     if not sit then
+        to_seat = {}
         for name in pairs(seated) do pcall(resteep.rider.play_anim, name) end
         seated = {}
         return
     end
-    local n = 0
+    to_seat = {}                                                          -- redirected over the next frames
     for g in pairs(SIT) do
-        for _, name in ipairs(standing_names(g)) do
-            if redirect(name, g) then n = n + 1 end                       -- names this game lacks are skipped
-        end
+        for _, name in ipairs(standing_names(g)) do to_seat[#to_seat + 1] = {name, g} end
     end
-    resteep.log("helicopter: " .. n .. " standing idles play the sitting one")
+    seat_count = 0
+end
+
+-- a few of the queued names each frame (names this game lacks are skipped)
+local function seat_step()
+    if #to_seat == 0 then return end
+    for _ = 1, math.min(SEAT_PER_FRAME, #to_seat) do
+        local e = table.remove(to_seat)
+        if not seated[e[1]] and redirect(e[1], e[2]) then seat_count = seat_count + 1 end
+    end
+    if #to_seat == 0 then resteep.log("helicopter: " .. seat_count .. " standing idles play the sitting one") end
 end
 
 -- the clips the game looked up: a standing idle the list missed sits from now on
@@ -781,7 +794,7 @@ resteep.on("frame", function(dt)
     if not p or p.ragdoll then stop(p and "crashed" or "no rider", grounded) return end
     if not resteep.rider.held() then stop("the rider was let go", grounded) return end
     fly(dt, pad)
-    if on then watch_clips(dt) end
+    if on then seat_step() watch_clips(dt) end
 end)
 
 resteep.on("world_leave", function()
