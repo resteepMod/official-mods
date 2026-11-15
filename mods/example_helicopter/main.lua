@@ -10,7 +10,8 @@
 --   ground effect and a weathervaning tail: it loops and rolls, and upside down the thrust pushes it down.
 -- F8 / B lets go: the game takes the rider back (it falls from there). Left in the air, the helicopter's pilot (the
 -- model has one) holds a hover there with the rotors running; left on the ground it is parked and the rotors stop.
--- It never goes below the ground (resteep.world.ground); walls and objects are not checked.
+-- It collides with the game's own collision world (resteep.world.raycast / spherecast: terrain, rocks, buildings);
+-- on an older ReSteep only with the terrain's height (resteep.world.ground).
 -- Credits: the gravity constant and the shape of the arcade model's horizontal drag are the paraglider's, from
 -- steep-gameplay-research (github.com/Sean-Shmulevich/steep-gameplay-research, docs/systems/air/CLIENT_GUIDE.txt,
 -- used with the author's permission); the tuning values are ours.
@@ -452,31 +453,41 @@ end
 -- and the move of the frame is swept; without it (an older ReSteep) only the terrain's height (resteep.world.ground,
 -- a 4 m raster, no objects) counts, at the points themselves. A probe gives how deep the point is in, and the
 -- surface's normal.
-local function raycast_fn()
-    local ok, f = pcall(function() return resteep.world.raycast end)
+local function world_fn(name)
+    local ok, f = pcall(function() return resteep.world[name] end)
     return ok and type(f) == "function" and f or nil
 end
-local function cast(a, b)
-    local ok, hit = pcall(raycast_fn(), a[1], a[2], a[3], b[1], b[2], b[3])
+local function raycast_fn() return world_fn("raycast") end
+-- the helicopter's own model is left out (its collision, if it has any, moves with it): opts.ignore
+local function opts() return heli and {ignore = heli} or nil end
+-- a cast: the hit, nil when nothing is in the way, false when it was not asked (a menu, the per-frame budget, a model
+-- not loaded): then the terrain's raster decides, as on an older ReSteep
+local function cast(a, b, radius)
+    local f = world_fn(radius and "spherecast" or "raycast")
+    if not f then return false end
+    local ok, hit, why
+    if radius then ok, hit, why = pcall(f, a, b, radius, opts())
+    else ok, hit, why = pcall(f, a[1], a[2], a[3], b[1], b[2], b[3], opts()) end
     if ok and type(hit) == "table" and hit.x then return hit end
+    if ok and hit == nil and why == nil then return nil end
+    return false
 end
 local function probe(p)                                   -- a world point: depth in the world (> 0) and normal, or nil
-    if raycast_fn() then
-        local hit = cast(body(COM), p)
-        if not hit then return nil end
+    local hit = cast(body(COM), p)
+    if hit then
         local n = unit({hit.nx or 0, hit.ny or 0, hit.nz or 1})
         local d = dot({hit.x - p[1], hit.y - p[2], hit.z - p[3]}, n)
         if d > 0 then return d, n end
         return nil
     end
+    if hit == nil then return nil end
     local g = resteep.world.ground(p[1], p[2])
     if g and g > p[3] then return g - p[3], {0, 0, 1} end
 end
 local function height_below(p, most)                      -- metres from p down to what is under it (nil: unknown / far)
-    if raycast_fn() then
-        local hit = cast(p, {p[1], p[2], p[3] - most})
-        return hit and (p[3] - hit.z) or nil
-    end
+    local hit = cast(p, {p[1], p[2], p[3] - most})
+    if hit then return p[3] - hit.z end
+    if hit == nil then return nil end
     local g = resteep.world.ground(p[1], p[2])
     return g and p[3] - g or nil
 end
@@ -505,9 +516,9 @@ local function contacts(dt, crashes, from_com)
         local d, n = probe(body(p))
         if d and d > hull_d then hull_d, hull_n, hull_what = d, n, i >= 3 and "the rotor" or "the hull" end
     end
-    if from_com and raycast_fn() then                     -- the frame's move swept: nothing passed through
+    if from_com and raycast_fn() then                     -- the frame's move swept (the cabin as a 1.2 m sphere)
         local now = body(COM)
-        local hit = cast(from_com, now)
+        local hit = cast(from_com, now, 1.2)
         if hit then
             local n = unit({hit.nx or 0, hit.ny or 0, hit.nz or 1})
             local d = dot({hit.x - now[1], hit.y - now[2], hit.z - now[3]}, n) + 0.2
@@ -568,9 +579,11 @@ local function arcade(dt, f, r, pedal, coll)
     R.r = {ra[1] * cr - ua[1] * sr, ra[2] * cr - ua[2] * sr, ra[3] * cr - ua[3] * sr}
     R.u = {ua[1] * cr + ra[1] * sr, ua[2] * cr + ra[2] * sr, ua[3] * cr + ra[3] * sr}
     org = add(org, v, dt)
-    -- never below the ground: the rider's seat at least SKIDS over it
+    -- never below the ground: the rider's seat at least SKIDS over it (the game's collision under the seat, else the
+    -- terrain's raster; nil where neither knows: no check there)
     local seat_at = body(SEAT)
-    local ground = resteep.world.ground(seat_at[1], seat_at[2])     -- nil where it is not known: no check there
+    local below = height_below({seat_at[1], seat_at[2], seat_at[3] + 3}, 100)   -- from just above: not a roof over it
+    local ground = below and seat_at[3] + 3 - below or nil
     if ground and seat_at[3] < ground + SKIDS then
         org[3] = org[3] + ground + SKIDS - seat_at[3]
         if v[3] < 0 then v[3] = 0 end                        -- landed: the descent stops

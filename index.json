@@ -81,8 +81,8 @@
     "settings"
    ],
    "file": "packages/challenge-example-1.0.0.resteep",
-   "sha256": "56d8f09a4b0026de2e618b94ddfa10666cda1585cc16b1caf97b27abb02494c9",
-   "size": 230946,
+   "sha256": "f5adcc659bea41481c6cf14ae3ddd5ecbd5601c0a03435a03959819a6903fb76",
+   "size": 234328,
    "icon": "icons/challenge-example.png",
    "downloads": []
   },
@@ -164,8 +164,8 @@
     "script"
    ],
    "file": "packages/domino_playground-0.1.0.resteep",
-   "sha256": "b6549ca8b075420a77fabb22bcf91bb87b5a7ddfdb78eaff4289e75df412c442",
-   "size": 2227,
+   "sha256": "c32b3b9a902b9e22c22f8e9406e1993748c2f3e440cfd229a9b8f567c6a6614c",
+   "size": 4524,
    "icon": "icons/domino_playground.png",
    "downloads": []
   },
@@ -185,8 +185,8 @@
     "settings"
    ],
    "file": "packages/domino_showcase-0.1.0.resteep",
-   "sha256": "7e26913bee280eb073b7a5ab03894dcda1dde30b6bfcb3edeca71ab70d0996fb",
-   "size": 7022,
+   "sha256": "11b4979129ddf75bf98f09f5a224534fc2edb9f44ce788fb6fe9497cf549029d",
+   "size": 9296,
    "icon": "icons/domino_showcase.png",
    "downloads": []
   },
@@ -227,8 +227,8 @@
     "settings"
    ],
    "file": "packages/example-animation-1.0.0.resteep",
-   "sha256": "4455da5f25506da5b3985e4fd93f12021ac41ad93dce69609fd089cf0e70b15f",
-   "size": 2447,
+   "sha256": "ca2923b0f03cfe2f02407f8937b85af5ee05c3a019c3276c61238fc34d69f783",
+   "size": 2490,
    "icon": "icons/example-animation.png",
    "downloads": []
   },
@@ -236,7 +236,7 @@
    "id": "fpv_drone",
    "name": "FPV_Drone",
    "title": "FPV drone",
-   "version": "0.3.0",
+   "version": "0.3.1",
    "description": "Launch a drone like the game's own and fly it first-person: gamepad or keyboard, d-pad for FOV and camera angle, a model and motor sound.",
    "author": "ReSteep",
    "full_name": "ReSteep-FPV_Drone",
@@ -247,9 +247,9 @@
     "script",
     "settings"
    ],
-   "file": "packages/fpv_drone-0.3.0.resteep",
-   "sha256": "c58b87cef9dd3d17706a4c30d886e9675a1f04e0d6944acbc7340ff4daa4899c",
-   "size": 115886,
+   "file": "packages/fpv_drone-0.3.1.resteep",
+   "sha256": "d49e6f3803a5e9e46d152832e87ad0d6105ef0c5f4ef135f02912eebbefd3bb5",
+   "size": 116293,
    "icon": "icons/fpv_drone.png",
    "downloads": []
   },
@@ -299,7 +299,7 @@
    "id": "example_helicopter",
    "name": "Example_Helicopter",
    "title": "Helicopter (example)",
-   "version": "0.3.1",
+   "version": "0.3.2",
    "description": "Fly the rider like a helicopter, inside the Alps' own Red Bull helicopter; Alaska and Japan get a copy of it, built against your install at game start.",
    "author": "ReSteep",
    "full_name": "ReSteep-Example_Helicopter",
@@ -309,9 +309,9 @@
     "script",
     "settings"
    ],
-   "file": "packages/example_helicopter-0.3.1.resteep",
-   "sha256": "04cbddbf2be68e80fe77d7b227c2e64b0aeda33077c9f2d05000d720a73a6d74",
-   "size": 477344,
+   "file": "packages/example_helicopter-0.3.2.resteep",
+   "sha256": "e2c4e83e6da75453b1f30c0bb31631f6f5e530a4d94b4374a9d0f2861c578d21",
+   "size": 477691,
    "icon": "icons/example_helicopter.png",
    "downloads": []
   },
@@ -418,8 +418,8 @@
     "script"
    ],
    "file": "packages/physics_playground-0.1.0.resteep",
-   "sha256": "b224153ab2a6efa75324a79b2a124c28326c924714f54b834b3c4e82cc374a12",
-   "size": 2514,
+   "sha256": "5f44c2d966e8abcf14a3e37aefc00edb875e16787dcb3c7dea350ec84b2e62da",
+   "size": 3994,
    "icon": "icons/physics_playground.png",
    "downloads": []
   },
@@ -458,8 +458,8 @@
     "map"
    ],
    "file": "packages/resteep_hill-0.1.0.resteep",
-   "sha256": "34b470ae597ef53df3e64e10dae1ca0c037d4c0ac6973970a5d948d15771ee47",
-   "size": 385652,
+   "sha256": "6cb49dbc73959b5da7d3bc79a0c4273848697802d0a37afbbaf3d36fca215eae",
+   "size": 387814,
    "icon": "icons/resteep_hill.png",
    "downloads": []
   },
@@ -477,8 +477,8 @@
     "map"
    ],
    "file": "packages/resteep_mountains-0.1.0.resteep",
-   "sha256": "7669d921e2da1c6baea0d787667b68567c548dc69fe6adaf96503fa79042bd56",
-   "size": 2242,
+   "sha256": "c3209d229478e1019f95ef9e831dabe16ca1f0bf77ff04d129c1111f76078e3a",
+   "size": 4432,
    "icon": "icons/resteep_mountains.png",
    "downloads": []
   },
@@ -496,8 +496,8 @@
     "map"
    ],
    "file": "packages/resteep_park-0.1.0.resteep",
-   "sha256": "21a70fa65e4a38397622fab04946ab3a2dc856b2399abdac6214bec29db17b72",
-   "size": 2904,
+   "sha256": "30eb249febf164d8b240ea38284c806060f159778e046add2aea8e75591975b3",
+   "size": 5049,
    "icon": "icons/resteep_park.png",
    "downloads": []
   },
@@ -536,8 +536,8 @@
     "script"
    ],
    "file": "packages/example_script-0.1.0.resteep",
-   "sha256": "fad0a302d546ccc7d4529078748425936b8192f366cf3d1b6bb8da9f8829b749",
-   "size": 2270,
+   "sha256": "89ca0fa986bed6ef7ee582ab143a7bbdf1aad290c657af7186d026e1da96bd42",
+   "size": 5729,
    "icon": "icons/example_script.png",
    "downloads": []
   },
@@ -577,8 +577,8 @@
     "settings"
    ],
    "file": "packages/gopro_stabilized-0.1.0.resteep",
-   "sha256": "7065331fb96389f2cb8743061b4aebf8160014af131b3d01a96825f7d66e1634",
-   "size": 6472,
+   "sha256": "12e1875fbdde457ca0ce46b10b60bef89e630efd425a6b1734ec4dfd24bb8922",
+   "size": 9944,
    "icon": "icons/gopro_stabilized.png",
    "downloads": []
   }

@@ -487,22 +487,28 @@ local function caster()
     return nil
 end
 
+-- the drone's own model is left out of the queries (its collision, if it has any, moves with it)
+local function cast_opts() return model and {ignore = model} or nil end
+
+-- the hit's contact point and normal; nil: nothing in the way; nil, true: not asked this time (a menu, the 64 casts
+-- per frame, a world still loading: the answer is nil + why), then the raster decides
 local function sweep(a, b)
-    local how, ok, hit = caster(), false, nil
+    local how, ok, hit, why = caster(), false, nil, nil
     if not how then return nil end
     local dir = sub(b, a)
-    if len(dir) < 1e-5 then dir = v3(0, 0, -1e-3) end
+    if len(dir) < 1e-3 then return nil end         -- (the query wants 1 mm at least)
     if how == "sphere" then
-        ok, hit = pcall(resteep.world.spherecast, a, b, RADIUS)
+        ok, hit, why = pcall(resteep.world.spherecast, a, b, RADIUS, cast_opts())
     else
         local e = add(b, unit(dir), RADIUS)        -- one radius past the new place
-        ok, hit = pcall(resteep.world.raycast, a.x, a.y, a.z, e.x, e.y, e.z)
+        ok, hit, why = pcall(resteep.world.raycast, a.x, a.y, a.z, e.x, e.y, e.z, cast_opts())
     end
     if not ok then
         caster_broken = true
         resteep.log("drone: the collision query failed, the terrain raster only: " .. tostring(hit))
         return nil
     end
+    if hit == nil and why then return nil, true end
     if type(hit) ~= "table" or not hit.x then return nil end
     local n = (hit.nx and v3(hit.nx, hit.ny, hit.nz)) or mul(unit(dir), -1)
     return v3(hit.x, hit.y, hit.z), unit(n)
@@ -547,8 +553,17 @@ local function pressed(pad)                        -- buttons that went down thi
     return out
 end
 
+local function floor_below(p)                      -- the z of what is under p (500 m at most), nil: unknown
+    if caster() then
+        local ok, hit, why = pcall(resteep.world.raycast, p.x, p.y, p.z, p.x, p.y, p.z - 500, cast_opts())
+        if ok and type(hit) == "table" and hit.z then return hit.z end
+        if ok and hit == nil and not why then return nil end
+    end
+    return floor_at(p.x, p.y)
+end
+
 local function osd(thr, pad)
-    local floor = floor_at(d.p.x, d.p.y)
+    local floor = floor_below(d.p)
     local alt = floor and math.max(0, d.p.z - floor - SKID) or 0     -- (on the snow: 0, not "-0")
     local status = d.crashed and "CRASHED (Y)" or d.armed and "ARMED"
         or (thr > hover_throttle() + 0.02 and "THROTTLE DOWN TO ARM" or "DISARMED")
@@ -587,6 +602,12 @@ local function fly(dt, pad)
             if at then
                 d.p = add(at, nrm, RADIUS)
                 touch(nrm, math.min(dt, 0.1))
+            elseif nrm then                        -- not asked this frame: the raster's contact instead
+                local floor = floor_at(d.p.x, d.p.y)
+                if floor and d.p.z < floor + SKID then
+                    d.p.z = floor + SKID
+                    touch(ground_normal(d.p.x, d.p.y), math.min(dt, 0.1))
+                end
             end
         end
     end
