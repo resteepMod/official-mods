@@ -5,6 +5,14 @@
   "author": "ReSteep",
   "license": "AGPL-3.0",
   "script": "main.lua",
+  "content": {
+    "worlds": [
+      {"map": "Alpes", "edits": "assets/drone_Alpes.json",
+       "models": {"drone_game": {"from": {"map": "DataPC", "entry": "0x800",
+                                          "mesh": "STP_V_Drone_001_GoPro_LOD0"}, "materials": "like"},
+                  "drone": {"glb": "assets/drone.glb"}}}
+    ]
+  },
   "settings": [
     {"key": "launch", "type": "key", "label": "Launch / bring back the drone", "default": "G"},
     {"key": "throttle", "type": "choice", "label": "Throttle", "default": "hover",
@@ -25,9 +33,18 @@
     {"key": "power", "type": "slider", "label": "Thrust to weight", "default": 5, "min": 2, "max": 10, "step": 0.5,
      "info": "Full throttle lifts this many times the drone's weight; it hovers at 1 / this throttle."},
     {"key": "camera_angle", "type": "slider", "label": "Camera tilt", "default": 25, "min": 0, "max": 60, "step": 1,
-     "unit": "deg", "info": "How far the camera looks up from the nose: more for faster flying."},
-    {"key": "fov", "type": "slider", "label": "Field of view (vertical)", "default": 90, "min": 60, "max": 130, "step": 1,
-     "unit": "deg"},
+     "unit": "deg", "info": "How far the camera looks up from the nose: more for faster flying. In flight the d-pad's up / down (or the arrow keys) change it in 5 degree steps; the last value stays."},
+    {"key": "fov", "type": "slider", "label": "Field of view (vertical)", "default": 90, "min": 60, "max": 150, "step": 1,
+     "unit": "deg", "info": "In flight the d-pad's left / right (or the arrow keys) change it in 5 degree steps; the last value stays."},
+    {"key": "model", "type": "choice", "label": "Drone model", "default": "game",
+     "info": "The drone seen in the world while it launches, flies and comes back (the Alps only for now; built when the game starts). The game's drone is rebuilt from your install; both are drawn with a borrowed bench's materials.",
+     "options": [{"value": "game", "label": "The game's drone"},
+                 {"value": "own", "label": "ReSteep's quad"},
+                 {"value": "off", "label": "Off"}]},
+    {"key": "model_fpv", "type": "toggle", "label": "Drone model in the FPV view", "default": true,
+     "info": "Off: the model is put away while you fly first-person (its props can show at the edges of the picture)."},
+    {"key": "sound", "type": "toggle", "label": "Motor sound", "default": true},
+    {"key": "volume", "type": "slider", "label": "Motor volume", "default": 0.7, "min": 0, "max": 1, "step": 0.05},
     {"key": "range", "type": "number", "label": "Range from the rider (m)", "default": 300, "min": 50, "max": 2000}
   ]
 }
