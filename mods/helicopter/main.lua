@@ -169,6 +169,9 @@ local yaw, pitch, roll = 0, 0, 0   -- arcade: heading (0 = +Y, positive turns to
 local hold_z                       -- the height the pilot holds while hovering
 local cam, cam_heading             -- the chase camera's smoothed position and heading
 local heli                         -- resteep.prop handle of the helicopter (nil: not in this world)
+local heli_look = 0                -- s until flying without a model looks for it again (its cell not loaded yet)
+local heli_gone = false            -- this world's model refused a move: flown without it until the world is left
+local heli_missing_logged = false
 local crash_cool = 0               -- s: after a crash, the next one is not reported
 local last_coll = 0                -- the collective last used (the sound's load)
 local lever = 0                    -- realistic: the collective lever, 0 (down) .. 1 (up); stays where it is set
@@ -816,7 +819,7 @@ local function place_heli()
     if not heli then return end
     local ok, why = resteep.prop.set(heli, {matrix = {R.r[1], R.r[2], R.r[3], 0, R.f[1], R.f[2], R.f[3], 0,
                                                       R.u[1], R.u[2], R.u[3], 0, org[1], org[2], org[3], 1}})
-    if not ok then resteep.log("helicopter: the model stays behind: " .. tostring(why)) heli = nil end
+    if not ok then resteep.log("helicopter: the model stays behind: " .. tostring(why)) heli, heli_gone = nil, true end
 end
 
 -- one frame of either model; true when it rests on the ground
@@ -844,14 +847,23 @@ local RIDING = {[0] = "snowboard", [1] = "wingsuit", [2] = "ski", [3] = "paragli
                 [7] = "a crash", [9] = "sled", [10] = "rocket wingsuit", [11] = "free fall"}
 local STILL = 3.0                  -- m/s: on foot that is standing or walking (a slope reads ~1 m/s standing still)
 
+-- the map's helicopter: the Alps' own first, else this mod's copy (the same id in every map that gets one); none (a
+-- map without a copy, its cell not loaded yet, a build without the world edits): it flies without a model, and while
+-- flying looks again every few seconds
 local function find_heli()
-    if heli then return end
+    if heli or heli_gone then return end
     local why
     for _, id in ipairs(HELICOS) do
-        heli, why = resteep.prop.find(id)
-        if heli then break end
+        local ok, h, w = pcall(resteep.prop.find, id)
+        if ok and h then heli = h break end
+        why = ok and w or h
     end
-    if not heli then resteep.log("helicopter: no model here: " .. tostring(why)) end
+    if heli then
+        resteep.log("helicopter: model " .. tostring(heli))
+    elseif not heli_missing_logged then
+        heli_missing_logged = true
+        resteep.log("helicopter: no model here (yet): " .. tostring(why))
+    end
 end
 
 local function start()
@@ -880,6 +892,7 @@ local function start()
     local s = body(SEAT)
     org = {p.x - s[1], p.y - s[2], p.z - s[3]}
     resteep.input.pad{}            -- puts the pad hook in, so input.read() has the real pad from now on
+    heli_gone, heli_look = false, 2                               -- a new flight tries the model again
     find_heli()
     if heli and not rotors and spin == 0 then read_rotors() end   -- parked as the map has it: the bones at rest
     seat(true)
@@ -1125,6 +1138,10 @@ resteep.on("frame", function(dt)
     if not resteep.rider.held() then stop("the rider was let go", grounded) return end
     fly(dt, pad)
     if on then seat_step() watch_clips(dt) end
+    if on and not heli and not heli_gone then                     -- its cell may come in later
+        heli_look = heli_look - dt
+        if heli_look <= 0 then heli_look = 2 find_heli() end
+    end
 end)
 
 -- a setting changed on the MODS page: applies from this frame on (the lever, rates and attitude carry on as they are)
@@ -1133,6 +1150,7 @@ resteep.on("config_change", function() load_settings() end)
 resteep.on("world_leave", function()
     if on then stop(nil, true) end
     hovering, heli, rotors, rotor_way, local_check = false, nil, nil, nil, nil
+    heli_look, heli_gone, heli_missing_logged = 0, false, false   -- another world: its own helicopter, or none
     aboard_hover = false
     spin, turned_main, turned_tail, org = 0, 0, 0, nil
     sound_stop()

@@ -7,15 +7,25 @@ model in Lua; the game's helicopter (`STP_Helico`, the Alps' intro helicopter, m
 around it, the rider seated in its open left door. Folders starting with `_` are not loaded: copy this one to
 `mods/helicopter/` to try it, and name it in the client mods.
 
-**Alaska and Japan (switched off 2026-11-11: the game crashed 0.6 s after loading Japan with the copy;
-the edit files stay, `resteep.json` no longer names them, until the harness finds the cause):** only the Alps place
-the helicopter. This mod's world edits (`resteep.json` -> `assets/
-helicopter_Alaska.json`, `helicopter_Japan.json`) copy the Alps' `STP_Helico` into those worlds' root cell (always
-loaded), parked at the origin like the original, under the fixed id `0x2F000001000` that `main.lua` looks for after
-the original's; its meshes come along from the Alps' archives (world.py apply: an add from another map, an add's
-`"id"`). Built against your install at game start like every content mod (the launcher's mod build). Its pilot's and
-ski box's closest models (LOD0) stay in `DataPC_extra_chr_onboarding`, which the copy does not bring along (G: that
-archive is loaded in every world).
+**In every map that can have one (0.7.0):** the Alps place the helicopter themselves (`STP_Helico` 0x1105920500E in
+their root cell). **Alaska** gets a copy of it from this mod's world edit (`assets/helicopter_Alaska.json`), **Japan**
+only with the setting **Helicopter in Japan (experimental)** (`japan`, off by default; `assets/helicopter_Japan.json`):
+each copies the Alps' `STP_Helico` into the map's root cell (always loaded), parked at the origin like the original,
+without its AnimComponent (`"drop"`), under the fixed id `0x2F000001000` that `main.lua` looks for after the
+original's; its meshes come along from the Alps' archives (world.py apply: an add from another map, an add's `"id"`).
+Built against your install at game start like every content mod (the launcher's mod build); the setting takes effect
+at the next game start. Its pilot's and ski box's closest models (LOD0) stay in `DataPC_extra_chr_onboarding` (G:
+loaded in every world). The WhiteRoom is the menu world (nothing to fly in) and a mod's custom maps are worlds of their
+own that a world edit of the shipped maps does not reach: there, and wherever the model is not loaded, the mod flies
+without a model (the camera closer) and keeps looking for it every 2 s while flying.
+
+**Why Japan crashed (2026-11-11/12) and what changed (2026-11-16, offline):** the copies of then were broken by
+ReSteep's world.py, not by Japan: an add into a root cell from another cell cut the cell's prefetch list short (fixed
+2026-11-13: that was the "any add into Japan's root cell crashes", the bench too), and `"drop"` cut the entity's own 48
+bytes after its last component along with the AnimComponent (and left its component flag in the game state): every
+dropped copy was malformed, so it crashed somewhere else every run. World.py now cuts exactly the 73-byte component, its
+record and its flag, and a copy from another map's root cell (the same entry id in every map) brings its prefetch
+records. Not run in the game since: Japan stays opt-in until someone has loaded it with the copy.
 
 ## Controls
 
@@ -73,6 +83,7 @@ extreme, 0 % switches an effect off.
 | Helicopter HUD (`hud`) | on / off | on | the mod's flight display (below); off: nothing drawn |
 | Helicopter HUD: size (`hud_size`) | 50-200 % | 100 % | about its bottom centre |
 | Helicopter HUD: opacity (`hud_opacity`) | 20-100 % | 100 % | |
+| Helicopter in Japan (experimental) (`japan`) | on / off | off | builds the copy into Japan (above); the next game start, not at once; Japan crashing on load: switch it off |
 
 0.6.0 replaced "Stick sensitivity" (both axes) with the cyclic and pedal rates.
 
@@ -212,10 +223,22 @@ ReSteep) and a loopable stretch found by ear: not done.
 
 No collision with objects until `resteep.world.raycast` exists (see above), the rider keeps its heading and stays
 upright while the helicopter turns, the helicopter itself has no collision for others, and Alaska and Japan have it
-only with this mod's world edits built. The pad's sticks need the pad to reach mods (`resteep.input.read`); in the
+only with this mod's world edits built (Japan with its setting on); without its AnimComponent the copy may not take the
+rotors' turn (G: then they stand still, the rest flies the same). The pad's sticks need the pad to reach mods (`resteep.input.read`); in the
 test harness only the keyboard does.
 
 ## Tested
+
+Offline (2026-11-16, 0.7.0, the other maps; with ReSteep's world.py fixes of that day): `world.py apply` of both edit
+files on the install: Alaska and Japan each 1 cell written, 0 warnings; the copy is the Alps' entity with its ids
+renumbered and its 73-byte AnimComponent, game-state record and flag gone (1686 -> 1598 bytes, 4 components), in no
+data layer and no far-LOD group; the root cell's other resources byte for byte as shipped, its prefetch list whole
+(Japan: 5 groups, 819 + 11 records) and every new record and every entry the copy links in the map, the shared
+DataPC or the 48 entries copied along (none Alps-only). Japan and Alaska ship thousands of entities with a skeleton
+and no AnimComponent (safety nets), so the copy is of a kind those maps load. The stand-in test (ReSteep's
+`tests/lua/helicopter.lua`, 80 checks): the copy flown where only it is loaded, the Alps' own first, no model:
+flown without it and found when it comes in, `prop.find` failing or a model refusing moves: no error.
+**Not loaded in the game yet** (the test harness has no Japan; Alaska untried).
 
 In the game (test harness, Alps, 2026-11-11): held, climbed +32 m, flew 46 km/h and rolled right with the
 helicopter around the rider (screenshots); F8 off left it parked; the mod reloaded put it back at the map's place.
