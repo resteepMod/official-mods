@@ -8,6 +8,9 @@
 -- letting go arms). Keyboard fallback: SPACE/C throttle, W/S pitch, A/D roll, Q/E yaw, R upright, the arrow keys as
 -- the d-pad. G (a setting) launches and brings it back. While the drone is out the rider is held where it stood and
 -- the game gets no input.
+-- In the game's replay (resteep.world.replay): G starts the drone where the replay's camera is, at once and without
+-- the rider (the replay's rider is left alone: no hold, no pose); it flies the same, also while the replay is paused,
+-- and B / G hands the picture back to the replay's camera. The replay's controls get no input meanwhile.
 -- The model (Alps only for now): the game's own drone mesh (STP_V_Drone_001_GoPro, rebuilt from the player's install
 -- at game start) or the mod's own quad (assets/drone.glb, tools/fpv_drone/make_drone.py), both placed by
 -- assets/drone_Alpes.json in the root cell with fixed ids and parked under the ground; resteep.prop moves the one
@@ -126,6 +129,8 @@ local motor, mute = nil, false                     -- the sound's id; no audio h
 local model, model_key, parked = nil, nil, nil     -- the prop handle, which model, its parked transform
 local caster_broken = false
 local seen_until = 0
+local replay = false                               -- this flight is in the game's replay: no rider, camera only
+local last_t = 0                                   -- resteep.time() of the last frame (the replay flight's own dt)
 
 local function say(text, s, key)                   -- a notice at most every 2 s per kind
     local now = resteep.time()
@@ -310,12 +315,44 @@ end
 
 -- ---- launch and landing ------------------------------------------------------------------------------------------
 
+-- the game's replay, when it plays or is paused: a table, else nil (also on a ReSteep without resteep.world.replay)
+local function in_replay()
+    local f = resteep.world.replay
+    if type(f) ~= "function" then return nil end
+    local ok, r = pcall(f)
+    return ok and type(r) == "table" and r or nil
+end
+
 local function hold_input()                        -- the game gets nothing while the drone is out
     resteep.input.capture(true)
     resteep.input.pad{}
 end
 
+-- in a replay: the drone takes the replay camera's place (its FPV camera where that camera is, its nose the same way,
+-- level), disarmed and hovering there until the throttle arms it; nothing of the rider is touched
+local function launch_replay()
+    local c = resteep.camera()
+    if not c or not c.forward then resteep.notify("drone: no camera to start from", 2) return end
+    replay = true
+    home = {x = c.x, y = c.y, z = c.z}             -- the range counts from here
+    hid_hud = resteep.hud.hide(true) == true
+    local fwd = v3(c.forward.x, c.forward.y, 0)
+    if len(fwd) < 0.05 then fwd = v3(math.cos(camera_yaw()), math.sin(camera_yaw()), 0) end
+    face(fwd)
+    fov, tilt, mute = setting("fov", 90), setting("camera_angle", 25), false
+    find_model()
+    local cam = MODELS[model_key or "own"].cam
+    d.p = add(add(v3(c.x, c.y, c.z), d.f, -cam[1]), d.u, -cam[2])
+    local floor = floor_at(d.p.x, d.p.y)
+    if floor and d.p.z < floor + SKID then d.p.z = floor + SKID end
+    d.v, d.thr, d.armed, d.crashed = v3(0, 0, 0), 0, false, false
+    kb_thr, last_buttons, rep = hover_throttle(), {}, {}
+    state, t0, last_t = "fly", resteep.time(), resteep.time()
+    resteep.notify("drone: up in the replay (throttle low arms it; B or G gives the replay its camera back)", 4)
+end
+
 local function launch()
+    if in_replay() then return launch_replay() end
     local p = resteep.player()
     if not p or not p.real then resteep.notify("drone: no rider", 2) return end
     -- in the air only after a real moment there, and never on foot: the flag flickers standing on a slope
@@ -354,13 +391,21 @@ local function finish()                            -- the drone is back: everyth
     park()
     if hid_hud then resteep.hud.hide(false) hid_hud = false end
     resteep.camera.release(0.6)
-    unpose()
-    resteep.rider.hold(false)
+    if not replay then
+        unpose()
+        resteep.rider.hold(false)
+    end
+    replay = false
     state = "off"
 end
 
 local function land()
     if state == "off" or state == "landing" then return end
+    if replay then                                 -- no rider to fly back to: the replay's camera takes over again
+        finish()
+        resteep.notify("drone: back to the replay", 2)
+        return
+    end
     back = {from = fpv_view(), t_cam = state == "fly" and TO_THIRD or 0}
     state, t0 = "landing", resteep.time()
     resteep.notify("drone: coming back", 2)
@@ -640,10 +685,19 @@ end
 
 resteep.on("frame", function(dt)
     if state == "off" then return end
+    if replay then
+        if not in_replay() then                    -- the replay ended (or was left): the game's camera again
+            finish()
+            resteep.notify("drone: the replay ended", 2)
+            return
+        end
+        local now = resteep.time()                 -- its own clock: the replay's world may stand still
+        dt, last_t = clamp(now - last_t, 0, 0.1), now
+    end
     hold_input()
     local pad = resteep.input.read()
     if note and resteep.time() < note_until then resteep.text(0.5, 0.80, note, "#FFFFFF", 1.4) end
-    if state ~= "landing" then watch_poses() end
+    if state ~= "landing" and not replay then watch_poses() end
     local t = resteep.time() - t0
     if state == "launch" then
         launching(t, dt)

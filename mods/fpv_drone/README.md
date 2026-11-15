@@ -22,6 +22,15 @@ Arming: the throttle low (in the hover mode letting go of the stick arms it). Th
 the settings below, so the next flight starts with them. While the drone is out the game gets no input from you
 (no time-of-day or replay menus from the d-pad) and its HUD is hidden.
 
+## In a replay
+
+Steep's replay (the quick menu's **Replay**: your last ride with the game's replay cameras) can be flown through
+too, with a ReSteep that has `resteep.world.replay`: press **G** while it plays or is paused and the drone takes the
+replay camera's place at once (no launch, the replay's rider is left alone), disarmed and hovering until the throttle
+arms it. It flies, collides and crashes as usual, also while the replay is paused (the world stands still, the drone
+does not). **B** or **G** gives the picture back to the replay's camera; so does the replay ending. Meanwhile the
+replay's own controls get no input from you and the HUD is hidden. The range counts from where it started.
+
 ## Settings
 
 Launch key, throttle mode (stick centre hovers, full-range stick, right trigger), stick mode 1 / 2, Betaflight rates

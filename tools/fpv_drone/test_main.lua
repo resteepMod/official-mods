@@ -1,6 +1,7 @@
 -- A stub run of mods/fpv_drone/main.lua in plain Lua 5.4 (no game): a stand-in `resteep` records what the mod asks
 -- for. Checks the launch / landing sequence, the d-pad's field of view and camera angle (steps, limits, the stored
--- settings), the model and sound settings, the rider's pose and the collision query when there is one.
+-- settings), the model and sound settings, the rider's pose, the collision query when there is one, and the flight in
+-- the game's replay (resteep.world.replay: no rider, the camera only, handed back on landing).
 --     lua5.4 tools/fpv_drone/test_main.lua          (from the repository's root)
 local MAIN = (arg and arg[1]) or "mods/fpv_drone/main.lua"
 
@@ -26,7 +27,8 @@ local function new_world(opts)
         text = function(x, y, t) log("text", t) end,
         held = function(k) return w.keys[k] == true end,
         player = function() return {x = 0, y = 0, z = 100, real = true, air = false} end,
-        world = {ground = function() return 100 end, raycast = opts.raycast},
+        world = {ground = function() return 100 end, raycast = opts.raycast,
+                 replay = opts.replay and function() return w.replay end or nil},
         rider = {
             hold = function(on) log("hold", on) return true end,
             play_anim = function(from, to)
@@ -255,6 +257,89 @@ do                                                 -- the raster: a soft touch o
     w.pad.ly = -0.5                                -- sinks slowly onto the snow
     w.frames(60 * 3)
     check(w.count("notify", function(c) return c[2]:find("crashed", 1, true) end) == 0, "raster: settling is no crash")
+end
+
+-- the game's replay: G starts the drone at the replay camera at once, without the rider
+local function replaying(opts)
+    opts = opts or {}
+    opts.replay = true
+    local w = new_world(opts)
+    w.replay = {playing = true, paused = false, rewinding = false}
+    w.pad = pad()
+    w.emit("key", "G")
+    w.frames(2)
+    return w
+end
+
+do
+    local w = replaying()
+    check(w.count("hold") == 0, "replay: the rider is not held")
+    check(w.count("play_anim") == 0, "replay: no launch pose")
+    check(w.count("notify", function(c) return c[2]:find("up in the replay", 1, true) end) == 1, "replay: up at once")
+    check(w.cam and near(w.cam.x, 0) and near(w.cam.y, -4) and near(w.cam.z, 102),
+          "replay: the FPV camera starts where the replay's camera is (" .. (w.cam and string.format("%.3f %.3f %.3f",
+          w.cam.x, w.cam.y, w.cam.z) or "none") .. ")")
+    check(w.cam and near(w.cam.fov, 90) and w.cam.forward.y > 0.8, "replay: looking the replay camera's way, the fov")
+    check(w.count("hud", function(c) return c[2] == true end) == 1, "replay: the HUD hidden")
+    check(w.sent_pad and next(w.sent_pad) == nil, "replay: the replay's controls get a neutral pad")
+    w.frames(60)
+    check(w.cam and near(w.cam.z, 102), "replay: disarmed, it hovers where it started")
+    w.replay.playing, w.replay.paused = false, true -- paused: it flies on its own clock
+    w.pad.ly = -1                                  -- arm
+    w.frames(5)
+    local z0 = w.cam.z
+    w.pad.ly = 1                                   -- full throttle: climbs
+    w.frames(60)
+    check(w.cam.z > z0 + 1, "replay paused: the drone still flies (" .. string.format("%.2f -> %.2f", z0, w.cam.z) .. ")")
+    w.pad = pad({"B"})                             -- B: the replay's camera again, at once
+    w.frames(1)
+    check(w.count("camera.release") == 1 and w.cam == nil, "replay land: the camera goes back to the replay's")
+    check(w.count("hold") == 0 and w.count("play_anim") == 0, "replay land: the rider never touched")
+    check(w.count("hud", function(c) return c[2] == false end) == 1, "replay land: the HUD back")
+    check(next(w.sounds) == nil, "replay land: the sound stops")
+    local p = w.props[0x2FD00001000]
+    check(p and p.matrix and p.matrix[15] == -5, "replay land: the model parked again")
+    check(w.count("notify", function(c) return c[2] == "drone: back to the replay" end) == 1, "replay land: said")
+    w.pad = pad()
+    w.frames(30)
+    check(w.cam == nil, "replay land: no camera after it")
+end
+
+do                                                 -- the collision query is asked in a replay too
+    local asked = 0
+    local w = replaying({raycast = function(x1, y1, z1, x2, y2, z2)
+        asked = asked + 1
+        if z2 < 101.5 then return {x = x2, y = y2, z = 101.5, nx = 0, ny = 0, nz = 1, fraction = 0.5} end
+    end})
+    w.pad.ly = -1
+    w.frames(60)
+    check(asked > 0, "replay collision: the raycast is asked")
+    check(w.cam.z > 101.5, "replay collision: it stops on what the query hit")
+end
+
+do                                                 -- G again lands too; the replay ending ends the flight
+    local w = replaying()
+    w.emit("key", "G")
+    check(w.count("camera.release") == 1 and w.count("hold") == 0, "replay: G hands the camera back")
+    w.emit("key", "G")
+    w.frames(2)
+    check(w.cam ~= nil, "replay: G launches again")
+    w.replay = nil
+    w.frames(1)
+    check(w.count("camera.release") == 2 and w.count("notify", function(c) return c[2] == "drone: the replay ended" end)
+          == 1, "replay ended: the drone stops, the camera goes back")
+    check(w.count("hold") == 0, "replay ended: the rider never touched")
+end
+
+do                                                 -- outside a replay (the call answers nil) the launch is as before
+    local w = new_world({replay = true})
+    w.replay = nil
+    w.pad = pad()
+    w.emit("key", "G")
+    w.frames(30)
+    check(w.count("hold", function(c) return c[2] == true end) == 1, "no replay: the rider is held as before")
+    check(w.count("play_anim") > 0, "no replay: the launch pose as before")
+    check(w.cam and w.cam.x == 0 and w.cam.y == -4 and w.cam.z == 102, "no replay: the launch's chase view")
 end
 
 print(string.format("%d checks, %d failed", checks, fails))
