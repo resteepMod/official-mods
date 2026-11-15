@@ -57,6 +57,7 @@ local function clamp(x, lo, hi) return math.max(lo, math.min(hi, x)) end
 -- the drone: position p, velocity v, its axes f (nose), r (right) and u (top) with r = f x u, the motors' output
 -- thr (0..1, spooled), armed (until then it stays where it is: risen after the launch, or crashed), crashed
 local state = "off"                                -- off, launch, fly
+local hid_hud = false                              -- the game's HUD hidden by this flight (shown again on landing)
 local t0, home = 0, nil
 local d = {}
 local kb_thr, last_buttons, said_at = 0, {}, {}
@@ -108,6 +109,8 @@ local function launch()
     local ok, why = resteep.rider.hold(true)
     if not ok then resteep.notify("drone: " .. tostring(why), 3) return end
     if redirect(true) == 0 then resteep.log("drone: no launch pose on this game build") end
+    -- the game's HUD off while flying (the activity card, challenge markers and prompts): only the drone's view
+    hid_hud = resteep.hud.hide(true) == true
     local yaw = camera_yaw()
     d.f, d.u = v3(math.cos(yaw), math.sin(yaw), 0), v3(0, 0, 1)
     orthonormalize()
@@ -120,6 +123,7 @@ local function launch()
 end
 
 local function land()
+    if hid_hud then resteep.hud.hide(false) hid_hud = false end
     resteep.camera.release(BLEND_S)
     redirect(false)
     resteep.rider.hold(false)
