@@ -8,9 +8,11 @@
 -- - realistic: a light single-engine helicopter (the AS350 / H125 class the model is) as a rigid body (orientation as
 --   three axis vectors, no angles: no gimbal lock). The collective is a lever that stays where it is set; the rotor's
 --   thrust (never below 0) acts along the body's up axis and thins out with height; a power limit, translational lift,
---   vortex ring state, the main rotor's torque against the pedals, rate-limited cyclic without levelling, retreating
---   blade stall near VNE and mast bumping in negative g (a rotor strike: a crash). Loops and rolls need speed and
---   positive g; it cannot hover upside down.
+--   vortex ring state, the main rotor's torque against the pedals and the tail fin at speed, retreating blade stall
+--   near VNE, low g (a warning and a roll, no crash). Momentum and rotational inertia: at speed little drag slows it
+--   and the fin keeps the nose in the wind, so slowing down or turning tightly means tilting the rotor's thrust (a
+--   flare and a bank: a J-hook); the stick builds up turn rates that go on until countered. It cannot hover upside
+--   down; rolls and loops need timing.
 -- F8 / B lets go: the game takes the rider back (it falls from there). Left in the air, the helicopter's pilot (the
 -- model has one) holds a hover there with the rotors running; left on the ground it is parked and the rotors stop.
 -- It collides with the game's own collision world (resteep.world.raycast / spherecast: terrain, rocks, buildings);
@@ -43,24 +45,31 @@ local P_PROFILE, P_INDUCED = 0.22, 0.05   -- power (1 = 100 % torque): profile +
 local TORQUE_MAX, TORQUE_LIMIT = 1.0, 1.1 -- over-torque warning above; above the limit the rotor droops (less thrust)
 local ENGINE = 1.35                -- the turbine's power at sea level, times density^0.8 (less up high)
 local P_TRIM = 0.75                -- the power at which the tail rotor balances the main rotor's torque, pedals centred
-local TORQUE_YAW = 3.0             -- rad/s^2 of yaw per unit of power off P_TRIM (the rotor turns clockwise seen from
+local TORQUE_YAW = 1.6             -- rad/s^2 of yaw per unit of power off P_TRIM (the rotor turns clockwise seen from
                                    -- above: more power yaws the nose left)
-local CYCLIC = {5.0, 5.6}          -- rad/s^2 at full stick, pitch and roll (at speed and 1 g; 65 % of it in a hover)
-local PEDAL = 4.5                  -- rad/s^2 at full pedal
-local DAMP_ROT = {4.0, 4.0, 2.4}   -- 1/s: the rotor's damping of pitch, roll, yaw rates (top rate = torque / damping:
-                                   -- ~60 / 70 deg/s pitch / roll at speed, ~40 / 45 in a hover, at 20 % assist)
-local ASSIST_DAMP = 3.0            -- 1/s more rate damping at 100 % assist (it never levels)
-local CROSS = 0.4                  -- roll torque per rad/s of pitch rate (small cross-coupling)
-local DRAG = {0.006, 0.0003, 0.01} -- quadratic drag along the body's right, nose and up axes (the disc resists most)
-local VANE = 0.03                  -- yaw torque per m/s of sideslip (the tail fin)
+local CYCLIC = {2.6, 3.0}          -- rad/s^2 at full stick, pitch and roll (at speed and 1 g; 70 % of it in a hover;
+                                   -- with the rotor's load: little thrust, little control)
+local PEDAL = 3.0                  -- rad/s^2 at full pedal
+-- the rates' damping, (linear + quadratic * |rate|) * rate: small, so a rate goes on after the stick is centred (the
+-- rotational inertia) and the top rates come from the quadratic part: at full stick ~130 / 150 deg/s pitch / roll
+-- bare, ~100 / 115 at 20 % assist; a 1 rad/s roll left alone halves in ~0.65 s (20 % assist), ~1.2 s bare
+local DAMP_ROT = {0.35, 0.35, 0.8}
+local DAMP_QUAD = {0.35, 0.3, 0.6}
+local ASSIST_DAMP = 2.5            -- 1/s more (linear) rate damping at 100 % assist (it never levels)
+local EXPO = 0.45                  -- the player's stick: x * (EXPO + (1 - EXPO) * |x|) (fine near the centre)
+local CROSS = 0.25                 -- roll torque per rad/s of pitch rate (small cross-coupling)
+local DRAG = {0.003, 0.00022, 0.01}   -- quadratic drag along the body's right, nose and up axes (the disc resists
+                                   -- most; ~0.7 m/s^2 along the nose at 200 km/h: speed carries)
+local VANE = 0.0035                -- yaw torque per m/s of sideslip and m/s of forward speed (the tail fin: at 200
+                                   -- km/h full pedal holds ~15 degrees of sideslip, slowly a flat turn)
+local FIN_ARM = 7                  -- m: the fin behind the centre of mass (its yaw damping grows with speed)
 local GROUND_EFFECT = 0.12         -- up to +12 % thrust with the skids on the ground, gone at a rotor's width (10 m)
 local VRS_LOSS = 0.4               -- the thrust lost in a full vortex ring state
 local LOAD_MAX = 2.8               -- g at sea level (less up high): what the blades can lift before they stall
 local RBS_SPEED = 76               -- m/s: retreating blade stall sets in (earlier with load and up high)
-local RBS_PITCH, RBS_ROLL = 1.5, 2.0   -- rad/s^2 in full stall: pitch up, roll right (the retreating blade is right)
-local LOW_G_ROLL = 1.2             -- rad/s^2 of right roll at 0 g (the tail rotor's thrust above the centre of mass)
-local MAST_BUMP = 0.8              -- s of negative g (deeper counts more) the hub takes: then a rotor strike
-local MAST_BREAK = -1.2            -- g: a rotor strike at once
+local RBS_PITCH, RBS_ROLL = 0.8, 1.0   -- rad/s^2 in full stall: pitch up, roll right (the retreating blade is right)
+local LOW_G_ROLL = 0.6             -- rad/s^2 of right roll at 0 g (the tail rotor's thrust above the centre of mass)
+local BUFFET = 0.6                 -- rad/s^2: the vortex ring's shaking
 local CRASH_SPEED = 12             -- m/s into the ground (or a blade / the tail hitting it upside down): a crash
 -- the points that touch the ground, in the model's frame: the skids' ends, then nose, tail, the rotor's hub and tips
 local SKID_POINTS = {{-1.1, 1.6, 0.1}, {1.1, 1.6, 0.1}, {-1.1, -1.5, 0.1}, {1.1, -1.5, 0.1}}
@@ -135,11 +144,16 @@ local function standing_names(g)                      -- the shapes of the game'
 end
 local WATCH_CLIPS = 10             -- s after the start: the clips the game looks up are logged
 
--- Sound: the mod's own loops (resteep.sound; synthesised by tools/sound/rotor_loop.py, no game audio): the turbine
--- and tail rotor (rotor_turbine.wav) and the main rotor's blade slap (rotor_slap.wav, 3 blades at the drop scenes'
--- 2.78 turns a second), mixed by rotor speed and load; rotor_loop.wav (both in one) when the layers are missing.
-local SOUND_RANGE = 500
-local MIX = 0.45                   -- the layers' overall level (the player: "very loud" at 0.9 each, 2026-11-15)
+-- Sound: the mod's own loops (resteep.sound, no game audio), cut from the player's recordings of a real helicopter
+-- (tools/helicopter/make_loops.py): rotor_close.wav (next to it) and rotor_far.wav (a fly-by's approach), both at
+-- the rotor's hub, crossfaded by the camera's distance (equal power); pitch with the rotor's speed and a little with
+-- its load, a Doppler shift. rotor_loop.wav (synthesised by ReSteep's tools/sound/rotor_loop.py) when they are missing.
+local LOOPS = {close = "sounds/rotor_close.wav", far = "sounds/rotor_far.wav"}
+local RANGE = {close = 500, far = 2000, loop = 500}   -- m: the overlay's falloff (full within a quarter, silent beyond)
+local NEAR, FAR = 25, 120          -- m from the camera: only the close loop below, only the far one beyond
+local MIX = 0.9                    -- the level at the chase camera (both loops at the same loudness, RMS 0.125: at the
+                                   -- default volume ~0.07 RMS, a little under the synthetic layers' 0.45 mix, ~0.08;
+                                   -- at 0.9 each those were "very loud", 2026-11-15)
 local SPEED_OF_SOUND = 343
 
 local on = false                   -- the rider is held and flies
@@ -153,15 +167,14 @@ local yaw, pitch, roll = 0, 0, 0   -- arcade: heading (0 = +Y, positive turns to
 local hold_z                       -- the height the pilot holds while hovering
 local cam, cam_heading             -- the chase camera's smoothed position and heading
 local heli                         -- resteep.prop handle of the helicopter (nil: not in this world)
-local start_z = 0
 local crash_cool = 0               -- s: after a crash, the next one is not reported
 local last_coll = 0                -- the collective last used (the sound's load)
 local lever = 0                    -- realistic: the collective lever, 0 (down) .. 1 (up); stays where it is set
 -- realistic: the rotor this frame (rotor_state, rigid_step): thrust along the up axis and translational lift (m/s^2),
 -- power (1 = 100 % torque) and what is available, the load (g along the up axis; the lowest of the frame), vortex ring
--- and retreating blade stall (0..1), stall from load, the control authority, seconds of negative g on the hub, the
--- airspeed in the disc's plane, the air's density (relative to sea level), the heave damping (1/s)
-local rotor = {thrust = 0, lift = 0, power = 0, avail = 1, n = 1, nmin = 1, vrs = 0, rbs = 0, auth = 0.6, bump = 0,
+-- and retreating blade stall (0..1), stall from load, the control authority, how far the rotor droops for want of
+-- power (0..1), the airspeed in the disc's plane, the air's density (relative to sea level), the heave damping (1/s)
+local rotor = {thrust = 0, lift = 0, power = 0, avail = 1, n = 1, nmin = 1, vrs = 0, rbs = 0, auth = 0.6, droop = 0,
                vp = 0, sigma = 1, stall = false, heave = 0.45}
 local clock = 0                    -- s of realistic flight (the vortex ring's buffeting)
 local crashed = false              -- a crash happened this frame (the pilot gives up the hover)
@@ -176,11 +189,12 @@ local watching = 0                 -- s left of logging the rider's clips
 local seated = {}                  -- clip name -> true: redirected to the sitting idle
 local to_seat = {}                 -- {name, gender} still to redirect: a few per frame (SEAT_PER_FRAME)
 local SEAT_PER_FRAME = 24          -- ~310 names at once took the mod past its 20 ms and made the game stutter
-local sounds = {}                  -- {turbine = id, slap = id} or {loop = id}
+local sounds = {}                  -- {close = id, far = id} or {loop = id}
 local sound_failed = false         -- no sound could start (no audio device): not tried again every frame
 local cam_prev                     -- the camera's position last frame (the Doppler shift)
 
 local function clamp(x, lo, hi) return x < lo and lo or (x > hi and hi or x) end
+local function smooth(x, a, b) local t = clamp((x - a) / (b - a), 0, 1) return t * t * (3 - 2 * t) end
 
 -- small vector helpers (arrays {x, y, z})
 local function add(a, b, s) s = s or 1 return {a[1] + b[1] * s, a[2] + b[2] * s, a[3] + b[3] * s} end
@@ -380,15 +394,17 @@ end
 ---------------------------------------------------------------------------------------------------------- sound
 
 local function sound_start()
-    if sounds.turbine or sounds.loop or sound_failed then return end
+    if sounds.close or sounds.loop or sound_failed then return end
     local at = org and body(HUB) or {0, 0, 0}
     local where = {x = at[1], y = at[2], z = at[3]}
-    local function play(file) return resteep.sound.play(file, {loop = true, volume = 0, range = SOUND_RANGE, at = where}) end
-    local t, why = play("sounds/rotor_turbine.wav")
-    local s = t and play("sounds/rotor_slap.wav")
-    if t and s then sounds = {turbine = t, slap = s} return end
-    if t then resteep.sound.stop(t) end
-    local l, why2 = play("sounds/rotor_loop.wav")
+    local function play(file, range)
+        return resteep.sound.play(file, {loop = true, volume = 0, range = range, at = where})
+    end
+    local c, why = play(LOOPS.close, RANGE.close)
+    local f = c and play(LOOPS.far, RANGE.far)
+    if c and f then sounds = {close = c, far = f} return end
+    if c then resteep.sound.stop(c) end
+    local l, why2 = play("sounds/rotor_loop.wav", RANGE.loop)
     if l then sounds = {loop = l} return end
     sound_failed = true
     resteep.log("helicopter: no rotor sound: " .. tostring(why2 or why))
@@ -399,34 +415,39 @@ local function sound_stop()
     sounds = {}
 end
 
--- volume and pitch from the rotor's speed and load, a Doppler shift from the helicopter's speed towards the camera
+-- the mix: close / far by the camera's distance, softer further away (on top of the overlay's falloff), louder under
+-- load; pitch from the rotor's speed (winding up and down, drooping when the power runs out) and load; Doppler from
+-- the helicopter's speed towards the camera
 local function sound_update(dt, load)
     if spin <= 0 or not org then sound_stop() return end
     sound_start()
     local at = body(HUB)
-    local doppler = 1
+    local doppler, d = 1, 0
     local c = resteep.camera()
     if c then
         local cv = cam_prev and {(c.x - cam_prev[1]) / dt, (c.y - cam_prev[2]) / dt, (c.z - cam_prev[3]) / dt}
                    or {0, 0, 0}
         cam_prev = {c.x, c.y, c.z}
         local to = {at[1] - c.x, at[2] - c.y, at[3] - c.z}
-        local d = len(to)
+        d = len(to)
         if d > 1 then
             local away = dot(add(v, cv, -1), to) / d                      -- m/s the source moves away from the ear
             doppler = clamp(SPEED_OF_SOUND / (SPEED_OF_SOUND + away), 0.8, 1.25)
         end
     end
     local where = {x = at[1], y = at[2], z = at[3]}
-    local vol = MIX * setting("volume", 60) / 100              -- two layers at once: the mix keeps them moderate
-    local spool = 0.45 + 0.55 * spin                                      -- the turbine winds up with the rotor
-    local function set(id, volume, p)
-        resteep.sound.set(id, {loop = true, volume = clamp(volume, 0, 1), range = SOUND_RANGE, at = where,
-                               pitch = clamp(p * doppler, 0.25, 4)})
+    local level = MIX * setting("volume", 60) / 100 * spin * (0.3 + 0.7 * spin) * clamp(1.6 / (1 + d / 60), 0, 1)
+    local droop = realistic and (on or hovering) and rotor.droop or 0
+    local rate = (0.5 + 0.5 * spin) * (0.98 + 0.05 * load) * (1 - 0.04 * droop)
+    local function set(id, volume, range)
+        resteep.sound.set(id, {loop = true, volume = clamp(volume, 0, 1), range = range, at = where,
+                               pitch = clamp(rate * doppler, 0.25, 4)})
     end
-    if sounds.loop then set(sounds.loop, vol * spin, spool * (0.9 + 0.2 * load)) return end
-    if sounds.turbine then set(sounds.turbine, vol * (0.25 + 0.75 * spin) * spin, spool * (0.97 + 0.06 * load)) end
-    if sounds.slap then set(sounds.slap, vol * spin * spin * (0.35 + 0.65 * load), math.max(0.3, spin) * (0.95 + 0.1 * load)) end
+    if sounds.loop then set(sounds.loop, level * (0.85 + 0.3 * load), RANGE.loop) return end
+    if not sounds.close then return end                                   -- no audio device
+    local t = smooth(d, NEAR, FAR) * math.pi / 2
+    set(sounds.close, level * math.cos(t) * (0.85 + 0.3 * load), RANGE.close)
+    set(sounds.far, level * math.sin(t) * (0.9 + 0.2 * load), RANGE.far)
 end
 
 ------------------------------------------------------------------------------------------------------- controls
@@ -457,6 +478,14 @@ local function controls(pad)
     return dead(f), dead(r), dead(pedal), dead(coll)
 end
 
+-- realistic: the damping (1/s) of the turn rate w about body axis i (1 pitch, 2 roll, 3 yaw); the tail fin's grows
+-- with the forward speed
+local function damping(i, w, assist)
+    local d = DAMP_ROT[i] + DAMP_QUAD[i] * math.abs(w) + assist * ASSIST_DAMP
+    if i == 3 then d = d + VANE * FIN_ARM * math.abs(dot(v, R.f)) end
+    return d
+end
+
 -- the helicopter's pilot while nobody flies it: level, no drift, the height it was left at (stick values, as a
 -- player would give them)
 local function autopilot()
@@ -474,10 +503,10 @@ local function autopilot()
     k = len(k) > 1e-3 and unit(k) or R.f                                    -- upside down: roll over
     local rate = math.min(1, 2.5 * angle)
     local wx, wy = rate * dot(k, R.r), rate * dot(k, R.f)
-    local d = DAMP_ROT[1] + setting("assist", 20) / 100 * ASSIST_DAMP
+    local assist = setting("assist", 20) / 100
     local sens = setting("sensitivity", 100) / 100
-    local f = -(d * wx + 4 * (wx - W[1])) / (CYCLIC[1] * rotor.auth)
-    local r = (d * wy + 4 * (wy - W[2])) / (CYCLIC[2] * rotor.auth)
+    local f = -(damping(1, W[1], assist) * W[1] + 4 * (wx - W[1])) / (CYCLIC[1] * rotor.auth)
+    local r = (damping(2, W[2], assist) * W[2] + 4 * (wy - W[2])) / (CYCLIC[2] * rotor.auth)
     local pedal = (TORQUE_YAW * (rotor.power - P_TRIM) + 3 * W[3]) / (PEDAL * sens)
     local want_lever = 0.4                                                  -- on its side or upside down: some load
     if R.u[3] > 0.3 then                                                    -- upright: hold the height
@@ -543,7 +572,7 @@ local function crash(n, depth, what)
     local g = resteep.world.ground(org[1], org[2])
     if g and org[3] < g then org[3] = g + 0.05 end
     if crash_cool <= 0 then resteep.notify("helicopter: crashed (" .. what .. "): back on its skids", 3) end
-    crash_cool, lever, rotor.bump, crashed = 2, 0, 0, true
+    crash_cool, lever, crashed = 2, 0, true
 end
 
 -- the skids, hull and rotor against the world after a step; true when it stands on its skids. crashes: whether a hard
@@ -634,7 +663,6 @@ local function arcade(dt, f, r, pedal, coll)
     return ground ~= nil and seat_at[3] < ground + SKIDS + 0.3
 end
 
-local function smooth(x, a, b) local t = clamp((x - a) / (b - a), 0, 1) return t * t * (3 - 2 * t) end
 local function density(z) return (1 - 2.2558e-5 * clamp(z, -500, 9000)) ^ 4.2559 end   -- ISA, relative to sea level
 local function hover_lever(z)                             -- the lever of a 1 g hover out of ground effect at height z
     return clamp((1 / density(z) - PITCH_THRUST[1]) / (PITCH_THRUST[2] - PITCH_THRUST[1]), 0, 1)
@@ -661,6 +689,7 @@ local function rotor_state(ground_h)
     -- of the drag); sinking, the air drives the rotor (autorotation: 0)
     local p = math.max(0, P_PROFILE + P_INDUCED * t / G * (vi / ge + vb3) + 0.15 * vrs)
     local avail = math.min(TORQUE_LIMIT, ENGINE * sigma ^ 0.8)
+    rotor.droop = clamp((p - avail) / 0.3, 0, 1)
     if p > avail then                                             -- the rotor droops: only the thrust the power gives
         t = t * ((avail - P_PROFILE) / (p - P_PROFILE)) ^ 0.8
         p = avail
@@ -675,10 +704,12 @@ end
 -- realistic: one step of the rigid body (dt small)
 local function rigid_step(dt, f, r, pedal, assist, sens)
     -- along the up axis: the rotor's thrust and translational lift, less what the air up through the disc takes
-    -- (the vortex ring takes the sink's part); this is the load the hub feels (negative: mast bumping)
+    -- (the vortex ring takes the sink's part; never below 0: pushed over, the rotor unloads, low g); this is the load
+    -- the hub feels. A flare at speed: the air comes up through the tilted disc and loads it, its thrust tilted back
+    -- slows the helicopter (up to the blades' stall)
     local vb = {dot(v, R.r), dot(v, R.f), dot(v, R.u)}
     local heave = rotor.heave * vb[3] * (vb[3] < 0 and 1 - rotor.vrs or 1)
-    local fu = rotor.thrust + rotor.lift - heave - DRAG[3] * math.abs(vb[3]) * vb[3]
+    local fu = math.max(0, rotor.thrust + rotor.lift - heave) - DRAG[3] * math.abs(vb[3]) * vb[3]
     if fu > LOAD_MAX * G * rotor.sigma then fu, rotor.stall = LOAD_MAX * G * rotor.sigma, true end
     rotor.n = fu / G
     rotor.nmin = math.min(rotor.nmin, rotor.n)
@@ -687,18 +718,19 @@ local function rigid_step(dt, f, r, pedal, assist, sens)
     acc = add(acc, R.f, -DRAG[2] * math.abs(vb[2]) * vb[2])
     v = add(v, acc, dt)
     org = add(org, v, dt)
-    -- torques: the cyclic (weaker in a hover and with little load on the rotor), the pedals against the rotor's torque,
-    -- the tail fin turning the nose into the wind, blade stall, low-g roll, the vortex ring's buffeting, all against
-    -- the rotor's damping (and the assist's): no levelling
-    local auth = clamp(0.55 + 0.45 * rotor.n, 0.4, 1.2) * (0.65 + 0.35 * clamp(rotor.vp / 30, 0, 1)) * sens
+    -- torques: the cyclic (with the rotor's load: little thrust, little control; weaker in a hover), the pedals
+    -- against the rotor's torque, the tail fin turning the nose into the wind (and damping its yaw, damping()), blade
+    -- stall, low-g roll, the vortex ring's buffeting, against a small damping (and the assist's): the rates have
+    -- inertia, nothing levels it
+    local auth = clamp(0.25 + 0.75 * rotor.n, 0.15, 1.3) * (0.7 + 0.3 * clamp(rotor.vp / 30, 0, 1)) * sens
     rotor.auth = math.max(auth, 0.05)
     local alpha = {-CYCLIC[1] * auth * f, CYCLIC[2] * auth * r, -PEDAL * sens * pedal}
-    alpha[1] = alpha[1] + RBS_PITCH * rotor.rbs + 1.5 * rotor.vrs * math.sin(clock * 5.3)
+    alpha[1] = alpha[1] + RBS_PITCH * rotor.rbs + BUFFET * rotor.vrs * math.sin(clock * 5.3)
     alpha[2] = alpha[2] + RBS_ROLL * rotor.rbs + LOW_G_ROLL * clamp(1 - rotor.n / 0.5, 0, 1) + CROSS * W[1]
-               + 1.5 * rotor.vrs * math.sin(clock * 7.1 + 1)
-    alpha[3] = alpha[3] + TORQUE_YAW * (rotor.power - P_TRIM) - VANE * vb[1] * clamp(math.abs(vb[2]) / 10, 0, 1)
+               + BUFFET * rotor.vrs * math.sin(clock * 7.1 + 1)
+    alpha[3] = alpha[3] + TORQUE_YAW * (rotor.power - P_TRIM) - VANE * vb[1] * math.abs(vb[2])
     if grounded then alpha[3] = alpha[3] * clamp(rotor.n, 0, 1) ^ 2 end   -- its weight on the skids holds the heading
-    for i = 1, 3 do W[i] = W[i] + (alpha[i] - (DAMP_ROT[i] + assist * ASSIST_DAMP) * W[i]) * dt end
+    for i = 1, 3 do W[i] = W[i] + (alpha[i] - damping(i, W[i], assist) * W[i]) * dt end
     -- turn the axes about the world vector of W (body right = pitch, nose = roll, up = yaw)
     local w = add(add({R.r[1] * W[1], R.r[2] * W[1], R.r[3] * W[1]}, R.f, W[2]), R.u, W[3])
     local wl = len(w)
@@ -707,16 +739,6 @@ local function rigid_step(dt, f, r, pedal, assist, sens)
         R.f, R.u = turn_about(R.f, k, wl * dt), turn_about(R.u, k, wl * dt)
         orthonormal()
     end
-end
-
--- mast bumping: the rotor struck the airframe; it comes down on its skids on what is below, the rider aboard
-local function rotor_strike()
-    local c = body(COM)
-    local below = height_below(c, 3000)
-    local ground = below and c[3] - below or resteep.world.ground(org[1], org[2])
-    crash({0, 0, 1}, 0, "rotor strike: mast bumping in negative g")
-    if ground then org[3] = ground end
-    return true
 end
 
 local function realistic_fly(dt, f, r, pedal, coll)
@@ -733,11 +755,7 @@ local function realistic_fly(dt, f, r, pedal, coll)
     for _ = 1, n do rigid_step(dt / n, f, r, pedal, assist, sens) end
     local s = len(v)
     if s > MAX_SPEED then v = {v[1] / s * MAX_SPEED, v[2] / s * MAX_SPEED, v[3] / s * MAX_SPEED} end
-    if contacts(dt, true, from) then rotor.bump = 0 return true end
-    -- negative g in the air: a short one the hub takes, a long or deep one is a rotor strike
-    if not grounded and rotor.nmin < 0 then rotor.bump = rotor.bump + dt * (1 - 2 * rotor.nmin)
-    else rotor.bump = math.max(0, rotor.bump - dt) end
-    if not grounded and (rotor.bump > MAST_BUMP or rotor.nmin < MAST_BREAK) then return rotor_strike() end
+    if contacts(dt, true, from) then return true end
     local lowest                                          -- the skids just above something: resting on it
     for _, p in ipairs(SKID_POINTS) do
         local h = height_below(body(p), 0.5)
@@ -805,10 +823,10 @@ local function start()
     local ok, why = resteep.rider.hold(true)
     if not ok then resteep.notify("helicopter: can't hold the rider: " .. tostring(why), 4) return end
     realistic = setting("realistic", false) == true
-    v, W, hovering, grounded, lever, rotor.bump = {0, 0, 0}, {0, 0, 0}, false, true, 0, 0
+    v, W, hovering, grounded, lever = {0, 0, 0}, {0, 0, 0}, false, true, 0
     local c = resteep.camera()
     yaw = c and math.atan(-c.forward.x, c.forward.y) or 0
-    pitch, roll, cam, cam_heading, start_z = 0, 0, nil, yaw, p.z
+    pitch, roll, cam, cam_heading = 0, 0, nil, yaw
     heading_axes(yaw)                                    -- the helicopter comes to the rider, level, its seat on it
     org = {0, 0, 0}
     local s = body(SEAT)
@@ -863,15 +881,108 @@ end
 
 local aboard_hover = false          -- the helicopter holds itself in the air, the rider still in the side door
 
--- realistic: the warnings on the HELI line
+-------------------------------------------------------------------------------------------------------------- HUD
+
+-- A small flight HUD at the bottom centre (screen fractions; resteep.line / text / box): the heading tape on top, the
+-- attitude indicator in the middle (horizon, pitch ladder every 10 degrees, bank pointer), airspeed and vertical speed
+-- left, height above the sea and above the ground right; realistic adds the collective and torque bars, the g load and
+-- the warnings. "+Y" of the world is taken as north.
+local HUD = {x = 0.5, y = 0.875, r = 0.07, deg = 40}   -- the attitude indicator's centre and radius (of the screen's
+                                                       -- height), the pitch that reaches its edge
+local INK, DIM, AMBER, RED = "#FFE8F0F8", "#90E8F0F8", "#FFFFC040", "#FFFF5040"
+local COMPASS = {[0] = "N", [90] = "E", [180] = "S", [270] = "W"}
+
+-- realistic: the warnings, short
 local function warnings()
-    local w = ""
-    if rotor.power > TORQUE_MAX then w = w .. "  OVER-TORQUE" end
-    if rotor.bump > 0 then w = w .. "  MAST BUMP" elseif not grounded and rotor.nmin < 0.3 then w = w .. "  LOW G" end
-    if rotor.vrs > 0.3 then w = w .. "  VORTEX RING" end
-    if rotor.rbs > 0 or rotor.stall then w = w .. "  BLADE STALL" end
-    if len(v) > MAX_SPEED - 4 then w = w .. "  VNE" end
+    local w = {}
+    if rotor.power > TORQUE_MAX then w[#w + 1] = "OVER-TORQUE" end
+    if not grounded and rotor.nmin < 0.3 then w[#w + 1] = "LOW G" end
+    if rotor.vrs > 0.3 then w[#w + 1] = "VORTEX RING" end
+    if rotor.rbs > 0 or rotor.stall then w[#w + 1] = "BLADE STALL" end
+    if len(v) > MAX_SPEED - 4 then w[#w + 1] = "VNE" end
     return w
+end
+
+local function draw_hud()
+    if setting("hud", true) == false then return end
+    local c = resteep.camera()
+    local asp = c and c.aspect or 16 / 9
+    local cx, cy, R0 = HUD.x, HUD.y, HUD.r
+    local function px(dx, dy) return cx + dx / asp, cy + dy end           -- offsets in screen heights -> fractions
+    local function seg(x1, y1, x2, y2, col, w)
+        local a, b = px(x1, y1)
+        local e, f = px(x2, y2)
+        resteep.line(a, b, e, f, col, w)
+    end
+    resteep.box(0.5 - 0.215, 0.728, 0.43, 0.262, "#50000000")
+    -- heading tape: +-40 degrees over +-0.085 of the width, ticks every 10, labels every 30
+    local hd = math.abs(R.f[3]) < 0.97 and math.deg(math.atan(R.f[1], R.f[2])) or -math.deg(cam_heading or yaw)
+    hd = hd % 360
+    resteep.text(0.5, 0.733, string.format("%03d", math.floor(hd + 0.5) % 360), INK, 0.85)
+    resteep.line(0.5, 0.758, 0.5, 0.775, AMBER, 2)
+    for t = math.ceil((hd - 40) / 10) * 10, hd + 40, 10 do
+        local x = 0.5 + (t - hd) / 40 * 0.085
+        local deg = t % 360
+        local major = deg % 30 == 0
+        resteep.line(x, 0.765, x, major and 0.775 or 0.771, DIM, 1.2)
+        if major then resteep.text(x, 0.777, COMPASS[deg] or string.format("%02d", deg // 10), DIM, 0.65) end
+    end
+    -- attitude: the horizon's normal on the screen (towards the sky, y down) is (r.z, -u.z) / cos(pitch); a line at
+    -- elevation e lies (e - pitch) along it
+    local nose = math.deg(math.asin(clamp(R.f[3], -1, 1)))
+    local nx, ny = R.r[3], -R.u[3]
+    local nl = math.sqrt(nx * nx + ny * ny)
+    if nl > 1e-3 then nx, ny = nx / nl, ny / nl else nx, ny = 0, -1 end
+    local k = R0 / HUD.deg
+    for i = 0, 23 do                                                      -- the ring
+        local a1, a2 = i / 24 * 2 * math.pi, (i + 1) / 24 * 2 * math.pi
+        seg(R0 * math.cos(a1), R0 * math.sin(a1), R0 * math.cos(a2), R0 * math.sin(a2), DIM, 1)
+    end
+    local function rung(e, half, col, w)                                  -- a line at elevation e, cut at the ring
+        local d = (e - nose) * k
+        if math.abs(d) >= R0 * 0.95 then return end
+        half = math.min(half, math.sqrt(R0 * R0 - d * d))
+        local mx, my = nx * d, ny * d
+        seg(mx - ny * half, my + nx * half, mx + ny * half, my - nx * half, col, w)
+    end
+    rung(0, R0, INK, 2)
+    for e = -80, 80, 10 do
+        if e ~= 0 then rung(e, R0 * (e % 20 == 0 and 0.45 or 0.28), e > 0 and DIM or "#90FFB070", 1) end
+    end
+    for _, b in ipairs({-60, -30, 0, 30, 60}) do                          -- the bank scale on top, and its pointer
+        local a = math.rad(b)
+        seg(R0 * math.sin(a), -R0 * math.cos(a), 1.12 * R0 * math.sin(a), -1.12 * R0 * math.cos(a), DIM, 1.2)
+    end
+    seg(0.8 * nx * R0, 0.8 * ny * R0, nx * R0, ny * R0, AMBER, 2.5)
+    seg(-0.5 * R0, 0, -0.18 * R0, 0, AMBER, 2.5)                          -- the helicopter: wings and centre
+    seg(0.18 * R0, 0, 0.5 * R0, 0, AMBER, 2.5)
+    seg(-0.004, 0, 0.004, 0, AMBER, 4)
+    -- left: airspeed and vertical speed; right: heights
+    local lx, rx = 0.5 - 0.115, 0.5 + 0.115
+    resteep.text(lx, 0.815, string.format("%.0f", len(v) * 3.6), INK, 1.4)
+    resteep.text(lx, 0.858, "km/h", DIM, 0.65)
+    resteep.text(lx, 0.895, string.format("VS %+.1f m/s", v[3]), INK, 0.8)
+    local below = grounded and 0 or height_below(body(COM), 2000)
+    if below and not grounded then below = math.max(0, below - COM[3]) end
+    resteep.text(rx, 0.82, string.format("ALT %.0f m", org[3]), INK, 0.85)
+    resteep.text(rx, 0.855, below and string.format("AGL %.0f m", below) or "AGL ---", INK, 0.85)
+    if not realistic then return end
+    local g = grounded and 1 or rotor.nmin
+    resteep.text(rx, 0.895, string.format("%+.1f g", g), g < 0.3 and RED or INK, 0.8)
+    -- the collective lever (0-100 %) and torque (0-120 %, a mark at 100) as bars
+    local function bar(x, frac, label, col, mark)
+        local top, h, w = 0.8, 0.125, 0.008
+        resteep.box(x - w / 2, top, w, h, "#40FFFFFF")
+        local fh = h * clamp(frac, 0, 1)
+        resteep.box(x - w / 2, top + h - fh, w, fh, col)
+        if mark then resteep.line(x - w, top + h * (1 - mark), x + w, top + h * (1 - mark), INK, 1.5) end
+        resteep.text(x, top + h + 0.004, label, INK, 0.6)
+    end
+    bar(0.5 + 0.17, lever, string.format("COL %.0f%%", lever * 100), "#C0A0D8FF")
+    bar(0.5 + 0.2, rotor.power / 1.2, string.format("TQ %.0f%%", rotor.power * 100),
+        rotor.power > TORQUE_LIMIT - 0.005 and RED or (rotor.power > TORQUE_MAX and AMBER or "#C080F0A0"), 1 / 1.2)
+    local w = warnings()
+    if #w > 0 then resteep.text(0.5, 0.955, table.concat(w, "  "), RED, 0.85) end
 end
 
 local function fly(dt, pad)
@@ -883,6 +994,9 @@ local function fly(dt, pad)
         else
             f, r, pedal, coll = autopilot()
         end
+    elseif realistic then                                    -- the player's stick: finer near the centre
+        local function expo(x) return x * (EXPO + (1 - EXPO) * math.abs(x)) end
+        f, r, pedal = expo(f), expo(r), expo(pedal)
     end
     crashed = false
     grounded = step_model(dt, f, r, pedal, coll)
@@ -894,15 +1008,7 @@ local function fly(dt, pad)
     resteep.input.pad{}                                      -- the game gets a neutral pad meanwhile
     resteep.input.capture(true)                              -- ... and no keyboard or mouse (keys still reach us)
     camera_follow(dt, {x = s[1], y = s[2], z = s[3]})
-    local line = string.format("HELI%s  %+.0f m  %3.0f km/h  climb %+.1f m/s", realistic and " R" or "",
-                               s[3] - start_z, len(v) * 3.6, v[3])
-    local warn = R.u[3] < 0 and "  INVERTED" or ""
-    if realistic then
-        line = string.format("HELI R  coll %3.0f%%  tq %3.0f%%  %+.1f g", lever * 100, rotor.power * 100,
-                             grounded and 1 or rotor.nmin) .. line:sub(7)
-        warn = warnings() .. warn
-    end
-    resteep.text(0.5, 0.9, line .. warn, warn == "" and "#FFFFFF" or "#FF7060", 1.1)
+    draw_hud()
 end
 
 -- nobody flies it: the pilot holds the hover (rotors and sound go on); once it rests on the ground it is parked

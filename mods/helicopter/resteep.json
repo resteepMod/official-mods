@@ -7,14 +7,16 @@
   "script": "main.lua",
   "settings": [
     {"key": "realistic", "type": "toggle", "label": "Realistic flight", "default": false,
-     "info": "Off: arcade (the disc tilts with the stick and springs back, it never tips over). On: a light helicopter (H125 class): a collective lever that stays where set (~50 % hovers, more up high), power limit, torque yaw, no self-levelling, vortex ring, blade stall near VNE; negative g bumps the mast (a crash). Loops need speed and positive g. Switches in flight too."},
+     "info": "Off: arcade (the disc tilts with the stick and springs back, it never tips over). On: a light helicopter (H125): a collective lever that stays where set (~50 % hovers), power limit, torque yaw, vortex ring, blade stall, low g. Momentum and inertia: at speed it carries on, slowing or turning tightly takes a flare and a bank (a J-hook); turn rates go on until countered. Switches in flight too."},
     {"key": "assist", "type": "slider", "label": "Assist (realistic)", "default": 20, "min": 0, "max": 100, "step": 5,
-     "unit": "%", "info": "Damps the helicopter's turn rates (slower, steadier response to the stick). It never levels it: centred, the stick keeps whatever attitude it has. 0: the bare rotor."},
+     "unit": "%", "info": "Damps the helicopter's turn rates (they die away sooner after the stick is centred, lower top rates). It never levels it: centred, the stick keeps whatever attitude it has. 0: the bare rotor, the most inertia."},
     {"key": "sensitivity", "type": "slider", "label": "Stick sensitivity (realistic)", "default": 100, "min": 40,
      "max": 200, "step": 5, "unit": "%", "info": "How hard the cyclic and the pedals turn it."},
     {"key": "rotor_speed", "type": "slider", "label": "Rotor speed (picture)", "default": 100, "min": 50, "max": 150,
      "step": 5, "unit": "%", "info": "100 %: as in the game's own drop scenes (the main rotor 1000 degrees a second)."},
     {"key": "volume", "type": "slider", "label": "Rotor volume", "default": 60, "min": 0, "max": 100, "step": 5,
-     "unit": "%"}
+     "unit": "%"},
+    {"key": "hud", "type": "toggle", "label": "Flight HUD", "default": true,
+     "info": "A small flight display at the bottom: attitude, heading, speed, vertical speed, height above the sea and the ground; realistic adds the collective and torque bars, the g load and the warnings."}
   ]
 }

@@ -299,7 +299,7 @@
    "id": "helicopter",
    "name": "Helicopter",
    "title": "Helicopter",
-   "version": "0.4.0",
+   "version": "0.5.0",
    "description": "Fly the rider like a helicopter, inside the Alps' own Red Bull helicopter; Alaska and Japan get a copy of it, built against your install at game start.",
    "author": "ReSteep",
    "full_name": "ReSteep-Helicopter",
@@ -309,9 +309,9 @@
     "script",
     "settings"
    ],
-   "file": "packages/helicopter-0.4.0.resteep",
-   "sha256": "b206f7b5dd3696dcf6e3e06de15e3e478c1761b5d9ff67c5760b0d831f2c8460",
-   "size": 483036,
+   "file": "packages/helicopter-0.5.0.resteep",
+   "sha256": "abfec821dbfe406bd740185eef0be30e7e2c8a2c38a172d345ab80e9b7c614c5",
+   "size": 1250102,
    "icon": "icons/helicopter.png",
    "downloads": []
   },
