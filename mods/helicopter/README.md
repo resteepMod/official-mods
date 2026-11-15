@@ -38,14 +38,42 @@ follows 24 m behind, 7 m up (`resteep.camera.set`; 14 m and 5 m where there is n
 
 ## Settings (MODS page)
 
-| setting | default | |
-|---|---|---|
-| Realistic flight | off | the flight model below; switches in flight too |
-| Assist (realistic) | 20 % | damps the turn rates (they die away sooner when the stick is centred, lower top rates); it never levels the helicopter; 0: the bare rotor, the most inertia |
-| Stick sensitivity (realistic) | 100 % | how hard the cyclic and the pedals turn it |
-| Rotor speed (picture) | 100 % | 100 %: the game's drop scenes' rate |
-| Rotor volume | 60 % | |
-| Flight HUD | on | the mod's flight display (below); off: nothing drawn |
+Every setting takes effect at once, in flight too (the mod reads them at start and when one changes, never per frame).
+The realistic model's sliders are factors on its terms: 100 % is 0.5.0's tuning; set one lower where it feels too
+extreme, 0 % switches an effect off.
+
+| setting (key) | range | default | |
+|---|---|---|---|
+| Realistic flight (`realistic`) | on / off | off | the flight model below; switches in flight too |
+| Realistic: assist (`assist`) | 0-100 % | 20 % | damps the turn rates on top of the rate damping; it never levels the helicopter; 0: the bare rotor |
+| Realistic: momentum (`momentum`) | 25-200 % | 100 % | the drag along the nose and sideways, inverted: lower slows down by itself (more drag, lower top speed), higher glides on |
+| Realistic: rate damping (`damping`) | 25-300 % | 100 % | rotational inertia: higher, rolls / pitches / yaws stop sooner and top out lower |
+| Realistic: cyclic rate (`cyclic`) | 25-200 % | 100 % | pitch and roll authority of the stick (it still follows the rotor's load) |
+| Realistic: pedal rate (`pedals`) | 25-200 % | 100 % | yaw authority of the pedals |
+| Realistic: stick expo (`expo`) | 0-100 % | 55 % | finer near the centre: `x * (L + (1 - L) * \|x\|)`, L = 1 - expo; 0: linear |
+| Realistic: torque yaw (`torque`) | 0-200 % | 100 % | the main rotor's torque yawing the nose with the power |
+| Realistic: collective lever speed (`lever_rate`) | 25-300 % | 100 % | RT / LT's lever travel; 100 %: 2.5 s end to end |
+| Realistic: rotor thrust (`thrust`) | 80-200 % | 100 % | the blades' thrust at the lever's top: higher hovers lower on the lever (~50 % at 100 %), climbs harder |
+| Realistic: engine power (`power`) | 80-200 % | 100 % | power for climbing and pulling g before the rotor droops; `TQ` and OVER-TORQUE are of this engine's 100 % |
+| Realistic: thin air up high (`altitude`) | 0-150 % | 100 % | how much the air thins with height (thrust, power, blade stall); 0: sea-level air everywhere |
+| Realistic: translational lift (`etl`) | 0-200 % | 100 % | the lift from clean air at speed |
+| Realistic: ground effect (`ground_effect`) | 0-300 % | 100 % | extra thrust near the ground (+12 % on the skids at 100 %) |
+| Realistic: vortex ring (`vortex_ring`) | 0-200 % | 100 % | its strength: higher reaches the full state sooner; 0: off (no lift loss, no buffet, no warning) |
+| Realistic: retreating blade stall (`blade_stall`) | 0-200 % | 100 % | near VNE: pitch up, roll right, less lift; 0: off (the blades' load limit stays) |
+| Realistic: low-g roll (`low_g`) | 0-200 % | 100 % | the right roll when the rotor unloads; 0: off (the LOW G warning stays) |
+| Realistic: tail fin (weathervane) (`tail_fin`) | 0-200 % | 100 % | the fin turning the nose into the wind and damping the yaw at speed |
+| Realistic: flare effect (`flare`) | 0-200 % | 100 % | how much more air through the tilted disc loads it at speed than in a hover (a flare's g and braking, a push's low g; translational lift follows it) |
+| Arcade: top speed (`arcade_speed`) | 25-175 % | 100 % | ~160 km/h at 100 % (the drag, divided by the square) |
+| Arcade: turn rate (`arcade_turn`) | 25-200 % | 100 % | ~70 deg/s at 100 % |
+| Arcade: climb rate (`arcade_climb`) | 25-200 % | 100 % | ~10 m/s at 100 % |
+| Rotor speed (picture) (`rotor_speed`) | 50-150 % | 100 % | 100 %: the game's drop scenes' rate |
+| Rotor volume (`volume`) | 0-100 % | 60 % | |
+| Rotor sound: close / far (`sound_balance`) | -100-100 % | 0 | below 0 the far loop quieter, above 0 the close one; +-100: only one |
+| Flight HUD (`hud`) | on / off | on | the mod's flight display (below); off: nothing drawn |
+| Flight HUD: size (`hud_size`) | 50-200 % | 100 % | about its bottom centre |
+| Flight HUD: opacity (`hud_opacity`) | 20-100 % | 100 % | |
+
+0.6.0 replaced "Stick sensitivity" (both axes) with the cyclic and pedal rates.
 
 ## The flight models
 
@@ -111,7 +139,7 @@ attitude indicator (the horizon, a pitch ladder every 10 degrees, dimmer below t
 right the height above the sea (`ALT`, the world's z) and above the ground (`AGL`, a ray straight down); in the realistic
 model also the g load, the `COL` (lever) and `TQ` (0-120 %, a mark at 100 %; amber over 100, red at the limit) bars and
 the warnings in red (`OVER-TORQUE`, `LOW G`, `VORTEX RING`, `BLADE STALL`, `VNE`). The arcade model shows the attitude,
-heading, speeds and heights. The setting Flight HUD turns it off.
+heading, speeds and heights. The setting Flight HUD turns it off; its size and opacity are settings too.
 
 ## Ground, rocks and crashes
 
@@ -193,6 +221,13 @@ helicopter around the rider (screenshots); F8 off left it parked; the mod reload
 In the game (the player, 2026-11-15): the rotors turned (flickering: fixed since, see above); the rider stood.
 In the game (the player, 2026-11-15, 0.4.0): the realistic mode flown; the rotor strike in negative g felt wrong,
 turning at speed too easy, the sound poor: 0.5.0 answers those, not yet flown in the game.
+Offline (2026-11-15, 0.6.0, the settings): with the defaults the same 59 checks give the same numbers as 0.5.0; 11
+more: main.lua reads every key of `resteep.json` and no other, with the same defaults; none per frame (only at start
+and per change); HUD size 150 % and opacity 50 % from the next frame; momentum 50 %, set at 212 km/h, loses 15 km/h in
+4 s (100 %: 6), no jump; rate damping 200 % halves a roll pulse in 0.49 s (100 %: 0.73); vortex ring 0: the descent
+under power that sinks deeper at 100 % stops sinking, no warning; low-g roll 0: the push-over (LOW G) rolls 0 degrees
+right (100 %: 25); arcade at 50 %: 81 / 160 km/h, 34 / 69 deg/s; the sound's balance; every slider at its min, then
+its max, switched in flight in both models while the sticks stir: no error, finite.
 Offline (2026-11-15, 0.5.0): `luac -p`; a run of `main.lua` in plain Lua 5.4 against a stand-in `resteep` that
 rebuilds the final pose from the local pose as the game does (ReSteep's `tests/lua/helicopter.lua`, 58 checks).
 Arcade (unchanged): it holds its height; the rotors turn through the local pose at 1000 deg/s, with both fallbacks; the

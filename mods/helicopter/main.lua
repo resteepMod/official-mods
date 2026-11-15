@@ -13,6 +13,8 @@
 --   and the fin keeps the nose in the wind, so slowing down or turning tightly means tilting the rotor's thrust (a
 --   flare and a bank: a J-hook); the stick builds up turn rates that go on until countered. It cannot hover upside
 --   down; rolls and loops need timing.
+-- The settings (resteep.json) tune it: the realistic model's terms, the arcade model's rates, the sound, the HUD
+-- (factors on the constants below, worked out once per change: load_settings).
 -- F8 / B lets go: the game takes the rider back (it falls from there). Left in the air, the helicopter's pilot (the
 -- model has one) holds a hover there with the rotors running; left on the ground it is parked and the rotors stop.
 -- It collides with the game's own collision world (resteep.world.raycast / spherecast: terrain, rocks, buildings);
@@ -56,7 +58,7 @@ local PEDAL = 3.0                  -- rad/s^2 at full pedal
 local DAMP_ROT = {0.35, 0.35, 0.8}
 local DAMP_QUAD = {0.35, 0.3, 0.6}
 local ASSIST_DAMP = 2.5            -- 1/s more (linear) rate damping at 100 % assist (it never levels)
-local EXPO = 0.45                  -- the player's stick: x * (EXPO + (1 - EXPO) * |x|) (fine near the centre)
+-- the player's stick: x * (L + (1 - L) * |x|) (fine near the centre), L = 1 - the setting expo (55 %: 0.45)
 local CROSS = 0.25                 -- roll torque per rad/s of pitch rate (small cross-coupling)
 local DRAG = {0.003, 0.00022, 0.01}   -- quadratic drag along the body's right, nose and up axes (the disc resists
                                    -- most; ~0.7 m/s^2 along the nose at 200 km/h: speed carries)
@@ -239,9 +241,49 @@ local X = {x = 1, y = 0, z = 0}
 
 local function setting(key, default)
     local ok, val = pcall(resteep.config.get, key)
-    if ok and val ~= nil then return val end
+    if ok and val ~= nil and type(val) == type(default) then return val end
     return default
 end
+
+-- The settings (resteep.json): read at load, at start and on config_change, never per frame. Most are factors in % on
+-- the constants above (100 = the tuning of 0.5.0); K holds what the models use, worked out once per change.
+local DEFAULTS = {realistic = false, assist = 20, momentum = 100, damping = 100, cyclic = 100, pedals = 100, expo = 55,
+                  torque = 100, lever_rate = 100, thrust = 100, power = 100, altitude = 100, etl = 100,
+                  ground_effect = 100, vortex_ring = 100, blade_stall = 100, low_g = 100, tail_fin = 100, flare = 100,
+                  arcade_speed = 100, arcade_turn = 100, arcade_climb = 100, rotor_speed = 100, volume = 60,
+                  sound_balance = 0, hud = true, hud_size = 100, hud_opacity = 100}
+local K = {}
+local HUD_COLORS = {ink = "#FFE8F0F8", dim = "#90E8F0F8", amber = "#FFFFC040", red = "#FFFF5040", back = "#50000000",
+                    down = "#90FFB070", slot = "#40FFFFFF", lever = "#C0A0D8FF", torque = "#C080F0A0"}
+local PAL = {}                     -- HUD_COLORS at the HUD's opacity
+local function load_settings()
+    local c = {}
+    for k, d in pairs(DEFAULTS) do c[k] = setting(k, d) end
+    local function pct(k, lo) return math.max(c[k] / 100, lo or 0) end
+    K.realistic, K.assist = c.realistic == true, pct("assist")
+    local m, d = pct("momentum", 0.1), pct("damping", 0.1)
+    K.drag = {DRAG[1] / m, DRAG[2] / m, DRAG[3]}                  -- the disc's own (along up) stays
+    K.damp_rot = {DAMP_ROT[1] * d, DAMP_ROT[2] * d, DAMP_ROT[3] * d}
+    K.damp_quad = {DAMP_QUAD[1] * d, DAMP_QUAD[2] * d, DAMP_QUAD[3] * d}
+    K.cyclic, K.pedal, K.linear = pct("cyclic", 0.05), PEDAL * pct("pedals", 0.05), 1 - math.min(pct("expo"), 1)
+    K.torque_yaw, K.lever_rate = TORQUE_YAW * pct("torque"), LEVER_RATE * pct("lever_rate", 0.05)
+    K.thrust = {PITCH_THRUST[1], PITCH_THRUST[1] + (PITCH_THRUST[2] - PITCH_THRUST[1]) * pct("thrust", 0.1)}
+    K.power, K.altitude, K.etl = pct("power", 0.1), pct("altitude"), pct("etl")
+    K.ground_effect, K.vrs, K.rbs = GROUND_EFFECT * pct("ground_effect"), pct("vortex_ring"), pct("blade_stall")
+    K.low_g, K.vane = LOW_G_ROLL * pct("low_g"), VANE * pct("tail_fin")
+    K.heave_fast = HEAVE[1] + (HEAVE[2] - HEAVE[1]) * pct("flare")
+    K.drag_h = DRAG_H / pct("arcade_speed", 0.1) ^ 2              -- the top speed goes with the square root of the drag
+    K.yaw_rate, K.collective = YAW_RATE * pct("arcade_turn"), COLLECTIVE * pct("arcade_climb")
+    K.rotor_rate, K.volume = pct("rotor_speed"), MIX * pct("volume")
+    local b = clamp(c.sound_balance / 100, -1, 1)                -- -1: the close loop alone .. +1: the far one alone
+    K.close, K.far = math.min(1, 1 - b), math.min(1, 1 + b)
+    K.hud, K.hud_size = c.hud ~= false, clamp(c.hud_size / 100, 0.3, 2.5)
+    local o = clamp(c.hud_opacity / 100, 0, 1)
+    for k, col in pairs(HUD_COLORS) do
+        PAL[k] = string.format("#%02X%s", math.floor(tonumber(col:sub(2, 3), 16) * o + 0.5), col:sub(4))
+    end
+end
+load_settings()
 
 ---------------------------------------------------------------------------------------------------------- rotors
 
@@ -328,7 +370,7 @@ local function spin_rotors(dt)
     local engine = on or hovering
     spin = clamp(spin + (engine and dt / SPIN_UP or -dt / SPIN_DOWN), 0, 1)
     if spin == 0 and turned_main == 0 then return end
-    local rate = setting("rotor_speed", 100) / 100
+    local rate = K.rotor_rate
     turned_main = (turned_main + MAIN_RATE * rate * spin * dt) % (2 * math.pi)
     turned_tail = (turned_tail + TAIL_RATE * rate * spin * dt) % (2 * math.pi)
     if spin == 0 then turned_main, turned_tail = 0, 0 end                 -- stopped: back to the parked pose
@@ -436,7 +478,7 @@ local function sound_update(dt, load)
         end
     end
     local where = {x = at[1], y = at[2], z = at[3]}
-    local level = MIX * setting("volume", 60) / 100 * spin * (0.3 + 0.7 * spin) * clamp(1.6 / (1 + d / 60), 0, 1)
+    local level = K.volume * spin * (0.3 + 0.7 * spin) * clamp(1.6 / (1 + d / 60), 0, 1)
     local droop = realistic and (on or hovering) and rotor.droop or 0
     local rate = (0.5 + 0.5 * spin) * (0.98 + 0.05 * load) * (1 - 0.04 * droop)
     local function set(id, volume, range)
@@ -446,8 +488,8 @@ local function sound_update(dt, load)
     if sounds.loop then set(sounds.loop, level * (0.85 + 0.3 * load), RANGE.loop) return end
     if not sounds.close then return end                                   -- no audio device
     local t = smooth(d, NEAR, FAR) * math.pi / 2
-    set(sounds.close, level * math.cos(t) * (0.85 + 0.3 * load), RANGE.close)
-    set(sounds.far, level * math.sin(t) * (0.9 + 0.2 * load), RANGE.far)
+    set(sounds.close, level * K.close * math.cos(t) * (0.85 + 0.3 * load), RANGE.close)
+    set(sounds.far, level * K.far * math.sin(t) * (0.9 + 0.2 * load), RANGE.far)
 end
 
 ------------------------------------------------------------------------------------------------------- controls
@@ -480,9 +522,9 @@ end
 
 -- realistic: the damping (1/s) of the turn rate w about body axis i (1 pitch, 2 roll, 3 yaw); the tail fin's grows
 -- with the forward speed
-local function damping(i, w, assist)
-    local d = DAMP_ROT[i] + DAMP_QUAD[i] * math.abs(w) + assist * ASSIST_DAMP
-    if i == 3 then d = d + VANE * FIN_ARM * math.abs(dot(v, R.f)) end
+local function damping(i, w)
+    local d = K.damp_rot[i] + K.damp_quad[i] * math.abs(w) + K.assist * ASSIST_DAMP
+    if i == 3 then d = d + K.vane * FIN_ARM * math.abs(dot(v, R.f)) end
     return d
 end
 
@@ -503,16 +545,14 @@ local function autopilot()
     k = len(k) > 1e-3 and unit(k) or R.f                                    -- upside down: roll over
     local rate = math.min(1, 2.5 * angle)
     local wx, wy = rate * dot(k, R.r), rate * dot(k, R.f)
-    local assist = setting("assist", 20) / 100
-    local sens = setting("sensitivity", 100) / 100
-    local f = -(damping(1, W[1], assist) * W[1] + 4 * (wx - W[1])) / (CYCLIC[1] * rotor.auth)
-    local r = (damping(2, W[2], assist) * W[2] + 4 * (wy - W[2])) / (CYCLIC[2] * rotor.auth)
-    local pedal = (TORQUE_YAW * (rotor.power - P_TRIM) + 3 * W[3]) / (PEDAL * sens)
+    local f = -(damping(1, W[1]) * W[1] + 4 * (wx - W[1])) / (CYCLIC[1] * rotor.auth)
+    local r = (damping(2, W[2]) * W[2] + 4 * (wy - W[2])) / (CYCLIC[2] * rotor.auth)
+    local pedal = (K.torque_yaw * (rotor.power - P_TRIM) + 3 * W[3]) / K.pedal
     local want_lever = 0.4                                                  -- on its side or upside down: some load
     if R.u[3] > 0.3 then                                                    -- upright: hold the height
         local need = (G + clamp(-0.8 * (org[3] - hold_z) - 1.6 * v[3], -4, 4)) / R.u[3] - rotor.lift
-        local per = G * rotor.sigma * (PITCH_THRUST[2] - PITCH_THRUST[1])
-        want_lever = (need - G * rotor.sigma * PITCH_THRUST[1]) / per
+        local per = G * rotor.sigma * (K.thrust[2] - K.thrust[1])
+        want_lever = (need - G * rotor.sigma * K.thrust[1]) / per
     end
     return clamp(f, -1, 1), clamp(r, -1, 1), clamp(pedal, -1, 1), clamp((want_lever - lever) * 5, -1, 1)
 end
@@ -628,16 +668,16 @@ local function arcade(dt, f, r, pedal, coll)
     local a = math.min(1, dt / TILT_TAU)
     pitch = pitch + (f * MAX_TILT - pitch) * a
     roll = roll + (r * MAX_TILT - roll) * a
-    yaw = yaw - pedal * YAW_RATE * dt
+    yaw = yaw - pedal * K.yaw_rate * dt
     local fx, fy = -math.sin(yaw), math.cos(yaw)             -- heading
     local rx, ry = fy, -fx                                   -- its right
     -- the rotor's thrust along the tilted disc's axis: hover at collective 0
     local ax, ay, az = fx * math.tan(pitch) + rx * math.tan(roll), fy * math.tan(pitch) + ry * math.tan(roll), 1
     local n = math.sqrt(ax * ax + ay * ay + az * az)
-    local thrust = G * (1 + coll * COLLECTIVE) / (az / n)    -- the vertical part alone holds the height
+    local thrust = G * math.max(0, 1 + coll * K.collective) / (az / n)   -- the vertical part alone holds the height
     ax, ay, az = ax / n * thrust, ay / n * thrust, az / n * thrust
     local h = math.sqrt(v[1] * v[1] + v[2] * v[2])
-    if h > 1e-5 then ax, ay = ax - DRAG_H * h * v[1], ay - DRAG_H * h * v[2] end
+    if h > 1e-5 then ax, ay = ax - K.drag_h * h * v[1], ay - K.drag_h * h * v[2] end
     az = az - G - DAMP_V * v[3]
     v = {v[1] + ax * dt, v[2] + ay * dt, v[3] + az * dt}
     local s = len(v)
@@ -663,9 +703,11 @@ local function arcade(dt, f, r, pedal, coll)
     return ground ~= nil and seat_at[3] < ground + SKIDS + 0.3
 end
 
-local function density(z) return (1 - 2.2558e-5 * clamp(z, -500, 9000)) ^ 4.2559 end   -- ISA, relative to sea level
+local function density(z)                                 -- ISA, relative to sea level (the height setting scales z)
+    return (1 - 2.2558e-5 * clamp(z * K.altitude, -500, 9000)) ^ 4.2559
+end
 local function hover_lever(z)                             -- the lever of a 1 g hover out of ground effect at height z
-    return clamp((1 / density(z) - PITCH_THRUST[1]) / (PITCH_THRUST[2] - PITCH_THRUST[1]), 0, 1)
+    return clamp((1 / density(z) - K.thrust[1]) / (K.thrust[2] - K.thrust[1]), 0, 1)
 end
 
 -- realistic: the rotor for this frame, from the lever, the air's density at this height (the world's z as metres
@@ -674,21 +716,22 @@ local function rotor_state(ground_h)
     local sigma = density(org[3])
     local vb3 = dot(v, R.u)                                       -- air up through the disc (+: climbing)
     local vp = len(add(v, R.u, -vb3))                             -- airspeed in the disc's plane
-    local tp = G * sigma * (PITCH_THRUST[1] + (PITCH_THRUST[2] - PITCH_THRUST[1]) * lever)
+    local tp = G * sigma * (K.thrust[1] + (K.thrust[2] - K.thrust[1]) * lever)
     local vh = VI0 * math.sqrt(math.max(tp / G, 0.05) / sigma)    -- the induced velocity of a hover at this thrust
     local vl = math.sqrt((math.sqrt(vp ^ 4 + 4 * vh ^ 4) - vp * vp) / 2)   -- ... in level flight at vp (Glauert)
     -- vortex ring: sinking at 0.3-1.9 times that, slowly, the rotor in its own downwash (lowering the lever lowers
     -- the band, speed blows it away)
     local vrs = smooth(-vb3, 0.3 * vh, 0.6 * vh) * (1 - smooth(-vb3, 1.3 * vh, 1.9 * vh)) * (1 - smooth(vp, 5, 11))
-    local rbs = clamp((vp - (RBS_SPEED - 10 * math.max(0, rotor.n - 1) - 20 * (1 - sigma))) / 8, 0, 1)
-    local ge = ground_h and 1 + GROUND_EFFECT * clamp(1 - ground_h / 10, 0, 1) or 1
+    vrs = math.min(1, vrs * K.vrs)                                -- the settings: stronger reaches full sooner
+    local rbs = clamp((vp - (RBS_SPEED - 10 * math.max(0, rotor.n - 1) - 20 * (1 - sigma))) / 8 * K.rbs, 0, 1)
+    local ge = ground_h and 1 + K.ground_effect * clamp(1 - ground_h / 10, 0, 1) or 1
     local t = tp * ge * (1 - VRS_LOSS * vrs) * (1 - 0.2 * rbs)
     local w, vi = math.max(vb3, 0), vh                            -- the induced velocity with speed and climb
     for _ = 1, 4 do vi = 0.5 * (vi + vh * vh / math.sqrt(vp * vp + (w + vi) ^ 2)) end
     -- power: the blades' profile + thrust times the air through the disc (induced, climb, and the tilted disc's share
     -- of the drag); sinking, the air drives the rotor (autorotation: 0)
     local p = math.max(0, P_PROFILE + P_INDUCED * t / G * (vi / ge + vb3) + 0.15 * vrs)
-    local avail = math.min(TORQUE_LIMIT, ENGINE * sigma ^ 0.8)
+    local avail = K.power * math.min(TORQUE_LIMIT, ENGINE * sigma ^ 0.8)   -- (power: the engine's size)
     rotor.droop = clamp((p - avail) / 0.3, 0, 1)
     if p > avail then                                             -- the rotor droops: only the thrust the power gives
         t = t * ((avail - P_PROFILE) / (p - P_PROFILE)) ^ 0.8
@@ -696,41 +739,41 @@ local function rotor_state(ground_h)
     end
     rotor.sigma, rotor.vp, rotor.thrust, rotor.power, rotor.avail = sigma, vp, t, p, avail
     local fast = clamp(vp / 50, 0, 1)
-    rotor.heave = HEAVE[1] + (HEAVE[2] - HEAVE[1]) * fast
-    rotor.lift = (ETL[1] + (ETL[2] - ETL[1]) * fast) * rotor.heave * (vh - vl) * clamp(tp / G, 0, 1)   -- translational
+    rotor.heave = HEAVE[1] + (K.heave_fast - HEAVE[1]) * fast
+    rotor.lift = (ETL[1] + (ETL[2] - ETL[1]) * fast) * rotor.heave * (vh - vl) * clamp(tp / G, 0, 1) * K.etl   -- ETL
     rotor.vrs, rotor.rbs = vrs, rbs
 end
 
 -- realistic: one step of the rigid body (dt small)
-local function rigid_step(dt, f, r, pedal, assist, sens)
+local function rigid_step(dt, f, r, pedal)
     -- along the up axis: the rotor's thrust and translational lift, less what the air up through the disc takes
     -- (the vortex ring takes the sink's part; never below 0: pushed over, the rotor unloads, low g); this is the load
     -- the hub feels. A flare at speed: the air comes up through the tilted disc and loads it, its thrust tilted back
     -- slows the helicopter (up to the blades' stall)
     local vb = {dot(v, R.r), dot(v, R.f), dot(v, R.u)}
     local heave = rotor.heave * vb[3] * (vb[3] < 0 and 1 - rotor.vrs or 1)
-    local fu = math.max(0, rotor.thrust + rotor.lift - heave) - DRAG[3] * math.abs(vb[3]) * vb[3]
+    local fu = math.max(0, rotor.thrust + rotor.lift - heave) - K.drag[3] * math.abs(vb[3]) * vb[3]
     if fu > LOAD_MAX * G * rotor.sigma then fu, rotor.stall = LOAD_MAX * G * rotor.sigma, true end
     rotor.n = fu / G
     rotor.nmin = math.min(rotor.nmin, rotor.n)
     local acc = {R.u[1] * fu, R.u[2] * fu, R.u[3] * fu - G}
-    acc = add(acc, R.r, -DRAG[1] * math.abs(vb[1]) * vb[1])
-    acc = add(acc, R.f, -DRAG[2] * math.abs(vb[2]) * vb[2])
+    acc = add(acc, R.r, -K.drag[1] * math.abs(vb[1]) * vb[1])
+    acc = add(acc, R.f, -K.drag[2] * math.abs(vb[2]) * vb[2])
     v = add(v, acc, dt)
     org = add(org, v, dt)
     -- torques: the cyclic (with the rotor's load: little thrust, little control; weaker in a hover), the pedals
     -- against the rotor's torque, the tail fin turning the nose into the wind (and damping its yaw, damping()), blade
     -- stall, low-g roll, the vortex ring's buffeting, against a small damping (and the assist's): the rates have
     -- inertia, nothing levels it
-    local auth = clamp(0.25 + 0.75 * rotor.n, 0.15, 1.3) * (0.7 + 0.3 * clamp(rotor.vp / 30, 0, 1)) * sens
+    local auth = clamp(0.25 + 0.75 * rotor.n, 0.15, 1.3) * (0.7 + 0.3 * clamp(rotor.vp / 30, 0, 1)) * K.cyclic
     rotor.auth = math.max(auth, 0.05)
-    local alpha = {-CYCLIC[1] * auth * f, CYCLIC[2] * auth * r, -PEDAL * sens * pedal}
+    local alpha = {-CYCLIC[1] * auth * f, CYCLIC[2] * auth * r, -K.pedal * pedal}
     alpha[1] = alpha[1] + RBS_PITCH * rotor.rbs + BUFFET * rotor.vrs * math.sin(clock * 5.3)
-    alpha[2] = alpha[2] + RBS_ROLL * rotor.rbs + LOW_G_ROLL * clamp(1 - rotor.n / 0.5, 0, 1) + CROSS * W[1]
+    alpha[2] = alpha[2] + RBS_ROLL * rotor.rbs + K.low_g * clamp(1 - rotor.n / 0.5, 0, 1) + CROSS * W[1]
                + BUFFET * rotor.vrs * math.sin(clock * 7.1 + 1)
-    alpha[3] = alpha[3] + TORQUE_YAW * (rotor.power - P_TRIM) - VANE * vb[1] * math.abs(vb[2])
+    alpha[3] = alpha[3] + K.torque_yaw * (rotor.power - P_TRIM) - K.vane * vb[1] * math.abs(vb[2])
     if grounded then alpha[3] = alpha[3] * clamp(rotor.n, 0, 1) ^ 2 end   -- its weight on the skids holds the heading
-    for i = 1, 3 do W[i] = W[i] + (alpha[i] - damping(i, W[i], assist) * W[i]) * dt end
+    for i = 1, 3 do W[i] = W[i] + (alpha[i] - damping(i, W[i]) * W[i]) * dt end
     -- turn the axes about the world vector of W (body right = pitch, nose = roll, up = yaw)
     local w = add(add({R.r[1] * W[1], R.r[2] * W[1], R.r[3] * W[1]}, R.f, W[2]), R.u, W[3])
     local wl = len(w)
@@ -742,9 +785,7 @@ local function rigid_step(dt, f, r, pedal, assist, sens)
 end
 
 local function realistic_fly(dt, f, r, pedal, coll)
-    local assist = setting("assist", 20) / 100
-    local sens = setting("sensitivity", 100) / 100
-    lever = clamp(lever + coll * LEVER_RATE * dt, 0, 1)
+    lever = clamp(lever + coll * K.lever_rate * dt, 0, 1)
     clock = clock + dt
     local ground_h = height_below(body(COM), 12)
     if ground_h then ground_h = math.max(0, ground_h - COM[3]) end
@@ -752,7 +793,7 @@ local function realistic_fly(dt, f, r, pedal, coll)
     rotor.nmin, rotor.stall = math.huge, false
     local from = body(COM)
     local n = math.max(1, math.ceil(dt * 120 - 1e-9))
-    for _ = 1, n do rigid_step(dt / n, f, r, pedal, assist, sens) end
+    for _ = 1, n do rigid_step(dt / n, f, r, pedal) end
     local s = len(v)
     if s > MAX_SPEED then v = {v[1] / s * MAX_SPEED, v[2] / s * MAX_SPEED, v[3] / s * MAX_SPEED} end
     if contacts(dt, true, from) then return true end
@@ -822,7 +863,8 @@ local function start()
     resteep.log("helicopter: started on foot (activity " .. tostring(p.activity) .. ")")
     local ok, why = resteep.rider.hold(true)
     if not ok then resteep.notify("helicopter: can't hold the rider: " .. tostring(why), 4) return end
-    realistic = setting("realistic", false) == true
+    load_settings()
+    realistic = K.realistic
     v, W, hovering, grounded, lever = {0, 0, 0}, {0, 0, 0}, false, true, 0
     local c = resteep.camera()
     yaw = c and math.atan(-c.forward.x, c.forward.y) or 0
@@ -889,13 +931,12 @@ local aboard_hover = false          -- the helicopter holds itself in the air, t
 -- the warnings. "+Y" of the world is taken as north.
 local HUD = {x = 0.5, y = 0.875, r = 0.07, deg = 40}   -- the attitude indicator's centre and radius (of the screen's
                                                        -- height), the pitch that reaches its edge
-local INK, DIM, AMBER, RED = "#FFE8F0F8", "#90E8F0F8", "#FFFFC040", "#FFFF5040"
 local COMPASS = {[0] = "N", [90] = "E", [180] = "S", [270] = "W"}
 
 -- realistic: the warnings, short
 local function warnings()
     local w = {}
-    if rotor.power > TORQUE_MAX then w[#w + 1] = "OVER-TORQUE" end
+    if rotor.power / K.power > TORQUE_MAX then w[#w + 1] = "OVER-TORQUE" end
     if not grounded and rotor.nmin < 0.3 then w[#w + 1] = "LOW G" end
     if rotor.vrs > 0.3 then w[#w + 1] = "VORTEX RING" end
     if rotor.rbs > 0 or rotor.stall then w[#w + 1] = "BLADE STALL" end
@@ -903,8 +944,18 @@ local function warnings()
     return w
 end
 
+-- the HUD's drawing calls, sized about its bottom centre (the setting hud_size)
+local HUD_FOOT = 0.99
+local function hx(x) return 0.5 + (x - 0.5) * K.hud_size end
+local function hy(y) return HUD_FOOT - (HUD_FOOT - y) * K.hud_size end
+local function text(x, y, t, col, size) resteep.text(hx(x), hy(y), t, col, size * K.hud_size) end
+local function line(x1, y1, x2, y2, col, w)
+    resteep.line(hx(x1), hy(y1), hx(x2), hy(y2), col, clamp(w * K.hud_size, 0.5, 12))
+end
+local function box(x, y, w, h, col) resteep.box(hx(x), hy(y), w * K.hud_size, h * K.hud_size, col) end
+
 local function draw_hud()
-    if setting("hud", true) == false then return end
+    if not K.hud then return end
     local c = resteep.camera()
     local asp = c and c.aspect or 16 / 9
     local cx, cy, R0 = HUD.x, HUD.y, HUD.r
@@ -912,20 +963,20 @@ local function draw_hud()
     local function seg(x1, y1, x2, y2, col, w)
         local a, b = px(x1, y1)
         local e, f = px(x2, y2)
-        resteep.line(a, b, e, f, col, w)
+        line(a, b, e, f, col, w)
     end
-    resteep.box(0.5 - 0.215, 0.728, 0.43, 0.262, "#50000000")
+    box(0.5 - 0.215, 0.728, 0.43, 0.262, PAL.back)
     -- heading tape: +-40 degrees over +-0.085 of the width, ticks every 10, labels every 30
     local hd = math.abs(R.f[3]) < 0.97 and math.deg(math.atan(R.f[1], R.f[2])) or -math.deg(cam_heading or yaw)
     hd = hd % 360
-    resteep.text(0.5, 0.733, string.format("%03d", math.floor(hd + 0.5) % 360), INK, 0.85)
-    resteep.line(0.5, 0.758, 0.5, 0.775, AMBER, 2)
+    text(0.5, 0.733, string.format("%03d", math.floor(hd + 0.5) % 360), PAL.ink, 0.85)
+    line(0.5, 0.758, 0.5, 0.775, PAL.amber, 2)
     for t = math.ceil((hd - 40) / 10) * 10, hd + 40, 10 do
         local x = 0.5 + (t - hd) / 40 * 0.085
         local deg = t % 360
         local major = deg % 30 == 0
-        resteep.line(x, 0.765, x, major and 0.775 or 0.771, DIM, 1.2)
-        if major then resteep.text(x, 0.777, COMPASS[deg] or string.format("%02d", deg // 10), DIM, 0.65) end
+        line(x, 0.765, x, major and 0.775 or 0.771, PAL.dim, 1.2)
+        if major then text(x, 0.777, COMPASS[deg] or string.format("%02d", deg // 10), PAL.dim, 0.65) end
     end
     -- attitude: the horizon's normal on the screen (towards the sky, y down) is (r.z, -u.z) / cos(pitch); a line at
     -- elevation e lies (e - pitch) along it
@@ -936,7 +987,7 @@ local function draw_hud()
     local k = R0 / HUD.deg
     for i = 0, 23 do                                                      -- the ring
         local a1, a2 = i / 24 * 2 * math.pi, (i + 1) / 24 * 2 * math.pi
-        seg(R0 * math.cos(a1), R0 * math.sin(a1), R0 * math.cos(a2), R0 * math.sin(a2), DIM, 1)
+        seg(R0 * math.cos(a1), R0 * math.sin(a1), R0 * math.cos(a2), R0 * math.sin(a2), PAL.dim, 1)
     end
     local function rung(e, half, col, w)                                  -- a line at elevation e, cut at the ring
         local d = (e - nose) * k
@@ -945,44 +996,45 @@ local function draw_hud()
         local mx, my = nx * d, ny * d
         seg(mx - ny * half, my + nx * half, mx + ny * half, my - nx * half, col, w)
     end
-    rung(0, R0, INK, 2)
+    rung(0, R0, PAL.ink, 2)
     for e = -80, 80, 10 do
-        if e ~= 0 then rung(e, R0 * (e % 20 == 0 and 0.45 or 0.28), e > 0 and DIM or "#90FFB070", 1) end
+        if e ~= 0 then rung(e, R0 * (e % 20 == 0 and 0.45 or 0.28), e > 0 and PAL.dim or PAL.down, 1) end
     end
     for _, b in ipairs({-60, -30, 0, 30, 60}) do                          -- the bank scale on top, and its pointer
         local a = math.rad(b)
-        seg(R0 * math.sin(a), -R0 * math.cos(a), 1.12 * R0 * math.sin(a), -1.12 * R0 * math.cos(a), DIM, 1.2)
+        seg(R0 * math.sin(a), -R0 * math.cos(a), 1.12 * R0 * math.sin(a), -1.12 * R0 * math.cos(a), PAL.dim, 1.2)
     end
-    seg(0.8 * nx * R0, 0.8 * ny * R0, nx * R0, ny * R0, AMBER, 2.5)
-    seg(-0.5 * R0, 0, -0.18 * R0, 0, AMBER, 2.5)                          -- the helicopter: wings and centre
-    seg(0.18 * R0, 0, 0.5 * R0, 0, AMBER, 2.5)
-    seg(-0.004, 0, 0.004, 0, AMBER, 4)
+    seg(0.8 * nx * R0, 0.8 * ny * R0, nx * R0, ny * R0, PAL.amber, 2.5)
+    seg(-0.5 * R0, 0, -0.18 * R0, 0, PAL.amber, 2.5)                          -- the helicopter: wings and centre
+    seg(0.18 * R0, 0, 0.5 * R0, 0, PAL.amber, 2.5)
+    seg(-0.004, 0, 0.004, 0, PAL.amber, 4)
     -- left: airspeed and vertical speed; right: heights
     local lx, rx = 0.5 - 0.115, 0.5 + 0.115
-    resteep.text(lx, 0.815, string.format("%.0f", len(v) * 3.6), INK, 1.4)
-    resteep.text(lx, 0.858, "km/h", DIM, 0.65)
-    resteep.text(lx, 0.895, string.format("VS %+.1f m/s", v[3]), INK, 0.8)
+    text(lx, 0.815, string.format("%.0f", len(v) * 3.6), PAL.ink, 1.4)
+    text(lx, 0.858, "km/h", PAL.dim, 0.65)
+    text(lx, 0.895, string.format("VS %+.1f m/s", v[3]), PAL.ink, 0.8)
     local below = grounded and 0 or height_below(body(COM), 2000)
     if below and not grounded then below = math.max(0, below - COM[3]) end
-    resteep.text(rx, 0.82, string.format("ALT %.0f m", org[3]), INK, 0.85)
-    resteep.text(rx, 0.855, below and string.format("AGL %.0f m", below) or "AGL ---", INK, 0.85)
+    text(rx, 0.82, string.format("ALT %.0f m", org[3]), PAL.ink, 0.85)
+    text(rx, 0.855, below and string.format("AGL %.0f m", below) or "AGL ---", PAL.ink, 0.85)
     if not realistic then return end
     local g = grounded and 1 or rotor.nmin
-    resteep.text(rx, 0.895, string.format("%+.1f g", g), g < 0.3 and RED or INK, 0.8)
+    text(rx, 0.895, string.format("%+.1f g", g), g < 0.3 and PAL.red or PAL.ink, 0.8)
     -- the collective lever (0-100 %) and torque (0-120 %, a mark at 100) as bars
+    local tq = rotor.power / K.power                                     -- of this engine's 100 %
     local function bar(x, frac, label, col, mark)
         local top, h, w = 0.8, 0.125, 0.008
-        resteep.box(x - w / 2, top, w, h, "#40FFFFFF")
+        box(x - w / 2, top, w, h, PAL.slot)
         local fh = h * clamp(frac, 0, 1)
-        resteep.box(x - w / 2, top + h - fh, w, fh, col)
-        if mark then resteep.line(x - w, top + h * (1 - mark), x + w, top + h * (1 - mark), INK, 1.5) end
-        resteep.text(x, top + h + 0.004, label, INK, 0.6)
+        box(x - w / 2, top + h - fh, w, fh, col)
+        if mark then line(x - w, top + h * (1 - mark), x + w, top + h * (1 - mark), PAL.ink, 1.5) end
+        text(x, top + h + 0.004, label, PAL.ink, 0.6)
     end
-    bar(0.5 + 0.17, lever, string.format("COL %.0f%%", lever * 100), "#C0A0D8FF")
-    bar(0.5 + 0.2, rotor.power / 1.2, string.format("TQ %.0f%%", rotor.power * 100),
-        rotor.power > TORQUE_LIMIT - 0.005 and RED or (rotor.power > TORQUE_MAX and AMBER or "#C080F0A0"), 1 / 1.2)
+    bar(0.5 + 0.17, lever, string.format("COL %.0f%%", lever * 100), PAL.lever)
+    bar(0.5 + 0.2, tq / 1.2, string.format("TQ %.0f%%", tq * 100),
+        tq > TORQUE_LIMIT - 0.005 and PAL.red or (tq > TORQUE_MAX and PAL.amber or PAL.torque), 1 / 1.2)
     local w = warnings()
-    if #w > 0 then resteep.text(0.5, 0.955, table.concat(w, "  "), RED, 0.85) end
+    if #w > 0 then text(0.5, 0.955, table.concat(w, "  "), PAL.red, 0.85) end
 end
 
 local function fly(dt, pad)
@@ -995,7 +1047,7 @@ local function fly(dt, pad)
             f, r, pedal, coll = autopilot()
         end
     elseif realistic then                                    -- the player's stick: finer near the centre
-        local function expo(x) return x * (EXPO + (1 - EXPO) * math.abs(x)) end
+        local function expo(x) return x * (K.linear + (1 - K.linear) * math.abs(x)) end
         f, r, pedal = expo(f), expo(r), expo(pedal)
     end
     crashed = false
@@ -1026,7 +1078,8 @@ end
 local function sound_load()
     if not (on or hovering) then return 0 end
     if realistic then                                        -- the rotor's power, the slap of its own wake and stall
-        return clamp((rotor.power - P_PROFILE) / (TORQUE_MAX - P_PROFILE) + 0.4 * rotor.vrs + 0.3 * rotor.rbs, 0, 1)
+        local tq = rotor.power / K.power
+        return clamp((tq - P_PROFILE) / (TORQUE_MAX - P_PROFILE) + 0.4 * rotor.vrs + 0.3 * rotor.rbs, 0, 1)
     end
     return clamp(math.abs(last_coll) * 0.8 + 0.15 * len(W) + (v[3] < -4 and 0.3 or 0), 0, 1)
 end
@@ -1049,7 +1102,7 @@ resteep.on("frame", function(dt)
     local pressed, pad = pad_presses()
     dt = clamp(dt, 0.001, 0.05)
     if crash_cool > 0 then crash_cool = crash_cool - dt end
-    if on or hovering then set_model(setting("realistic", false) == true) end
+    if on or hovering then set_model(K.realistic) end
     if hovering then hover(dt) end
     spin_rotors(dt)
     sound_update(dt, sound_load())
@@ -1064,6 +1117,9 @@ resteep.on("frame", function(dt)
     fly(dt, pad)
     if on then seat_step() watch_clips(dt) end
 end)
+
+-- a setting changed on the MODS page: applies from this frame on (the lever, rates and attitude carry on as they are)
+resteep.on("config_change", function() load_settings() end)
 
 resteep.on("world_leave", function()
     if on then stop(nil, true) end
