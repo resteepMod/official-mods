@@ -1,0 +1,61 @@
+{
+ "name": "showcase_skydrop",
+ "operators": {
+  "player": {
+   "op": "GetPlayer"
+  },
+  "where": {
+   "op": "GetEntityPositionOrientation"
+  },
+  "up": {
+   "op": "BasicMath",
+   "data": {
+    "Function": "Add_Vec4",
+    "B": [
+     0,
+     0,
+     400
+    ]
+   }
+  },
+  "drop": {
+   "op": "PlayerTeleport"
+  }
+ },
+ "flow": [
+  [
+   "In",
+   "player.In"
+  ],
+  [
+   "player.Out",
+   "where.In"
+  ],
+  [
+   "where.Out",
+   "up.In"
+  ],
+  [
+   "up.Out",
+   "drop.In"
+  ],
+  [
+   "drop.Out",
+   "Out"
+  ]
+ ],
+ "bind": [
+  [
+   "player.Player",
+   "where.Entity"
+  ],
+  [
+   "where.GlobalPosition",
+   "up.A"
+  ],
+  [
+   "up.Result",
+   "drop.Position"
+  ]
+ ]
+}

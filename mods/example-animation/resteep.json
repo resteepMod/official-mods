@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "id": "example-animation",
+  "title": "Example: Animations",
+  "author": "ReSteep",
+  "settings": [
+    {"key": "double_indy", "type": "toggle", "label": "Indy as a double grab",
+     "info": "The snowboard Indy plays the Truck Driver double grab (both hands).", "default": true}
+  ],
+  "content": {
+    "animations": [
+      {"replace": ["ID00_PS00_male_GRAB_INDY", "ID00_PS00_male_GRAB_INDY_LONG"],
+       "clip": "ID00_PS00_male_DOUBLEGRAB_TRUCKDRIVER", "if": "double_indy"},
+      {"replace": ["ID00_PS00_female_GRAB_INDY", "ID00_PS00_female_GRAB_INDY_LONG"],
+       "clip": "ID00_PS00_female_DOUBLEGRAB_TRUCKDRIVER", "if": "double_indy"},
+      {"replace": ["ID01_PS00_male_GRAB_MUTE", "ID01_PS00_female_GRAB_MUTE"], "speed": 1.5}
+    ]
+  }
+}

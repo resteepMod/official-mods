@@ -1,0 +1,7 @@
+{
+  "name": "Example_Animation",
+  "version_number": "1.0.0",
+  "website_url": "",
+  "description": "Grabs swapped and sped up: an example of content.animations (docs/modding/animations.md).",
+  "dependencies": []
+}

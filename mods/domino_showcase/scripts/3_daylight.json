@@ -1,0 +1,67 @@
+{
+ "name": "showcase_daylight",
+ "operators": {
+  "sunset": {
+   "op": "ChangeAmbianceAndTimeOfDay",
+   "data": {
+    "TimeOfDay": 19.5,
+    "DeltaTime": 3,
+    "Ambiance": "0xd8d3d32c03"
+   }
+  },
+  "w1": {
+   "op": "Delay",
+   "data": {
+    "Duration": 20
+   }
+  },
+  "night": {
+   "op": "ChangeAmbianceAndTimeOfDay",
+   "data": {
+    "TimeOfDay": 23.5,
+    "DeltaTime": 3,
+    "Ambiance": "0xd8d3d32c03"
+   }
+  },
+  "w2": {
+   "op": "Delay",
+   "data": {
+    "Duration": 20
+   }
+  },
+  "noon": {
+   "op": "ChangeAmbianceAndTimeOfDay",
+   "data": {
+    "TimeOfDay": 12,
+    "DeltaTime": 3,
+    "Ambiance": "0xd8d3d32c03"
+   }
+  }
+ },
+ "flow": [
+  [
+   "In",
+   "sunset.Start"
+  ],
+  [
+   "sunset.Started",
+   "w1.Start"
+  ],
+  [
+   "w1.Finished",
+   "night.Start"
+  ],
+  [
+   "night.Started",
+   "w2.Start"
+  ],
+  [
+   "w2.Finished",
+   "noon.Start"
+  ],
+  [
+   "noon.Started",
+   "Out"
+  ]
+ ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Boost",
+  "version_number": "1.0.0",
+  "website_url": "https://github.com/resteepMod/official-mods",
+  "description": "Hold F7 and the rider goes where the camera looks, at a set speed. For getting around a map quickly (a test world, a mod's own terrain). PAGEUP / PAGEDOWN change the speed (10..300 m/s, 60 at the start).",
+  "dependencies": []
+}

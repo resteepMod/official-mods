@@ -1,0 +1,20 @@
+{
+  "format": 1,
+  "id": "resteep_park",
+  "title": "ReSteep Park",
+  "author": "ReSteep",
+  "license": "AGPL-3.0",
+  "content": {
+    "maps": [
+      {
+        "world": "STP_Slopes",
+        "from": "WhiteRoom",
+        "title": "RESTEEP PARK",
+        "edits": "assets/park.json",
+        "drop_zone": [62.9, -9.9, 20.4],
+        "spawn": [62.9, -9.9, 20.4],
+        "ground": "CM_SNOW_Powder_Ground"
+      }
+    ]
+  }
+}

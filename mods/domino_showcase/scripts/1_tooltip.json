@@ -1,0 +1,4 @@
+{"name": "showcase_tooltip",
+ "operators": {"tip": {"op": "DisplayTooltip", "data": {"Message": 12958}},
+               "wait": {"op": "Delay", "data": {"Duration": 6}}},
+ "flow": [["In", "tip.In"], ["In", "wait.Start"], ["wait.Finished", "tip.Stop"], ["tip.Stopped", "Out"]]}

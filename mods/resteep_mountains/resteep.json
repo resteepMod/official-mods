@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "id": "resteep_mountains",
+  "title": "ReSteep Mountains",
+  "author": "ReSteep",
+  "license": "AGPL-3.0",
+  "content": {
+    "maps": [
+      {
+        "world": "STP_Slopes",
+        "from": "WhiteRoom",
+        "title": "MOUNTAINS",
+        "drop_zone": [0.0, 0.0],
+        "spawn": [0.0, 0.0],
+        "terrain": {
+          "generate": {"seed": 7, "low": 1200, "high": 3900, "massif": 5000, "roughness": 0.5},
+          "plateaus": [{"at": [0.0, 0.0], "radius": 300}],
+          "hills": [{"at": [0.0, 450.0], "height": 250, "radius": 180}]
+        }
+      }
+    ]
+  }
+}

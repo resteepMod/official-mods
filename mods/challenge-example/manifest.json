@@ -1,0 +1,7 @@
+{
+  "name": "Challenge_Example",
+  "version_number": "1.0.0",
+  "website_url": "",
+  "description": "Adds a short test race on the Alps (declared in Lua) and, when switched on, a jump challenge (declared in resteep.json). Shows how mods add challenges of every kind.",
+  "dependencies": []
+}

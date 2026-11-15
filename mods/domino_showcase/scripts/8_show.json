@@ -1,0 +1,92 @@
+{
+ "name": "showcase_show",
+ "operators": {
+  "tip": {
+   "op": "DisplayTooltip",
+   "data": {
+    "Message": 19836
+   }
+  },
+  "fanfare": {
+   "op": "SoundPostEvent",
+   "data": {
+    "Sound": 2341999957
+   }
+  },
+  "light": {
+   "op": "ChangeAmbianceAndTimeOfDay",
+   "data": {
+    "TimeOfDay": 19.5,
+    "DeltaTime": 2,
+    "Ambiance": "0xd8d3d32c03"
+   }
+  },
+  "w1": {
+   "op": "Delay",
+   "data": {
+    "Duration": 4
+   }
+  },
+  "drop": {
+   "op": "PlayerTeleport",
+   "data": {
+    "Position": [
+     5330,
+     4660,
+     5613
+    ],
+    "Heading": 90
+   }
+  },
+  "w2": {
+   "op": "Delay",
+   "data": {
+    "Duration": 20
+   }
+  },
+  "done": {
+   "op": "SoundPostEvent",
+   "data": {
+    "Sound": 1370461500
+   }
+  }
+ },
+ "flow": [
+  [
+   "In",
+   "tip.In"
+  ],
+  [
+   "In",
+   "fanfare.Play"
+  ],
+  [
+   "In",
+   "light.Start"
+  ],
+  [
+   "In",
+   "w1.Start"
+  ],
+  [
+   "w1.Finished",
+   "drop.In"
+  ],
+  [
+   "drop.Out",
+   "w2.Start"
+  ],
+  [
+   "w2.Finished",
+   "tip.Stop"
+  ],
+  [
+   "w2.Finished",
+   "done.Play"
+  ],
+  [
+   "done.Posted",
+   "Out"
+  ]
+ ]
+}

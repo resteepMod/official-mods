@@ -1,0 +1,7 @@
+{
+  "name": "Lua_Hat_Demo",
+  "version_number": "1.0.0",
+  "website_url": "",
+  "description": "A striped beanie with a pompom, made by a build script (build.lua) from the colours you pick. Shows own models and own textures without a 3D program.",
+  "dependencies": []
+}

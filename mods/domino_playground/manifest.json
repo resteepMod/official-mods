@@ -1,0 +1,7 @@
+{
+  "name": "Domino_Playground",
+  "version_number": "0.1.0",
+  "website_url": "https://github.com/resteepMod/ReSteep",
+  "description": "A Domino script of its own in the Alps: a few seconds after it starts it drops you from the sky.",
+  "dependencies": []
+}

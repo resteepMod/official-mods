@@ -1,0 +1,38 @@
+{
+  "format": 1,
+  "id": "bluebird.lua-hat-demo",
+  "author": "ReSteep",
+  "resteep": "0.1",
+  "settings": [
+    {
+      "key": "color",
+      "type": "color",
+      "label": "Main colour",
+      "default": "#d23c3c"
+    },
+    {
+      "key": "stripe",
+      "type": "color",
+      "label": "Stripe colour",
+      "default": "#f2f2f2"
+    },
+    {
+      "key": "stripes",
+      "type": "slider",
+      "label": "Stripes",
+      "min": 0,
+      "max": 8,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "key": "pompom",
+      "type": "toggle",
+      "label": "Pompom",
+      "default": true
+    }
+  ],
+  "content": {
+    "build": "build.lua"
+  }
+}

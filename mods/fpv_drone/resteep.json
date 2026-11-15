@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "id": "fpv_drone",
+  "title": "FPV drone",
+  "author": "ReSteep",
+  "license": "AGPL-3.0",
+  "script": "main.lua",
+  "settings": [
+    {"key": "launch", "type": "key", "label": "Launch / bring back the drone", "default": "G"},
+    {"key": "throttle", "type": "choice", "label": "Throttle", "default": "hover",
+     "info": "Hover: the left stick's centre hovers (down falls, up climbs). Full range: bottom is 0, centre half, like a radio's throttle. Trigger: RT.",
+     "options": [{"value": "hover", "label": "Left stick, centre hovers"},
+                 {"value": "stick", "label": "Left stick, full range"},
+                 {"value": "trigger", "label": "Right trigger"}]},
+    {"key": "mode", "type": "choice", "label": "Stick mode", "default": "2",
+     "info": "Mode 2: throttle and yaw left, pitch and roll right. Mode 1: pitch and yaw left, throttle and roll right.",
+     "options": [{"value": "2", "label": "Mode 2"}, {"value": "1", "label": "Mode 1"}]},
+    {"key": "rc_rate", "type": "slider", "label": "RC rate", "default": 1.0, "min": 0.1, "max": 2.5, "step": 0.05,
+     "info": "Betaflight rates: how fast it turns around the centre (200 deg/s x RC rate at full stick before super rate)."},
+    {"key": "super_rate", "type": "slider", "label": "Super rate", "default": 0.7, "min": 0, "max": 0.95, "step": 0.01,
+     "info": "Raises the turn rate towards full stick: 1.0 / 0.7 / 0 gives about 670 deg/s."},
+    {"key": "expo", "type": "slider", "label": "Expo", "default": 0.0, "min": 0, "max": 1, "step": 0.01,
+     "info": "Softens the sticks around the centre."},
+    {"key": "deadzone", "type": "slider", "label": "Stick dead zone", "default": 0.05, "min": 0, "max": 0.3, "step": 0.01},
+    {"key": "power", "type": "slider", "label": "Thrust to weight", "default": 5, "min": 2, "max": 10, "step": 0.5,
+     "info": "Full throttle lifts this many times the drone's weight; it hovers at 1 / this throttle."},
+    {"key": "camera_angle", "type": "slider", "label": "Camera tilt", "default": 25, "min": 0, "max": 60, "step": 1,
+     "unit": "deg", "info": "How far the camera looks up from the nose: more for faster flying."},
+    {"key": "fov", "type": "slider", "label": "Field of view (vertical)", "default": 90, "min": 60, "max": 130, "step": 1,
+     "unit": "deg"},
+    {"key": "range", "type": "number", "label": "Range from the rider (m)", "default": 300, "min": 50, "max": 2000}
+  ]
+}

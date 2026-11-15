@@ -1,0 +1,531 @@
+{
+ "format": 1,
+ "packages": [
+  {
+   "id": "airtime_contest",
+   "name": "Airtime_Contest",
+   "title": "Air-time contest",
+   "version": "1.0.0",
+   "description": "Every landing after at least one second in the air counts; the longest goes to the server's board \"longest_air\" (higher is better) and the top 3 show for a few seconds.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Airtime_Contest",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/airtime_contest-1.0.0.resteep",
+   "sha256": "bf4046d6e75839cf07a8f02d65501c960ec9e6d04ede79e5455010db165a972d",
+   "size": 2123,
+   "icon": "icons/airtime_contest.png"
+  },
+  {
+   "id": "boost",
+   "name": "Boost",
+   "title": "Boost",
+   "version": "1.0.0",
+   "description": "Hold F7 and the rider goes where the camera looks, at a set speed. For getting around a map quickly (a test world, a mod's own terrain). PAGEUP / PAGEDOWN change the speed (10..300 m/s, 60 at the start).",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Boost",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/boost-1.0.0.resteep",
+   "sha256": "6e60ebc1f4269e28a0f1ae7b331edb0ce9fd466a2692981a34326e5485d6c8de",
+   "size": 2264,
+   "icon": "icons/boost.png"
+  },
+  {
+   "id": "camera_fx",
+   "name": "Camera_Fx",
+   "title": "Camera effects",
+   "version": "1.0.0",
+   "description": "F6 goes through wide angle, zoom, dutch angle, crane shot, orbit and back to the game's own camera. The effect has to be renewed every frame (it ends 250 ms after the mod stops); the game keeps steering the camera.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Camera_Fx",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/camera_fx-1.0.0.resteep",
+   "sha256": "786d99dbdeeb91be180a5f28fd90e13effe91380883afa3a354affef6ecd6d17",
+   "size": 2167,
+   "icon": "icons/camera_fx.png"
+  },
+  {
+   "id": "challenge-example",
+   "name": "Challenge_Example",
+   "title": "Challenge Example",
+   "version": "1.0.0",
+   "description": "Adds a short test race on the Alps (declared in Lua) and, when switched on, a jump challenge (declared in resteep.json). Shows how mods add challenges of every kind.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Challenge_Example",
+   "website_url": "",
+   "dependencies": [],
+   "kinds": [
+    "items",
+    "challenges",
+    "music",
+    "settings"
+   ],
+   "file": "packages/challenge-example-1.0.0.resteep",
+   "sha256": "56d8f09a4b0026de2e618b94ddfa10666cda1585cc16b1caf97b27abb02494c9",
+   "size": 230946,
+   "icon": "icons/challenge-example.png"
+  },
+  {
+   "id": "checkpoint_race",
+   "name": "Checkpoint_Race",
+   "title": "Checkpoint race",
+   "version": "1.0.0",
+   "description": "Build a course where you ride, race it, compare times on the server.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Checkpoint_Race",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/checkpoint_race-1.0.0.resteep",
+   "sha256": "d32ccf6f256af763adf5bb3c1e0ed849231e9c642d5a61381a73acc1efbeee7d",
+   "size": 3665,
+   "icon": "icons/checkpoint_race.png"
+  },
+  {
+   "id": "crash_log",
+   "name": "Crash_Log",
+   "title": "Crash log",
+   "version": "1.0.0",
+   "description": "Counts falls per sport, shows the last one and the sport in the top left corner, remembers the counts. Uses the rider events sport_change / crash / crash_end and resteep.sport() (MODDING.md).",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Crash_Log",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/crash_log-1.0.0.resteep",
+   "sha256": "25f99e8e0ad72a51ff5c3e3cc332eff5d1765bab874beb6ecbdd652274cfbc50",
+   "size": 2005,
+   "icon": "icons/crash_log.png"
+  },
+  {
+   "id": "devtools",
+   "name": "Devtools",
+   "title": "Dev tools for mod authors",
+   "version": "1.0.0",
+   "description": "F9 writes where you are (position, velocity, air) and the world state to the MODS console and shows it for a moment; hold Ctrl+F9 to keep it on screen.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Devtools",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/devtools-1.0.0.resteep",
+   "sha256": "d6130d41d2a92aca3fafc7194f3837d15e7f0e5bbac9e366346daa04e6d3035c",
+   "size": 2083,
+   "icon": "icons/devtools.png"
+  },
+  {
+   "id": "domino_playground",
+   "name": "Domino_Playground",
+   "title": "Domino playground",
+   "version": "0.1.0",
+   "description": "A Domino script of its own in the Alps: a few seconds after it starts it drops you from the sky.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Domino_Playground",
+   "website_url": "https://github.com/resteepMod/ReSteep",
+   "dependencies": [],
+   "kinds": [
+    "world",
+    "script"
+   ],
+   "file": "packages/domino_playground-0.1.0.resteep",
+   "sha256": "b6549ca8b075420a77fabb22bcf91bb87b5a7ddfdb78eaff4289e75df412c442",
+   "size": 2227,
+   "icon": "icons/domino_playground.png"
+  },
+  {
+   "id": "domino_showcase",
+   "name": "Domino_Showcase",
+   "title": "Domino showcase",
+   "version": "0.1.0",
+   "description": "Everything a mod's Domino script can do today, one key each, next to the Alps' tutorial start.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Domino_Showcase",
+   "website_url": "https://github.com/resteepMod/ReSteep",
+   "dependencies": [],
+   "kinds": [
+    "world",
+    "script",
+    "settings"
+   ],
+   "file": "packages/domino_showcase-0.1.0.resteep",
+   "sha256": "7e26913bee280eb073b7a5ab03894dcda1dde30b6bfcb3edeca71ab70d0996fb",
+   "size": 7022,
+   "icon": "icons/domino_showcase.png"
+  },
+  {
+   "id": "event_notify",
+   "name": "Event_Notify",
+   "title": "Event notifications",
+   "version": "1.0.0",
+   "description": "Every event ReSteep raises shows a notification (and a line in the MODS console) when it fires. For checking that the events work. \"frame\" is left out (it fires every frame); \"key\" shows the key name.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Event_Notify",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/event_notify-1.0.0.resteep",
+   "sha256": "71a8b05743d64a2b8e8cfa5de4ae1015bedd0c09bfc35544b95605dec26df79f",
+   "size": 2145,
+   "icon": "icons/event_notify.png"
+  },
+  {
+   "id": "example-animation",
+   "name": "Example_Animation",
+   "title": "Example: Animations",
+   "version": "1.0.0",
+   "description": "Grabs swapped and sped up: an example of content.animations (docs/modding/animations.md).",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Example_Animation",
+   "website_url": "",
+   "dependencies": [],
+   "kinds": [
+    "animations",
+    "script",
+    "settings"
+   ],
+   "file": "packages/example-animation-1.0.0.resteep",
+   "sha256": "4455da5f25506da5b3985e4fd93f12021ac41ad93dce69609fd089cf0e70b15f",
+   "size": 2447,
+   "icon": "icons/example-animation.png"
+  },
+  {
+   "id": "fpv_drone",
+   "name": "FPV_Drone",
+   "title": "FPV drone",
+   "version": "0.1.0",
+   "description": "Launch a drone like the game's own and fly it first-person: keyboard and mouse, or a gamepad.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-FPV_Drone",
+   "website_url": "https://github.com/resteepMod/ReSteep",
+   "dependencies": [],
+   "kinds": [
+    "script",
+    "settings"
+   ],
+   "file": "packages/fpv_drone-0.1.0.resteep",
+   "sha256": "84312119201079f9be63e5db456ed470f66b1ffb634c16d9e3ba4322ca8db18f",
+   "size": 6616,
+   "icon": "icons/fpv_drone.png"
+  },
+  {
+   "id": "framestep",
+   "name": "Framestep",
+   "title": "Frame step",
+   "version": "1.0.0",
+   "description": "F10 freezes the whole world (the engine's stop mode), \".\" runs one simulation step, \",\" ten. F10 again lets it run. The game cuts to its pause camera while frozen.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Framestep",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/framestep-1.0.0.resteep",
+   "sha256": "5b133beaf6ba62765b7ca33e17c0430fee6de3b07bc9509d5d9242280fa3b8c8",
+   "size": 1600,
+   "icon": "icons/framestep.png"
+  },
+  {
+   "id": "golden_hour",
+   "name": "Golden_Hour",
+   "title": "Golden hour",
+   "version": "1.0.0",
+   "description": "Ctrl+G holds the light at sunset (19:30, clock paused); Ctrl+G again gives the game its clock back.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Golden_Hour",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/golden_hour-1.0.0.resteep",
+   "sha256": "53294382730550b19d4e523f25cbe33083c84184f756c0805ddb6ccaaf4031fb",
+   "size": 1678,
+   "icon": "icons/golden_hour.png"
+  },
+  {
+   "id": "example_helicopter",
+   "name": "Example_Helicopter",
+   "title": "Helicopter (example)",
+   "version": "0.1.0",
+   "description": "Fly the rider like a helicopter, inside the Alps' own Red Bull helicopter; Alaska and Japan get a copy of it, built against your install at game start.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Example_Helicopter",
+   "website_url": "https://github.com/resteepMod/ReSteep",
+   "dependencies": [],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/example_helicopter-0.1.0.resteep",
+   "sha256": "75decff13ca64e0b2ec20012d7ca2f4bdd42770cdc2902000eefcb72e74c0332",
+   "size": 177155,
+   "icon": "icons/example_helicopter.png"
+  },
+  {
+   "id": "hello-config",
+   "name": "Hello_Config",
+   "title": "Hello Config",
+   "version": "1.0.0",
+   "description": "Settings test for scripts: press F9 in the game to see the strength you set. Changing a setting writes a line to the console (config_change).",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Hello_Config",
+   "website_url": "",
+   "dependencies": [],
+   "kinds": [
+    "script",
+    "settings"
+   ],
+   "file": "packages/hello-config-1.0.0.resteep",
+   "sha256": "192e657d6c6604ea8724c82a21b8ee50057d5886fce2f6b383dca48a006377dc",
+   "size": 2280,
+   "icon": "icons/hello-config.png"
+  },
+  {
+   "id": "bluebird.lua-hat-demo",
+   "name": "Lua_Hat_Demo",
+   "title": "Lua Hat Demo",
+   "version": "1.0.0",
+   "description": "A striped beanie with a pompom, made by a build script (build.lua) from the colours you pick. Shows own models and own textures without a 3D program.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Lua_Hat_Demo",
+   "website_url": "",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "items",
+    "settings"
+   ],
+   "file": "packages/bluebird.lua-hat-demo-1.0.0.resteep",
+   "sha256": "68f3e1dc23f629837b648d4cd31fe8ebb99675c19f069f59f3cefee6b84ae7ec",
+   "size": 31318,
+   "icon": "icons/bluebird.lua-hat-demo.png"
+  },
+  {
+   "id": "markers",
+   "name": "Markers",
+   "title": "Markers",
+   "version": "1.0.0",
+   "description": "Rings in the world. A ring on you with your speed, and four rings 10 m north/south/east/west at your height. Shows that resteep.marker follows the game's camera (use it with the free camera or the rider turning).",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Markers",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/markers-1.0.0.resteep",
+   "sha256": "0fe41c26fdb7d4751484cda0ba59d21a953c1a40cfa068fd98cc7267619a7429",
+   "size": 1716,
+   "icon": "icons/markers.png"
+  },
+  {
+   "id": "physics_playground",
+   "name": "Physics_Playground",
+   "title": "Physics playground",
+   "version": "0.1.0",
+   "description": "Change the ski and snowboard physics while you ride (resteep.handling): jump, air drag, mass, snow.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Physics_Playground",
+   "website_url": "https://github.com/resteepMod/ReSteep",
+   "dependencies": [],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/physics_playground-0.1.0.resteep",
+   "sha256": "b224153ab2a6efa75324a79b2a124c28326c924714f54b834b3c4e82cc374a12",
+   "size": 2514,
+   "icon": "icons/physics_playground.png"
+  },
+  {
+   "id": "bluebird.boxes",
+   "name": "ReSteep_Boxes",
+   "title": "ReSteep Boxes",
+   "version": "1.0.0",
+   "description": "A wireframe of the space every slot may use: start here before you model your own gear.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-ReSteep_Boxes",
+   "website_url": "",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "items"
+   ],
+   "file": "packages/bluebird.boxes-1.0.0.resteep",
+   "sha256": "d9605604aedf001e14e0e79490212e70334779eb0c1c6073d2512d269e43bd54",
+   "size": 83222,
+   "icon": "icons/bluebird.boxes.png"
+  },
+  {
+   "id": "resteep_hill",
+   "name": "ReSteep_Hill",
+   "title": "ReSteep Hill",
+   "version": "0.1.0",
+   "description": "A test massif: one smooth snow hill of our own (about 55 m, rollers, banked rims) over the menu world's valley, to ride custom ground. Takes the park's world name: enable one of the two. Built against your install at game start.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-ReSteep_Hill",
+   "website_url": "https://github.com/resteepMod/ReSteep",
+   "dependencies": [],
+   "kinds": [
+    "map"
+   ],
+   "file": "packages/resteep_hill-0.1.0.resteep",
+   "sha256": "34b470ae597ef53df3e64e10dae1ca0c037d4c0ac6973970a5d948d15771ee47",
+   "size": 385652,
+   "icon": "icons/resteep_hill.png"
+  },
+  {
+   "id": "resteep_mountains",
+   "name": "ReSteep_Mountains",
+   "title": "ReSteep Mountains",
+   "version": "0.1.0",
+   "description": "A map with mountains of its own, generated from a seed in resteep.json: change the seed for another range. Takes the park's world name: enable one of park, hill, terrain test, this.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-ReSteep_Mountains",
+   "website_url": "https://github.com/resteepMod/ReSteep",
+   "dependencies": [],
+   "kinds": [
+    "map"
+   ],
+   "file": "packages/resteep_mountains-0.1.0.resteep",
+   "sha256": "7669d921e2da1c6baea0d787667b68567c548dc69fe6adaf96503fa79042bd56",
+   "size": 2242,
+   "icon": "icons/resteep_mountains.png"
+  },
+  {
+   "id": "resteep_park",
+   "name": "ReSteep_Park",
+   "title": "ReSteep Park",
+   "version": "0.1.0",
+   "description": "A small fourth massif next to the Alps, Asia and Alaska: the menu world's valley with its huts, and Alaska's wooden in-run as a jump. Built against your install at game start.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-ReSteep_Park",
+   "website_url": "https://github.com/resteepMod/ReSteep",
+   "dependencies": [],
+   "kinds": [
+    "map"
+   ],
+   "file": "packages/resteep_park-0.1.0.resteep",
+   "sha256": "21a70fa65e4a38397622fab04946ab3a2dc856b2399abdac6214bec29db17b72",
+   "size": 2904,
+   "icon": "icons/resteep_park.png"
+  },
+  {
+   "id": "rider-colors",
+   "name": "Rider_Colors",
+   "title": "Rider Colors",
+   "version": "1.0.0",
+   "description": "Paints your rider's starter backpack and pants in a colour of your choice. Pick the colour and brightness in the settings; changing them needs a game restart, because the game reads its textures at start.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Rider_Colors",
+   "website_url": "",
+   "dependencies": [],
+   "kinds": [
+    "textures",
+    "settings"
+   ],
+   "file": "packages/rider-colors-1.0.0.resteep",
+   "sha256": "2a3ea48744ec5666c85178ae755ea46cfd48b9551b505f52b329b68040db6e1d",
+   "size": 77553,
+   "icon": "icons/rider-colors.png"
+  },
+  {
+   "id": "example_script",
+   "name": "Example_Script",
+   "title": "Script (example)",
+   "version": "0.1.0",
+   "description": "A Domino script of the mod's own, run by the game's script engine; its Lua lists, stops and starts it.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Example_Script",
+   "website_url": "https://github.com/resteepMod/ReSteep",
+   "dependencies": [],
+   "kinds": [
+    "world",
+    "script"
+   ],
+   "file": "packages/example_script-0.1.0.resteep",
+   "sha256": "fad0a302d546ccc7d4529078748425936b8192f366cf3d1b6bb8da9f8829b749",
+   "size": 2270,
+   "icon": "icons/example_script.png"
+  },
+  {
+   "id": "speedometer",
+   "name": "Speedometer",
+   "title": "Speedometer",
+   "version": "1.0.0",
+   "description": "Speed and air time in the bottom right corner. The smallest useful mod.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Speedometer",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script"
+   ],
+   "file": "packages/speedometer-1.0.0.resteep",
+   "sha256": "52012af19403020442633ef7e6c87aa43b736272c628ba710e5bcb8df18b269d",
+   "size": 1592,
+   "icon": "icons/speedometer.png"
+  },
+  {
+   "id": "gopro_stabilized",
+   "name": "GoPro_Stabilized",
+   "title": "Stabilized GoPro cam",
+   "version": "0.1.0",
+   "description": "Steadies the first-person GoPro head cam: smoothed, the horizon level, a GoPro-like lens.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-GoPro_Stabilized",
+   "website_url": "https://github.com/resteepMod/ReSteep",
+   "dependencies": [],
+   "kinds": [
+    "script",
+    "settings"
+   ],
+   "file": "packages/gopro_stabilized-0.1.0.resteep",
+   "sha256": "7065331fb96389f2cb8743061b4aebf8160014af131b3d01a96825f7d66e1634",
+   "size": 6472,
+   "icon": "icons/gopro_stabilized.png"
+  }
+ ]
+}

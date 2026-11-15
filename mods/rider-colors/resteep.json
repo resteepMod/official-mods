@@ -1,0 +1,56 @@
+{
+  "format": 1,
+  "id": "rider-colors",
+  "author": "ReSteep",
+  "settings": [
+    {
+      "key": "backpack",
+      "type": "toggle",
+      "label": "Paint the backpack",
+      "info": "Turn off to keep the original backpack.",
+      "default": true
+    },
+    {
+      "key": "pants",
+      "type": "toggle",
+      "label": "Paint the pants",
+      "info": "Turn off to keep the original pants.",
+      "default": true
+    },
+    {
+      "key": "color",
+      "type": "color",
+      "label": "Colour",
+      "info": "The colour both parts are painted in.",
+      "default": "#ff6a00"
+    },
+    {
+      "key": "brightness",
+      "type": "slider",
+      "label": "Brightness",
+      "info": "Darker or lighter paint.",
+      "default": 1.0,
+      "min": 0.3,
+      "max": 1.2,
+      "step": 0.05
+    }
+  ],
+  "content": {
+    "textures": [
+      {
+        "target": "0x78fd63167d",
+        "file": "textures/base.png",
+        "tint": "${color}",
+        "brightness": "${brightness}",
+        "if": "backpack"
+      },
+      {
+        "target": "0x78fd6338fc",
+        "file": "textures/base.png",
+        "tint": "${color}",
+        "brightness": "${brightness}",
+        "if": "pants"
+      }
+    ]
+  }
+}

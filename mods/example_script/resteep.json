@@ -1,0 +1,11 @@
+{
+  "format": 1,
+  "id": "example_script",
+  "title": "Script (example)",
+  "author": "ReSteep",
+  "license": "AGPL-3.0",
+  "script": "main.lua",
+  "content": {
+    "scripts": [{"map": "Alpes", "at": [5370, 4690, 5213], "graph": "scripts/wait.json"}]
+  }
+}

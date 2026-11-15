@@ -1,0 +1,4 @@
+{"name": "skydrop",
+ "operators": {"wait": {"op": "Delay", "data": {"Duration": 5}},
+               "drop": {"op": "PlayerTeleport", "data": {"Position": [5370, 4690, 5613], "Heading": 90}}},
+ "flow": [["In", "wait.Start"], ["wait.Finished", "drop.In"], ["drop.Out", "Out"]]}

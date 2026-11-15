@@ -1,0 +1,224 @@
+{
+  "format": 1,
+  "id": "domino_showcase",
+  "title": "Domino showcase",
+  "author": "ReSteep",
+  "license": "AGPL-3.0",
+  "script": "main.lua",
+  "content": {
+    "worlds": [
+      {
+        "map": "Alpes",
+        "edits": "worlds/alps.json"
+      }
+    ],
+    "scripts": [
+      {
+        "map": "Alpes",
+        "at": [
+          5300,
+          4640,
+          5157
+        ],
+        "graph": "scripts/1_tooltip.json",
+        "id": "0x1F601000000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Alpes",
+        "at": [
+          5302,
+          4640,
+          5157
+        ],
+        "graph": "scripts/2_sound.json",
+        "id": "0x1F601001000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Alpes",
+        "at": [
+          5304,
+          4640,
+          5157
+        ],
+        "graph": "scripts/3_daylight.json",
+        "id": "0x1F601002000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Alpes",
+        "at": [
+          5306,
+          4640,
+          5157
+        ],
+        "graph": "scripts/4_kicker.json",
+        "id": "0x1F601003000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Alpes",
+        "at": [
+          5308,
+          4640,
+          5157
+        ],
+        "graph": "scripts/5_skydrop.json",
+        "id": "0x1F601004000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Alpes",
+        "at": [
+          5310,
+          4640,
+          5157
+        ],
+        "graph": "scripts/6_respawn.json",
+        "id": "0x1F601005000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Alpes",
+        "at": [
+          5312,
+          4640,
+          5157
+        ],
+        "graph": "scripts/7_stop.json",
+        "id": "0x1F601006000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Alpes",
+        "at": [
+          5314,
+          4640,
+          5157
+        ],
+        "graph": "scripts/8_show.json",
+        "id": "0x1F601007000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Japan",
+        "at": [
+          -4230,
+          4729,
+          2061
+        ],
+        "graph": "scripts/1_tooltip.json",
+        "id": "0x1F602000000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Japan",
+        "at": [
+          -4228,
+          4729,
+          2061
+        ],
+        "graph": "scripts/2_sound.json",
+        "id": "0x1F602001000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Japan",
+        "at": [
+          -4226,
+          4729,
+          2061
+        ],
+        "graph": "scripts/3_daylight.json",
+        "id": "0x1F602002000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Japan",
+        "at": [
+          -4222,
+          4729,
+          2061
+        ],
+        "graph": "scripts/5_skydrop.json",
+        "id": "0x1F602004000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Japan",
+        "at": [
+          -4220,
+          4729,
+          2061
+        ],
+        "graph": "scripts/6_respawn.json",
+        "id": "0x1F602005000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Japan",
+        "at": [
+          -4218,
+          4729,
+          2061
+        ],
+        "graph": "scripts/7_stop.json",
+        "id": "0x1F602006000",
+        "start": "lua",
+        "anywhere": true
+      },
+      {
+        "map": "Japan",
+        "at": [
+          -4216,
+          4729,
+          2061
+        ],
+        "graph": "scripts/8_show_japan.json",
+        "id": "0x1F602007000",
+        "start": "lua",
+        "anywhere": true
+      }
+    ]
+  },
+  "settings": [
+    {
+      "key": "next",
+      "type": "key",
+      "label": "Pick the next effect",
+      "default": "J"
+    },
+    {
+      "key": "run",
+      "type": "key",
+      "label": "Run the picked effect",
+      "default": "K"
+    },
+    {
+      "key": "stop",
+      "type": "key",
+      "label": "Stop every effect",
+      "default": "L"
+    },
+    {
+      "key": "number_row",
+      "type": "toggle",
+      "label": "Number row 1-8 runs an effect directly",
+      "default": true
+    }
+  ]
+}

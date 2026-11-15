@@ -1,0 +1,12 @@
+{"edits": [
+ {"n": 1, "map": "WhiteRoom", "op": "add", "name": "in-run",
+  "src": {"map": "Alaska", "layer": 0, "cell": 11378, "id": "0x12a9719465f"}, "pos": [60, -8.4, 13.5], "yaw": 55.7},
+ {"n": 2, "map": "WhiteRoom", "op": "add", "name": "kicker",
+  "src": {"map": "Alpes", "layer": 0, "cell": 1615, "id": "0xdcfafff8bd"}, "pos": [-6, 2.5, -1.3], "yaw": -90},
+ {"n": 3, "map": "WhiteRoom", "op": "remove", "obj": {"layer": 0, "cell": 28, "id": "0xd8d3d94146"}},
+ {"n": 4, "map": "WhiteRoom", "op": "remove", "obj": {"layer": 0, "cell": 28, "id": "0xd8d3d94147"}},
+ {"n": 5, "map": "WhiteRoom", "op": "remove", "obj": {"layer": 0, "cell": 28, "id": "0xd8d3d94148"}},
+ {"n": 6, "map": "WhiteRoom", "op": "remove", "obj": {"layer": 0, "cell": 28, "id": "0xd8d3d94149"}},
+ {"n": 7, "map": "WhiteRoom", "op": "remove", "obj": {"layer": 0, "cell": 36, "id": "0xd8d3d9414c"}},
+ {"n": 8, "map": "WhiteRoom", "op": "remove", "obj": {"layer": 0, "cell": 28, "id": "0xd8d3d96572"}}
+]}

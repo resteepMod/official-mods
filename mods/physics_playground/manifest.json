@@ -1,0 +1,7 @@
+{
+  "name": "Physics_Playground",
+  "version_number": "0.1.0",
+  "website_url": "https://github.com/resteepMod/ReSteep",
+  "description": "Change the ski and snowboard physics while you ride (resteep.handling): jump, air drag, mass, snow.",
+  "dependencies": []
+}

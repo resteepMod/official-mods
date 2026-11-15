@@ -1,0 +1,174 @@
+{
+  "format": 1,
+  "id": "bluebird.boxes",
+  "author": "ReSteep",
+  "resteep": "0.1",
+  "content": {
+    "items": [
+      {
+        "key": "backpacks",
+        "slot": "backpacks",
+        "title": "Box Backpack",
+        "model": "models/backpacks.glb",
+        "name": "BACKPACK_MF_BB901",
+        "options": {
+          "weights": "rigid"
+        }
+      },
+      {
+        "key": "costumes",
+        "slot": "costumes",
+        "title": "Box Costume",
+        "model": "models/costumes.glb",
+        "name": "COSTUME_MF_BB901"
+      },
+      {
+        "key": "gloves",
+        "slot": "gloves",
+        "title": "Box Gloves",
+        "model": "models/gloves.glb",
+        "name": "GLOVES_MF_BB901"
+      },
+      {
+        "key": "goggles",
+        "slot": "goggles",
+        "title": "Box Goggles",
+        "model": "models/goggles.glb",
+        "name": "GOGGLES_MF_BB901"
+      },
+      {
+        "key": "hats",
+        "slot": "hats",
+        "title": "Box Hat",
+        "model": "models/hats.glb",
+        "name": "HATS_MF_BB901"
+      },
+      {
+        "key": "helmets",
+        "slot": "helmets",
+        "title": "Box Helmet",
+        "model": "models/helmets.glb",
+        "name": "HELMET_MF_BB901"
+      },
+      {
+        "key": "jackets",
+        "slot": "jackets",
+        "title": "Box Jacket",
+        "model": "models/jackets.glb",
+        "name": "JACKET_M_BB901"
+      },
+      {
+        "key": "pants",
+        "slot": "pants",
+        "title": "Box Pants",
+        "model": "models/pants.glb",
+        "name": "PANTS_M_BB901"
+      },
+      {
+        "key": "parachutes",
+        "slot": "parachutes",
+        "title": "Box Parachute",
+        "model": "models/parachutes.glb",
+        "name": "PARACHUTE_MF_BB901"
+      },
+      {
+        "key": "paragliders",
+        "slot": "paragliders",
+        "title": "Box Paraglider",
+        "model": "models/paragliders.glb",
+        "name": "PARAGLIDE_MF_BB901"
+      },
+      {
+        "key": "rocket_wingsuits",
+        "slot": "rocket_wingsuits",
+        "title": "Box Rocket Wingsuit",
+        "model": "models/rocket_wingsuits.glb",
+        "name": "ROCKETWINGSUIT_MF_BB901"
+      },
+      {
+        "key": "scarves",
+        "slot": "scarves",
+        "title": "Box Scarf",
+        "model": "models/scarves.glb",
+        "name": "SCARF_MF_BB901"
+      },
+      {
+        "key": "skipoles",
+        "slot": "skipoles",
+        "title": "Box Ski Poles",
+        "model": "models/skipoles.glb",
+        "name": "SKI_MF_BB903"
+      },
+      {
+        "key": "skis",
+        "slot": "skis",
+        "title": "Box Skis",
+        "model": "models/skis.glb",
+        "name": "SKI_MF_BB901"
+      },
+      {
+        "key": "skishoes",
+        "slot": "skishoes",
+        "title": "Box Ski Boots",
+        "model": "models/skishoes.glb",
+        "name": "SHOES_MF_BB901"
+      },
+      {
+        "key": "sleds",
+        "slot": "sleds",
+        "title": "Box Sled",
+        "model": "models/sleds.glb",
+        "name": "SLED_MF_BB901"
+      },
+      {
+        "key": "snowboards",
+        "slot": "snowboards",
+        "title": "Box Snowboard",
+        "model": "models/snowboards.glb",
+        "name": "SNOWBOARD_MF_BB901"
+      },
+      {
+        "key": "snowboardshoes",
+        "slot": "snowboardshoes",
+        "title": "Box Snowboard Boots",
+        "model": "models/snowboardshoes.glb",
+        "name": "SHOES_MF_BB902"
+      },
+      {
+        "key": "speedriding_wings",
+        "slot": "speedriding_wings",
+        "title": "Box Speed Riding Wing",
+        "model": "models/speedriding_wings.glb",
+        "name": "SPEEDRIDINGWING_MF_BB901"
+      },
+      {
+        "key": "tools",
+        "slot": "tools",
+        "title": "Box Tool",
+        "model": "models/tools.glb",
+        "name": "TOOL_MF_BB901"
+      },
+      {
+        "key": "tools_side",
+        "slot": "tools_side",
+        "title": "Box Side Tools",
+        "model": "models/tools_side.glb",
+        "name": "GEAR_TOOLSIDES_BB901"
+      },
+      {
+        "key": "wingsuit_helmets",
+        "slot": "wingsuit_helmets",
+        "title": "Box Wingsuit Helmet",
+        "model": "models/wingsuit_helmets.glb",
+        "name": "HELMET_WS_MF_BB901"
+      },
+      {
+        "key": "wingsuits",
+        "slot": "wingsuits",
+        "title": "Box Wingsuit",
+        "model": "models/wingsuits.glb",
+        "name": "WINGSUIT_MF_BB901"
+      }
+    ]
+  }
+}

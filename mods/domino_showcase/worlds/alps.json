@@ -1,0 +1,24 @@
+{
+ "edits": [
+  {
+   "n": 1,
+   "map": "Alpes",
+   "op": "add",
+   "name": "showcase kicker",
+   "template": true,
+   "id": "0x1F601100000",
+   "src": {
+    "layer": 0,
+    "cell": 1615,
+    "id": "0xdcfafff8bd"
+   },
+   "pos": [
+    5330,
+    4660,
+    5157
+   ],
+   "yaw": 0,
+   "cell": 21844
+  }
+ ]
+}

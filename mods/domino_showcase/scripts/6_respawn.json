@@ -1,0 +1,4 @@
+{"name": "showcase_respawn",
+ "operators": {"wait": {"op": "Delay", "data": {"Duration": 3}},
+               "back": {"op": "ForceRespawnPlayer"}},
+ "flow": [["In", "wait.Start"], ["wait.Finished", "back.In"], ["back.Out", "Out"]]}

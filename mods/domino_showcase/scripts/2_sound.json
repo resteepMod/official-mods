@@ -1,0 +1,5 @@
+{"name": "showcase_sound",
+ "operators": {"a": {"op": "SoundPostEvent", "data": {"Sound": 2341999957}},
+               "wait": {"op": "Delay", "data": {"Duration": 1.5}},
+               "b": {"op": "SoundPostEvent", "data": {"Sound": 1370461500}}},
+ "flow": [["In", "a.Play"], ["a.Posted", "wait.Start"], ["wait.Finished", "b.Play"], ["b.Posted", "Out"]]}

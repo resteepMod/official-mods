@@ -1,0 +1,8 @@
+{
+  "format": 1,
+  "id": "physics_playground",
+  "title": "Physics playground",
+  "author": "ReSteep",
+  "license": "AGPL-3.0",
+  "script": "main.lua"
+}

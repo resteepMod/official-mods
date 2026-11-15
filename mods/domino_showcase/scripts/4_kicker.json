@@ -1,0 +1,85 @@
+{
+ "name": "showcase_kicker",
+ "operators": {
+  "spawn": {
+   "op": "SpawnEntity",
+   "data": {
+    "Entity": "0x1F601100000"
+   }
+  },
+  "player": {
+   "op": "GetPlayer"
+  },
+  "to_player": {
+   "op": "SetEntityPosition"
+  },
+  "ahead": {
+   "op": "SetEntityPosition",
+   "data": {
+    "TargetPosition": [
+     0,
+     15,
+     -1
+    ],
+    "PositionOperation": "add_local"
+   }
+  },
+  "wait": {
+   "op": "Delay",
+   "data": {
+    "Duration": 30
+   }
+  },
+  "gone": {
+   "op": "UnSpawnEntity"
+  }
+ },
+ "flow": [
+  [
+   "In",
+   "spawn.In"
+  ],
+  [
+   "spawn.Out",
+   "player.In"
+  ],
+  [
+   "player.Out",
+   "to_player.In"
+  ],
+  [
+   "to_player.Out",
+   "ahead.In"
+  ],
+  [
+   "ahead.Out",
+   "wait.Start"
+  ],
+  [
+   "wait.Finished",
+   "gone.In"
+  ],
+  [
+   "gone.Out",
+   "Out"
+  ]
+ ],
+ "bind": [
+  [
+   "spawn.SpawnedEntity",
+   "to_player.Entity"
+  ],
+  [
+   "player.Player",
+   "to_player.TargetPosition"
+  ],
+  [
+   "spawn.SpawnedEntity",
+   "ahead.Entity"
+  ],
+  [
+   "spawn.SpawnedEntity",
+   "gone.SpawnedEntity"
+  ]
+ ]
+}

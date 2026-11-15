@@ -1,0 +1,86 @@
+{
+  "format": 1,
+  "id": "challenge-example",
+  "title": "Challenge Example",
+  "author": "ReSteep",
+  "settings": [
+    {
+      "key": "gold",
+      "type": "slider",
+      "label": "Gold time",
+      "info": "Seconds for gold on the test race (silver and bronze follow).",
+      "min": 20,
+      "max": 120,
+      "step": 5,
+      "unit": "s",
+      "default": 45
+    },
+    {
+      "key": "jump",
+      "type": "toggle",
+      "label": "Jump challenge",
+      "info": "Also add the example jump challenge (declared in resteep.json).",
+      "default": false
+    },
+    {
+      "key": "butterfly",
+      "type": "toggle",
+      "label": "Music on Butterfly",
+      "info": "Butterfly (the paraglider challenge in the Alps) plays the example's music instead of its own.",
+      "default": false
+    }
+  ],
+  "content": {
+    "build": "build.lua",
+    "challenges": [
+      {
+        "key": "big_air",
+        "kind": "jump",
+        "map": "Alpes",
+        "title": {
+          "en": "ReSteep: Big Air",
+          "de": "ReSteep: Großer Sprung"
+        },
+        "rules": {
+          "en": "Jump as far as you can.",
+          "de": "Spring so weit du kannst."
+        },
+        "start": [
+          -1172.7,
+          -6566.0,
+          999.8
+        ],
+        "spawn": [
+          -1154.0,
+          -6541.6,
+          1020.0
+        ],
+        "direction": [
+          -31.4,
+          -57.2,
+          -38.0
+        ],
+        "medals": [
+          5000,
+          3000,
+          1500
+        ],
+        "if": "jump"
+      }
+    ],
+    "music": [
+      {
+        "key": "theme",
+        "file": "music/theme.ogg"
+      },
+      {
+        "key": "theme_butterfly",
+        "file": "music/theme.ogg",
+        "challenges": [
+          "A19_P_BUTTERFLY"
+        ],
+        "if": "butterfly"
+      }
+    ]
+  }
+}

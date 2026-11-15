@@ -1,0 +1,25 @@
+{
+  "format": 1,
+  "id": "resteep_hill",
+  "title": "ReSteep Hill",
+  "author": "ReSteep",
+  "license": "AGPL-3.0",
+  "content": {
+    "maps": [
+      {
+        "world": "STP_Slopes",
+        "from": "WhiteRoom",
+        "title": "RESTEEP HILL",
+        "edits": "assets/hill.json",
+        "models": {"hill": {"glb": "assets/hill.glb", "like": {"layer": 0, "cell": 36, "id": "0xd8d3d930ab"}}},
+        "solid": ["hill"],
+        "solid_tile": 2,
+        "solid_mesh": true,
+        "solid_depth": 0.3,
+        "ground": "CM_SNOW_Powder_Ground",
+        "drop_zone": [-100.0, 100.0, 56.8],
+        "spawn": [-100.0, 100.0, 56.8, -45]
+      }
+    ]
+  }
+}

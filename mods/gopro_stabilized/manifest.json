@@ -1,0 +1,7 @@
+{
+  "name": "GoPro_Stabilized",
+  "version_number": "0.1.0",
+  "website_url": "https://github.com/resteepMod/ReSteep",
+  "description": "Steadies the first-person GoPro head cam: smoothed, the horizon level, a GoPro-like lens.",
+  "dependencies": []
+}

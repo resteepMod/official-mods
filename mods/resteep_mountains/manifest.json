@@ -1,0 +1,7 @@
+{
+  "name": "ReSteep_Mountains",
+  "version_number": "0.1.0",
+  "website_url": "https://github.com/resteepMod/ReSteep",
+  "description": "A map with mountains of its own, generated from a seed in resteep.json: change the seed for another range. Takes the park's world name: enable one of park, hill, terrain test, this.",
+  "dependencies": []
+}

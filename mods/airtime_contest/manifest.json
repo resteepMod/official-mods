@@ -1,0 +1,7 @@
+{
+  "name": "Airtime_Contest",
+  "version_number": "1.0.0",
+  "website_url": "https://github.com/resteepMod/official-mods",
+  "description": "Every landing after at least one second in the air counts; the longest goes to the server's board \"longest_air\" (higher is better) and the top 3 show for a few seconds.",
+  "dependencies": []
+}
