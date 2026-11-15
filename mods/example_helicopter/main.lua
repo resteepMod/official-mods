@@ -5,9 +5,12 @@
 -- chase camera follows. Two flight models (the setting "realistic"):
 -- - arcade (default): the disc tilts with the stick and springs back, the heading turns with the pedals, released
 --   collective holds the height; it never tips over;
--- - realistic: a rigid body (orientation as three axis vectors, no angles: no gimbal lock) with the rotor's thrust
---   along its own up axis, cyclic and pedals as torques against the rotor's damping, gravity, drag per body axis,
---   ground effect and a weathervaning tail: it loops and rolls, and upside down the thrust pushes it down.
+-- - realistic: a light single-engine helicopter (the AS350 / H125 class the model is) as a rigid body (orientation as
+--   three axis vectors, no angles: no gimbal lock). The collective is a lever that stays where it is set; the rotor's
+--   thrust (never below 0) acts along the body's up axis and thins out with height; a power limit, translational lift,
+--   vortex ring state, the main rotor's torque against the pedals, rate-limited cyclic without levelling, retreating
+--   blade stall near VNE and mast bumping in negative g (a rotor strike: a crash). Loops and rolls need speed and
+--   positive g; it cannot hover upside down.
 -- F8 / B lets go: the game takes the rider back (it falls from there). Left in the air, the helicopter's pilot (the
 -- model has one) holds a hover there with the rotors running; left on the ground it is parked and the rotors stop.
 -- It collides with the game's own collision world (resteep.world.raycast / spherecast: terrain, rocks, buildings);
@@ -26,16 +29,38 @@ local COLLECTIVE = 0.8             -- full collective: +-0.8 g on top of hover (
 local DRAG_H = 0.00226             -- quadratic horizontal drag, -DRAG_H * |v_h|^2 along v_h: ~45 m/s at full tilt
 local DAMP_V = 0.8                 -- 1/s, linear vertical damping: ~10 m/s climb at full collective
 local SKIDS = 1.2                  -- m: the lowest the rider goes over the ground in arcade mode, as if on its skids
--- realistic (per unit of mass: accelerations)
-local THRUST_RANGE = 1.25          -- collective -1..1: thrust (1 + 1.25 c) g along the body's up axis: -0.25 .. 2.25 g
-local CYCLIC = 7.0                 -- rad/s^2 at full stick (pitch, roll)
+-- realistic (per unit of mass: accelerations); the rotor's numbers by momentum theory for a ~2.2 t, 10.7 m rotor
+local LEVER_RATE = 0.4             -- collective lever travel per second at full RT / LT (0..1: 2.5 s end to end)
+local PITCH_THRUST = {0.1, 2.1}    -- the blades' thrust at the lever's bottom and top, in g at sea level (never < 0):
+                                   -- hover at ~50 % low in the Alps, ~75 % at 4800 m
+local VI0 = 10                     -- m/s: the induced velocity of a 1 g hover at sea level
+local HEAVE = {0.45, 1.0}          -- 1/s: thrust lost per m/s of air up through the disc (climbs and sinks settle),
+                                   -- in a hover and from 50 m/s on (a tilted disc at speed: the g of a pull or push)
+local ETL = {0.5, 1.0}             -- the share of the induced velocity's drop with speed that the rotor gets back as
+                                   -- lift, in a hover and from 50 m/s on (translational lift: ~+10 % at 12 m/s; at
+                                   -- speed it makes up for the forward-tilted disc's inflow)
+local P_PROFILE, P_INDUCED = 0.22, 0.05   -- power (1 = 100 % torque): profile + P_INDUCED * thrust (g) * inflow (m/s)
+local TORQUE_MAX, TORQUE_LIMIT = 1.0, 1.1 -- over-torque warning above; above the limit the rotor droops (less thrust)
+local ENGINE = 1.35                -- the turbine's power at sea level, times density^0.8 (less up high)
+local P_TRIM = 0.75                -- the power at which the tail rotor balances the main rotor's torque, pedals centred
+local TORQUE_YAW = 3.0             -- rad/s^2 of yaw per unit of power off P_TRIM (the rotor turns clockwise seen from
+                                   -- above: more power yaws the nose left)
+local CYCLIC = {5.0, 5.6}          -- rad/s^2 at full stick, pitch and roll (at speed and 1 g; 65 % of it in a hover)
 local PEDAL = 4.5                  -- rad/s^2 at full pedal
-local DAMP_ROT = {2.6, 2.6, 2.4}   -- 1/s: the rotor's damping of pitch, roll, yaw rates (top rate = torque / damping)
-local DRAG = {0.006, 0.0022, 0.02} -- quadratic drag along the body's right, nose and up axes (the disc resists most)
-local HEAVE = 0.6                  -- 1/s: linear damping along the up axis (the rotor's inflow): climbs and sinks settle
-local LEVEL = 5.0                  -- rad/s^2 per rad of tilt: the assist's levelling, scaled by the "assist" setting
+local DAMP_ROT = {4.0, 4.0, 2.4}   -- 1/s: the rotor's damping of pitch, roll, yaw rates (top rate = torque / damping:
+                                   -- ~60 / 70 deg/s pitch / roll at speed, ~40 / 45 in a hover, at 20 % assist)
+local ASSIST_DAMP = 3.0            -- 1/s more rate damping at 100 % assist (it never levels)
+local CROSS = 0.4                  -- roll torque per rad/s of pitch rate (small cross-coupling)
+local DRAG = {0.006, 0.0003, 0.01} -- quadratic drag along the body's right, nose and up axes (the disc resists most)
 local VANE = 0.03                  -- yaw torque per m/s of sideslip (the tail fin)
-local GROUND_EFFECT = 0.08         -- up to +8 % thrust with the skids on the ground, gone at a rotor's width (10 m)
+local GROUND_EFFECT = 0.12         -- up to +12 % thrust with the skids on the ground, gone at a rotor's width (10 m)
+local VRS_LOSS = 0.4               -- the thrust lost in a full vortex ring state
+local LOAD_MAX = 2.8               -- g at sea level (less up high): what the blades can lift before they stall
+local RBS_SPEED = 76               -- m/s: retreating blade stall sets in (earlier with load and up high)
+local RBS_PITCH, RBS_ROLL = 1.5, 2.0   -- rad/s^2 in full stall: pitch up, roll right (the retreating blade is right)
+local LOW_G_ROLL = 1.2             -- rad/s^2 of right roll at 0 g (the tail rotor's thrust above the centre of mass)
+local MAST_BUMP = 0.8              -- s of negative g (deeper counts more) the hub takes: then a rotor strike
+local MAST_BREAK = -1.2            -- g: a rotor strike at once
 local CRASH_SPEED = 12             -- m/s into the ground (or a blade / the tail hitting it upside down): a crash
 -- the points that touch the ground, in the model's frame: the skids' ends, then nose, tail, the rotor's hub and tips
 local SKID_POINTS = {{-1.1, 1.6, 0.1}, {1.1, 1.6, 0.1}, {-1.1, -1.5, 0.1}, {1.1, -1.5, 0.1}}
@@ -131,6 +156,15 @@ local heli                         -- resteep.prop handle of the helicopter (nil
 local start_z = 0
 local crash_cool = 0               -- s: after a crash, the next one is not reported
 local last_coll = 0                -- the collective last used (the sound's load)
+local lever = 0                    -- realistic: the collective lever, 0 (down) .. 1 (up); stays where it is set
+-- realistic: the rotor this frame (rotor_state, rigid_step): thrust along the up axis and translational lift (m/s^2),
+-- power (1 = 100 % torque) and what is available, the load (g along the up axis; the lowest of the frame), vortex ring
+-- and retreating blade stall (0..1), stall from load, the control authority, seconds of negative g on the hub, the
+-- airspeed in the disc's plane, the air's density (relative to sea level), the heave damping (1/s)
+local rotor = {thrust = 0, lift = 0, power = 0, avail = 1, n = 1, nmin = 1, vrs = 0, rbs = 0, auth = 0.6, bump = 0,
+               vp = 0, sigma = 1, stall = false, heave = 0.45}
+local clock = 0                    -- s of realistic flight (the vortex ring's buffeting)
+local crashed = false              -- a crash happened this frame (the pilot gives up the hover)
 local grounded = false             -- the model rested on the ground last frame
 
 local held_before = {}             -- pad buttons held last frame (for presses)
@@ -431,20 +465,27 @@ local function autopilot()
         return clamp(-dot(v, fh) / 12, -1, 1), clamp(-dot(v, rh) / 12, -1, 1), 0,
                clamp(-(org[3] - hold_z) / 20, -0.5, 0.5)
     end
-    -- the disc's up axis wanted: level, tilted against the drift (at most ~20 degrees)
-    local want = unit({clamp(-0.06 * v[1], -0.35, 0.35), clamp(-0.06 * v[2], -0.35, 0.35), 1})
+    -- realistic, the way a pilot flies it (approximately: the lever at the player's rate, rate-limited cyclic): the
+    -- disc level, tilted against the drift (at most ~17 degrees), the yaw held against the rotor's torque, the lever at
+    -- the thrust that holds the height
+    local want = unit({clamp(-0.06 * v[1], -0.3, 0.3), clamp(-0.06 * v[2], -0.3, 0.3), 1})
     local k = cross(R.u, want)
     local angle = math.atan(len(k), dot(R.u, want))                         -- how far off, 0..pi
     k = len(k) > 1e-3 and unit(k) or R.f                                    -- upside down: roll over
-    local ax = 6 * angle * dot(k, R.r) - W[1]
-    local ay = 6 * angle * dot(k, R.f) - W[2]
-    local az = -1.5 * W[3]
-    local coll = -1                                                         -- on its side or upside down: no push
-    if R.u[3] > 0.3 then                                                    -- downwards; upright: hold the height
-        local need = (G + clamp(-0.8 * (org[3] - hold_z) - 1.6 * v[3], -6, 6)) / R.u[3]
-        coll = clamp((need / G - 1) / THRUST_RANGE, -1, 1)
+    local rate = math.min(1, 2.5 * angle)
+    local wx, wy = rate * dot(k, R.r), rate * dot(k, R.f)
+    local d = DAMP_ROT[1] + setting("assist", 20) / 100 * ASSIST_DAMP
+    local sens = setting("sensitivity", 100) / 100
+    local f = -(d * wx + 4 * (wx - W[1])) / (CYCLIC[1] * rotor.auth)
+    local r = (d * wy + 4 * (wy - W[2])) / (CYCLIC[2] * rotor.auth)
+    local pedal = (TORQUE_YAW * (rotor.power - P_TRIM) + 3 * W[3]) / (PEDAL * sens)
+    local want_lever = 0.4                                                  -- on its side or upside down: some load
+    if R.u[3] > 0.3 then                                                    -- upright: hold the height
+        local need = (G + clamp(-0.8 * (org[3] - hold_z) - 1.6 * v[3], -4, 4)) / R.u[3] - rotor.lift
+        local per = G * rotor.sigma * (PITCH_THRUST[2] - PITCH_THRUST[1])
+        want_lever = (need - G * rotor.sigma * PITCH_THRUST[1]) / per
     end
-    return clamp(-ax / CYCLIC, -1, 1), clamp(ay / CYCLIC, -1, 1), clamp(-az / PEDAL, -1, 1), coll
+    return clamp(f, -1, 1), clamp(r, -1, 1), clamp(pedal, -1, 1), clamp((want_lever - lever) * 5, -1, 1)
 end
 
 ---------------------------------------------------------------------------------------------------- flight models
@@ -502,7 +543,7 @@ local function crash(n, depth, what)
     local g = resteep.world.ground(org[1], org[2])
     if g and org[3] < g then org[3] = g + 0.05 end
     if crash_cool <= 0 then resteep.notify("helicopter: crashed (" .. what .. "): back on its skids", 3) end
-    crash_cool = 2
+    crash_cool, lever, rotor.bump, crashed = 2, 0, 0, true
 end
 
 -- the skids, hull and rotor against the world after a step; true when it stands on its skids. crashes: whether a hard
@@ -593,28 +634,71 @@ local function arcade(dt, f, r, pedal, coll)
     return ground ~= nil and seat_at[3] < ground + SKIDS + 0.3
 end
 
+local function smooth(x, a, b) local t = clamp((x - a) / (b - a), 0, 1) return t * t * (3 - 2 * t) end
+local function density(z) return (1 - 2.2558e-5 * clamp(z, -500, 9000)) ^ 4.2559 end   -- ISA, relative to sea level
+local function hover_lever(z)                             -- the lever of a 1 g hover out of ground effect at height z
+    return clamp((1 / density(z) - PITCH_THRUST[1]) / (PITCH_THRUST[2] - PITCH_THRUST[1]), 0, 1)
+end
+
+-- realistic: the rotor for this frame, from the lever, the air's density at this height (the world's z as metres
+-- above the sea: the Alps reach 4800), the airflow through and along the disc and the last load
+local function rotor_state(ground_h)
+    local sigma = density(org[3])
+    local vb3 = dot(v, R.u)                                       -- air up through the disc (+: climbing)
+    local vp = len(add(v, R.u, -vb3))                             -- airspeed in the disc's plane
+    local tp = G * sigma * (PITCH_THRUST[1] + (PITCH_THRUST[2] - PITCH_THRUST[1]) * lever)
+    local vh = VI0 * math.sqrt(math.max(tp / G, 0.05) / sigma)    -- the induced velocity of a hover at this thrust
+    local vl = math.sqrt((math.sqrt(vp ^ 4 + 4 * vh ^ 4) - vp * vp) / 2)   -- ... in level flight at vp (Glauert)
+    -- vortex ring: sinking at 0.3-1.9 times that, slowly, the rotor in its own downwash (lowering the lever lowers
+    -- the band, speed blows it away)
+    local vrs = smooth(-vb3, 0.3 * vh, 0.6 * vh) * (1 - smooth(-vb3, 1.3 * vh, 1.9 * vh)) * (1 - smooth(vp, 5, 11))
+    local rbs = clamp((vp - (RBS_SPEED - 10 * math.max(0, rotor.n - 1) - 20 * (1 - sigma))) / 8, 0, 1)
+    local ge = ground_h and 1 + GROUND_EFFECT * clamp(1 - ground_h / 10, 0, 1) or 1
+    local t = tp * ge * (1 - VRS_LOSS * vrs) * (1 - 0.2 * rbs)
+    local w, vi = math.max(vb3, 0), vh                            -- the induced velocity with speed and climb
+    for _ = 1, 4 do vi = 0.5 * (vi + vh * vh / math.sqrt(vp * vp + (w + vi) ^ 2)) end
+    -- power: the blades' profile + thrust times the air through the disc (induced, climb, and the tilted disc's share
+    -- of the drag); sinking, the air drives the rotor (autorotation: 0)
+    local p = math.max(0, P_PROFILE + P_INDUCED * t / G * (vi / ge + vb3) + 0.15 * vrs)
+    local avail = math.min(TORQUE_LIMIT, ENGINE * sigma ^ 0.8)
+    if p > avail then                                             -- the rotor droops: only the thrust the power gives
+        t = t * ((avail - P_PROFILE) / (p - P_PROFILE)) ^ 0.8
+        p = avail
+    end
+    rotor.sigma, rotor.vp, rotor.thrust, rotor.power, rotor.avail = sigma, vp, t, p, avail
+    local fast = clamp(vp / 50, 0, 1)
+    rotor.heave = HEAVE[1] + (HEAVE[2] - HEAVE[1]) * fast
+    rotor.lift = (ETL[1] + (ETL[2] - ETL[1]) * fast) * rotor.heave * (vh - vl) * clamp(tp / G, 0, 1)   -- translational
+    rotor.vrs, rotor.rbs = vrs, rbs
+end
+
 -- realistic: one step of the rigid body (dt small)
-local function rigid_step(dt, f, r, pedal, coll, assist, sens, ground_h)
-    -- thrust along the body's up axis, more near the ground (ground effect)
-    local thrust = G * (1 + coll * THRUST_RANGE)
-    if ground_h then thrust = thrust * (1 + GROUND_EFFECT * clamp(1 - ground_h / 10, 0, 1)) end
-    if grounded and coll <= 0.05 then thrust = math.min(thrust, 0.95 * G) end   -- on its skids: flat until pulled
-    local acc = {R.u[1] * thrust, R.u[2] * thrust, R.u[3] * thrust - G}
-    -- drag per body axis (quadratic)
+local function rigid_step(dt, f, r, pedal, assist, sens)
+    -- along the up axis: the rotor's thrust and translational lift, less what the air up through the disc takes
+    -- (the vortex ring takes the sink's part); this is the load the hub feels (negative: mast bumping)
     local vb = {dot(v, R.r), dot(v, R.f), dot(v, R.u)}
-    for i, axis in ipairs({R.r, R.f, R.u}) do acc = add(acc, axis, -DRAG[i] * math.abs(vb[i]) * vb[i]) end
-    acc = add(acc, R.u, -HEAVE * vb[3])
+    local heave = rotor.heave * vb[3] * (vb[3] < 0 and 1 - rotor.vrs or 1)
+    local fu = rotor.thrust + rotor.lift - heave - DRAG[3] * math.abs(vb[3]) * vb[3]
+    if fu > LOAD_MAX * G * rotor.sigma then fu, rotor.stall = LOAD_MAX * G * rotor.sigma, true end
+    rotor.n = fu / G
+    rotor.nmin = math.min(rotor.nmin, rotor.n)
+    local acc = {R.u[1] * fu, R.u[2] * fu, R.u[3] * fu - G}
+    acc = add(acc, R.r, -DRAG[1] * math.abs(vb[1]) * vb[1])
+    acc = add(acc, R.f, -DRAG[2] * math.abs(vb[2]) * vb[2])
     v = add(v, acc, dt)
     org = add(org, v, dt)
-    -- torques: cyclic and pedals against the rotor's damping; the assist levels the disc while the stick is centred;
-    -- the tail fin turns the nose into the wind
-    local alpha = {-CYCLIC * sens * f, CYCLIC * sens * r, -PEDAL * sens * pedal}
-    local lv = cross(R.u, {0, 0, 1})                          -- the axis that brings the up axis to the vertical
-    local centred = 1 - clamp(math.max(math.abs(f), math.abs(r)), 0, 1)
-    alpha[1] = alpha[1] + assist * centred * LEVEL * dot(lv, R.r)
-    alpha[2] = alpha[2] + assist * centred * LEVEL * dot(lv, R.f)
-    alpha[3] = alpha[3] - VANE * vb[1] * clamp(math.abs(vb[2]) / 10, 0, 1)
-    for i = 1, 3 do W[i] = W[i] + (alpha[i] - (DAMP_ROT[i] + assist * 1.5) * W[i]) * dt end
+    -- torques: the cyclic (weaker in a hover and with little load on the rotor), the pedals against the rotor's torque,
+    -- the tail fin turning the nose into the wind, blade stall, low-g roll, the vortex ring's buffeting, all against
+    -- the rotor's damping (and the assist's): no levelling
+    local auth = clamp(0.55 + 0.45 * rotor.n, 0.4, 1.2) * (0.65 + 0.35 * clamp(rotor.vp / 30, 0, 1)) * sens
+    rotor.auth = math.max(auth, 0.05)
+    local alpha = {-CYCLIC[1] * auth * f, CYCLIC[2] * auth * r, -PEDAL * sens * pedal}
+    alpha[1] = alpha[1] + RBS_PITCH * rotor.rbs + 1.5 * rotor.vrs * math.sin(clock * 5.3)
+    alpha[2] = alpha[2] + RBS_ROLL * rotor.rbs + LOW_G_ROLL * clamp(1 - rotor.n / 0.5, 0, 1) + CROSS * W[1]
+               + 1.5 * rotor.vrs * math.sin(clock * 7.1 + 1)
+    alpha[3] = alpha[3] + TORQUE_YAW * (rotor.power - P_TRIM) - VANE * vb[1] * clamp(math.abs(vb[2]) / 10, 0, 1)
+    if grounded then alpha[3] = alpha[3] * clamp(rotor.n, 0, 1) ^ 2 end   -- its weight on the skids holds the heading
+    for i = 1, 3 do W[i] = W[i] + (alpha[i] - (DAMP_ROT[i] + assist * ASSIST_DAMP) * W[i]) * dt end
     -- turn the axes about the world vector of W (body right = pitch, nose = roll, up = yaw)
     local w = add(add({R.r[1] * W[1], R.r[2] * W[1], R.r[3] * W[1]}, R.f, W[2]), R.u, W[3])
     local wl = len(w)
@@ -625,17 +709,35 @@ local function rigid_step(dt, f, r, pedal, coll, assist, sens, ground_h)
     end
 end
 
+-- mast bumping: the rotor struck the airframe; it comes down on its skids on what is below, the rider aboard
+local function rotor_strike()
+    local c = body(COM)
+    local below = height_below(c, 3000)
+    local ground = below and c[3] - below or resteep.world.ground(org[1], org[2])
+    crash({0, 0, 1}, 0, "rotor strike: mast bumping in negative g")
+    if ground then org[3] = ground end
+    return true
+end
+
 local function realistic_fly(dt, f, r, pedal, coll)
-    local assist = setting("assist", 50) / 100
+    local assist = setting("assist", 20) / 100
     local sens = setting("sensitivity", 100) / 100
+    lever = clamp(lever + coll * LEVER_RATE * dt, 0, 1)
+    clock = clock + dt
     local ground_h = height_below(body(COM), 12)
     if ground_h then ground_h = math.max(0, ground_h - COM[3]) end
+    rotor_state(ground_h)
+    rotor.nmin, rotor.stall = math.huge, false
     local from = body(COM)
     local n = math.max(1, math.ceil(dt * 120 - 1e-9))
-    for _ = 1, n do rigid_step(dt / n, f, r, pedal, coll, assist, sens, ground_h) end
+    for _ = 1, n do rigid_step(dt / n, f, r, pedal, assist, sens) end
     local s = len(v)
     if s > MAX_SPEED then v = {v[1] / s * MAX_SPEED, v[2] / s * MAX_SPEED, v[3] / s * MAX_SPEED} end
-    if contacts(dt, true, from) then return true end
+    if contacts(dt, true, from) then rotor.bump = 0 return true end
+    -- negative g in the air: a short one the hub takes, a long or deep one is a rotor strike
+    if not grounded and rotor.nmin < 0 then rotor.bump = rotor.bump + dt * (1 - 2 * rotor.nmin)
+    else rotor.bump = math.max(0, rotor.bump - dt) end
+    if not grounded and (rotor.bump > MAST_BUMP or rotor.nmin < MAST_BREAK) then return rotor_strike() end
     local lowest                                          -- the skids just above something: resting on it
     for _, p in ipairs(SKID_POINTS) do
         local h = height_below(body(p), 0.5)
@@ -664,7 +766,8 @@ end
 local function set_model(want)
     if want == realistic then return end
     realistic = want
-    if want then W = {0, 0, 0} else yaw, pitch, roll = math.atan(-R.f[1], R.f[2]), 0, 0 end
+    if want then W, lever = {0, 0, 0}, grounded and 0 or hover_lever(org[3])
+    else yaw, pitch, roll = math.atan(-R.f[1], R.f[2]), 0, 0 end
 end
 
 ----------------------------------------------------------------------------------------------------- start / stop
@@ -702,7 +805,7 @@ local function start()
     local ok, why = resteep.rider.hold(true)
     if not ok then resteep.notify("helicopter: can't hold the rider: " .. tostring(why), 4) return end
     realistic = setting("realistic", false) == true
-    v, W, hovering, grounded = {0, 0, 0}, {0, 0, 0}, false, true
+    v, W, hovering, grounded, lever, rotor.bump = {0, 0, 0}, {0, 0, 0}, false, true, 0, 0
     local c = resteep.camera()
     yaw = c and math.atan(-c.forward.x, c.forward.y) or 0
     pitch, roll, cam, cam_heading, start_z = 0, 0, nil, yaw, p.z
@@ -720,7 +823,8 @@ local function start()
     on = true
     resteep.notify((realistic and "helicopter on (realistic)" or "helicopter on")
                    .. ": tilt = left stick or I J K L, turn = right stick or U O, "
-                   .. "up / down = RT LT or Y H, let go = B or F8", 6)
+                   .. (realistic and "collective lever = RT LT or Y H (stays where set; ~50 % hovers), "
+                       or "up / down = RT LT or Y H, ") .. "let go = B or F8", 6)
 end
 
 -- the rider let go: in the air the pilot holds a hover there with the rotors running, on the ground it is parked
@@ -759,6 +863,17 @@ end
 
 local aboard_hover = false          -- the helicopter holds itself in the air, the rider still in the side door
 
+-- realistic: the warnings on the HELI line
+local function warnings()
+    local w = ""
+    if rotor.power > TORQUE_MAX then w = w .. "  OVER-TORQUE" end
+    if rotor.bump > 0 then w = w .. "  MAST BUMP" elseif not grounded and rotor.nmin < 0.3 then w = w .. "  LOW G" end
+    if rotor.vrs > 0.3 then w = w .. "  VORTEX RING" end
+    if rotor.rbs > 0 or rotor.stall then w = w .. "  BLADE STALL" end
+    if len(v) > MAX_SPEED - 4 then w = w .. "  VNE" end
+    return w
+end
+
 local function fly(dt, pad)
     local f, r, pedal, coll = controls(pad)
     if aboard_hover then                                     -- any stick or trigger takes the controls back
@@ -769,7 +884,9 @@ local function fly(dt, pad)
             f, r, pedal, coll = autopilot()
         end
     end
+    crashed = false
     grounded = step_model(dt, f, r, pedal, coll)
+    if crashed then aboard_hover = false end                 -- the pilot gives up after a crash
     local s = body(SEAT)
     local ok, why = resteep.rider.set_position(s[1], s[2], s[3])
     if not ok then stop(why, grounded) return end
@@ -777,9 +894,15 @@ local function fly(dt, pad)
     resteep.input.pad{}                                      -- the game gets a neutral pad meanwhile
     resteep.input.capture(true)                              -- ... and no keyboard or mouse (keys still reach us)
     camera_follow(dt, {x = s[1], y = s[2], z = s[3]})
-    resteep.text(0.5, 0.9, string.format("HELI%s  %+.0f m  %3.0f km/h  climb %+.1f m/s%s", realistic and " R" or "",
-                                         s[3] - start_z, len(v) * 3.6, v[3],
-                                         R.u[3] < 0 and "  INVERTED" or ""), "#FFFFFF", 1.1)
+    local line = string.format("HELI%s  %+.0f m  %3.0f km/h  climb %+.1f m/s", realistic and " R" or "",
+                               s[3] - start_z, len(v) * 3.6, v[3])
+    local warn = R.u[3] < 0 and "  INVERTED" or ""
+    if realistic then
+        line = string.format("HELI R  coll %3.0f%%  tq %3.0f%%  %+.1f g", lever * 100, rotor.power * 100,
+                             grounded and 1 or rotor.nmin) .. line:sub(7)
+        warn = warnings() .. warn
+    end
+    resteep.text(0.5, 0.9, line .. warn, warn == "" and "#FFFFFF" or "#FF7060", 1.1)
 end
 
 -- nobody flies it: the pilot holds the hover (rotors and sound go on); once it rests on the ground it is parked
@@ -787,6 +910,7 @@ local function hover(dt)
     local f, r, pedal, coll = autopilot()
     grounded = step_model(dt, f, r, pedal, coll)
     place_heli()
+    if grounded and realistic then lever = 0 end
     if grounded then
         hovering = false
         resteep.log("helicopter: down on its skids by itself: parked")
@@ -795,6 +919,9 @@ end
 
 local function sound_load()
     if not (on or hovering) then return 0 end
+    if realistic then                                        -- the rotor's power, the slap of its own wake and stall
+        return clamp((rotor.power - P_PROFILE) / (TORQUE_MAX - P_PROFILE) + 0.4 * rotor.vrs + 0.3 * rotor.rbs, 0, 1)
+    end
     return clamp(math.abs(last_coll) * 0.8 + 0.15 * len(W) + (v[3] < -4 and 0.3 or 0), 0, 1)
 end
 

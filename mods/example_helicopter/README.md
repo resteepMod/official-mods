@@ -19,7 +19,7 @@ archive is loaded in every world).
 
 ## Controls
 
-The same in both flight models:
+The same in both flight models, except the collective:
 
 | | controller | keyboard |
 |---|---|---|
@@ -27,7 +27,8 @@ The same in both flight models:
 | let go (the game takes the rider back; it falls from there) | B or BACK (Circle or Select) | F8 |
 | cyclic: tilt (arcade) / pitch and roll (realistic) | left stick | I / K forward / back, J / L left / right (or numpad 8 5 4 6) |
 | pedals: turn | right stick left / right | U / O (or numpad 7 / 9) |
-| collective: up / down (released: hover thrust) | RT / LT | Y / H (or Page Up / Page Down) |
+| collective, arcade: up / down (released: hover thrust) | RT / LT | Y / H (or Page Up / Page Down) |
+| collective, realistic: raise / lower the lever (it stays where it is set; ~2.5 s bottom to top at full trigger, slower with less) | RT / LT | Y / H (or Page Up / Page Down) |
 
 The letters work on a keyboard without a numpad; we believe Steep's default keys leave them free (not checked: its
 bindings are in the save, not STEEP.ini), so if one also does something in the game, say so. While it flies the game
@@ -40,10 +41,10 @@ gets a neutral pad (the rider ignores the controller), the game's HUD is hidden 
 | setting | default | |
 |---|---|---|
 | Realistic flight | off | the flight model below; switches in flight too |
-| Assist (realistic) | 50 % | levels the helicopter while the cyclic stick is centred and damps its turning; 0: none |
+| Assist (realistic) | 20 % | damps the turn rates (a steadier, slower response); it never levels the helicopter; 0: the bare rotor |
 | Stick sensitivity (realistic) | 100 % | how hard the cyclic and the pedals turn it |
 | Rotor speed (picture) | 100 % | 100 %: the game's drop scenes' rate |
-| Rotor volume | 90 % | |
+| Rotor volume | 60 % | |
 
 ## The flight models
 
@@ -51,17 +52,43 @@ gets a neutral pad (the rider ignores the controller), the game's HUD is hidden 
 turn the heading, the thrust always holds the height with the collective released; ~45 m/s at full tilt, ~10 m/s
 climb. It cannot tip over.
 
-**Realistic:** a rigid body. The orientation is kept as the helicopter's three axes (no angles, so no gimbal lock: it
-can point anywhere), turned each step by its angular velocity. The rotor's thrust acts along the helicopter's own
-up axis: released collective gives 1 g (a hover when level), full RT 2.25 g, full LT -0.25 g. Tilted, part of the
-thrust pushes it sideways and less holds it up: add collective in turns. Upside down the thrust pushes it **down**
-(about 1.6-2 g with the collective released; LT is the inverted pilot's friend). The cyclic and pedals are torques against
-the rotor's damping (top rates at full stick about 120-150 degrees a second in pitch and roll, 80-110 in yaw, less with more assist), plus
-gravity, drag per axis (little along the nose, more sideways, most through the disc), damping of climbs and sinks,
-ground effect (up to +8 % thrust near the ground) and a tail fin that turns the nose into the wind. On its skids the
-released collective keeps it down: pull RT to lift off. A loop: some speed, then full back stick with a little RT;
-it comes over the top inverted and back. The assist (setting) levels it when the stick is centred; at 0 % it keeps
-whatever attitude it has. The `HELI R` line says `INVERTED` while upside down.
+**Realistic (0.4.0: harder, 2026-11-15):** a light single-engine helicopter, the AS350 / H125 class the model is,
+flown by hand. A rigid body (the orientation kept as the helicopter's three axes, no angles, so no gimbal lock) with:
+
+- **The collective is a lever** (0-100 %, shown on the `HELI R` line): RT raises it, LT lowers it, at a limited rate,
+  and it stays where it is set. Low in the Alps about **50 %** hovers (more in a climb, less in the ground effect near
+  the ground); a little above or below and it drifts up or down. Lowered, it sinks (~10-14 m/s with the lever down).
+- **Thrust is never negative**: the blades' pitch gives from ~0.1 g (lever down) to ~2 g (up) along the helicopter's
+  own up axis. Tilted, part of it pushes sideways: add collective in turns. Upside down it pushes **down**, and nothing
+  holds it up.
+- **Thin air up high**: the thrust and the turbine's power fall with the height (the world's z taken as metres above
+  sea level): ~70 % hovers at 4000 m, ~75 % at 4800 m, where there is little power left to climb.
+- **Power and torque**: the `tq` % is the main rotor's power (hover ~75 %, ~45-50 % at 80-120 km/h, the most at
+  speed). Above 100 % the line says `OVER-TORQUE`; past 110 % (less up high, where the turbine runs out) the rotor droops
+  and gives no more thrust. Climbs are power-limited (~4 m/s straight up, more with speed).
+- **Translational lift**: from ~30-40 km/h on the rotor flies in clean air and lifts more at the same lever (~+10 % at
+  45 km/h; it climbs if you don't lower it a little).
+- **Vortex ring state**: sinking fast (more than ~3-6 m/s) almost straight down with power on, the rotor settles into
+  its own downwash: lift goes, the sink grows (the line says `VORTEX RING`, it shakes). Out: forward cyclic for speed
+  (the cure), or lower the lever (the ring breaks up, then fly out).
+- **Torque**: the main rotor turns clockwise seen from above; more power yaws the nose **left**, less power right, unless
+  you hold it with the pedals (right stick). The tail fin straightens it at speed.
+- **Cyclic**: rate-limited (at full stick ~60-70 degrees a second in pitch and roll at speed, ~40-45 in a hover; less
+  with more assist) and **nothing levels it**: centred, the stick keeps the attitude it has, so you fly the attitude.
+  Little load on the rotor (low g) takes away control and rolls it right.
+- **Negative g / mast bumping**: pushing over hard (or falling onto the disc upside down) unloads the rotor. The line
+  shows the load in g, `LOW G` below 0.3 g, `MAST BUMP` below 0 g; a short dip is a warning, a longer or deeper one
+  (~0.4-0.8 s, at once below -1.2 g) is a **rotor strike**: a crash.
+- **Retreating blade stall** near VNE (80 m/s, 288 km/h; earlier with load and up high): `BLADE STALL`, the nose pitches
+  up and it rolls right; too much load (beyond ~2.5 g) stalls the blades too. `VNE` warns near the top speed.
+- Gravity, drag per axis (little along the nose, more sideways, most through the disc), ground effect (up to +12 %
+  thrust near the ground) and a tail fin that turns the nose into the wind.
+
+**Loops and rolls** need speed and positive g: ~170 km/h (47 m/s), then back stick that keeps the load at ~2 g with
+the lever at ~70 %, full back stick and the lever down to ~40 % over the top (it keeps a little positive g there), and
+it comes back upright. A careless flip (full roll from a hover, or a push-over) ends in a rotor strike; it cannot hover
+upside down. The `HELI R` line: `coll` (the lever), `tq` (power), the load in g, height, speed, climb, the warnings
+(red) and `INVERTED`.
 
 The rider cannot be turned (no API turns a held rider): it rides at the seat, but stays upright whatever the
 helicopter does. Upside down the rider sits feet down in the inverted cabin (its head through the cabin floor),
@@ -72,18 +99,22 @@ banked it leans out of the door. Harmless, but it looks like that.
 With `resteep.world.raycast` (the game's own collision world, a ReSteep API in the works) the mod probes the skids,
 the hull and the rotor disc against everything the game collides with (rocks, buildings, trees) with rays from the
 helicopter's centre out to those points, and sweeps the frame's move so that it cannot pass through anything thin.
-Without it (today's ReSteep) only the terrain counts (`resteep.world.ground`, a 4 m raster with no objects): the
+Without it (an older ReSteep) only the terrain counts (`resteep.world.ground`, a 4 m raster with no objects): the
 helicopter flies through rocks and buildings. Arcade: it stops at what it touches and slides along. Realistic: a
 landing on the skids settles level; a hit faster than 12 m/s, a blade touching anything, or the hull touching while
 on its side or upside down is a **crash**: it stops where it is, upright on its skids, pushed out of what it hit, and
-the rider stays seated in it (never thrown away; at most 3 m of push in a frame).
+the rider stays seated in it (never thrown away; at most 3 m of push in a frame). A rotor strike (mast bumping, above)
+in the air puts it on its skids on the ground below, the rider aboard. After a crash the lever is down.
 
 ## Letting go: hovering and parking
 
-F8 / B / BACK let go: the game takes the rider back (it falls from where it is). **In the air**, the helicopter's
-pilot (the model has one) takes over: it levels out (from any attitude, upside down too), stops drifting and holds
-the height where you let go, rotors and sound running, until you start again (it comes back to you) or the mod
-stops. **On the ground** (let go on its skids, or it came down by itself) it is parked: the rotors spin down over 8
+F8 / B / BACK in the air: the first press hands it to the helicopter's pilot (the model has one) with the rider still
+aboard, the second one is the jump out (the game takes the rider back; it falls from where it is). The pilot levels
+out, stops drifting and holds the height where you let go, rotors and sound running, until you start again (it comes
+back to you) or the mod stops; any stick or trigger takes the controls back. In the realistic model the pilot flies
+it like you would (the lever at its rate, the cyclic rate-limited, the pedals against the torque), so it holds only
+about the height; let go upside down, it rolls it upright if the load allows, else it has a rotor strike and ends on
+its skids. **On the ground** (let go on its skids, or it came down by itself, or crashed while hovering alone) it is parked: the rotors spin down over 8
 s and the sound fades out. Leaving the world, a crash of the rider or the mod switched off lets go as well; the mod
 stopping puts the helicopter back where the map has it.
 
@@ -136,15 +167,20 @@ test harness only the keyboard does.
 In the game (test harness, Alps, 2026-11-11): held, climbed +32 m, flew 46 km/h and rolled right with the
 helicopter around the rider (screenshots); F8 off left it parked; the mod reloaded put it back at the map's place.
 In the game (the player, 2026-11-15): the rotors turned (flickering: fixed since, see above); the rider stood.
-Offline (2026-11-15): `luac -p`; a run of `main.lua` in plain Lua 5.4 against a stand-in `resteep` that rebuilds the
-final pose from the local pose as the game does (32 checks: the arcade model holds its height; the rotors turn
-through the local pose at 1000 deg/s, with both fallbacks; the seat covers the clips seen in the game and matches new
-ones by shape; realistic: stays on its skids, climbs and hovers, a loop goes through inverted and comes back
-upright, inverted thrust accelerates it down at ~1.6 g, a dive into the ground crashes onto its skids with the rider
-never below the ground or moved more than 0.3 m in a frame, a slow descent lands on a slope; let go in the air it
-stops and holds the height (from upside down too), on the ground it parks and the rotors and sound stop; with a
-stand-in raycast it stops at a rock in both models, never inside it); the overlay's `"local"` pose in ReSteep's
-script_test.
+Offline (2026-11-15, 0.4.0): `luac -p`; a run of `main.lua` in plain Lua 5.4 against a stand-in `resteep` that
+rebuilds the final pose from the local pose as the game does (ReSteep's `tests/lua/example_helicopter.lua`, 48 checks).
+Arcade (unchanged): it holds its height; the rotors turn through the local pose at 1000 deg/s, with both fallbacks; the
+seat covers the clips seen in the game and matches new ones by shape; hovering with the rider aboard, the jump out, the
+hover and the parking after. Realistic, flown by a test pilot with stick and trigger values (no assist levelling):
+stays on its skids with the lever down; RT raises the lever at its rate and it stays; a hover at ~50 %; the lever down
+sinks; 4000 m needs ~20 points more lever than 1000 m; a lever raise yaws the nose left without pedals; a fast
+vertical descent under power goes into the vortex ring (the sink grows) and forward speed gets it out; a full roll from
+a hover with full collective ends in a rotor strike on its skids; inverted with full collective it falls faster than
+gravity; a hard push-over at speed warns `MAST BUMP`, then a rotor strike; a loop from 47 m/s at ~2 g comes back
+upright with positive g all the way; the pilot holds a hover with the rider aboard and rolls it upright when let go
+upside down; a dive into the ground crashes onto its skids with the rider never below the ground or moved more than
+0.3 m in a frame; a slow descent lands on a slope; with a stand-in raycast it stops at a rock in both models, never
+inside it; the overlay's `"local"` pose in ReSteep's script_test. Not yet flown in the game.
 
 Credits: the gravity constant (9.8100004196167) and the shape of the arcade model's horizontal drag (`-D * |v_h|^2`
 along the horizontal velocity) are the paraglider's, from **steep-gameplay-research** by Sean Shmulevich
