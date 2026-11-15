@@ -1,0 +1,52 @@
+{
+  "format": 1,
+  "id": "master_chief_costume",
+  "title": "Master Chief Costume",
+  "author": "ReSteep (model: HarrisonHag1)",
+  "license": "CC-BY-4.0 (model)",
+  "downloads": [
+    {
+      "key": "model",
+      "title": "Master Chief High Poly",
+      "url": "https://sketchfab.com/3d-models/master-chief-high-poly-18f5ee1d13904939971601055102c91b",
+      "author": "HarrisonHag1",
+      "license": "CC-BY-4.0",
+      "note": "On the page: Download 3D Model, then glTF (needs a free Sketchfab account). Choose the .zip it saves (master_chief_high_poly.zip).",
+      "expect": ["scene.gltf", "scene.bin"]
+    }
+  ],
+  "content": {
+    "costumes": [
+      {
+        "name": "COSTUME_MF_POWDER_MASTER_CHIEF",
+        "label": "PowderChief",
+        "title": "Master Chief",
+        "icon": "icon.png",
+        "store": "COSTUME_M_MILITARY_GREY_94",
+        "grant": true,
+        "costume": "STP_M_Costume_016",
+        "embedded": true,
+        "fit": {
+          "download": "model",
+          "gltf": "scene.gltf",
+          "bones": {
+            "bip_pelvis": "Reference", "bip_spine_0": "Spine", "bip_spine_1": "Spine1", "bip_spine_2": "Spine2",
+            "bip_neck": "Neck", "bip_head": "Head",
+            "bip_collar_{s}": "{Side}Shoulder", "bip_upperArm_{s}": "{Side}Arm", "bip_lowerArm_{s}": "{Side}ForeArm",
+            "bip_hand_{s}": "{Side}Hand", "bip_hip_{s}": "{Side}UpLeg", "bip_knee_{s}": "L_{Side}Leg",
+            "bip_foot_{s}": "{Side}Foot"
+          },
+          "fingers": {"f_index.0": "Index", "f_middle.0": "Middle", "f_ring.0": "Ring", "f_pinky.0": "Pinky",
+                      "thumb.0": "Thumb"},
+          "materials": {
+            "STP_MF_Costume_016_Jacket_ALL": [{"from": "chiefarmor"}],
+            "STP_MF_Costume_016_Pants_ALL": [{"from": "chiefsuit"}],
+            "STP_MF_Costume_016_Helmet_ALL": [{"from": "chiefhelmet", "rect": [0, 0, 0.5, 1]},
+                                              {"from": "chiefvisor", "rect": [0.5, 0, 0.5, 1]}]
+          },
+          "hide": ["STP_MF_Glass_ALL"]
+        }
+      }
+    ]
+  }
+}
