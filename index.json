@@ -236,7 +236,7 @@
    "id": "fpv_drone",
    "name": "FPV_Drone",
    "title": "FPV drone",
-   "version": "0.1.0",
+   "version": "0.2.0",
    "description": "Launch a drone like the game's own and fly it first-person: keyboard and mouse, or a gamepad.",
    "author": "ReSteep",
    "full_name": "ReSteep-FPV_Drone",
@@ -246,9 +246,9 @@
     "script",
     "settings"
    ],
-   "file": "packages/fpv_drone-0.1.0.resteep",
-   "sha256": "84312119201079f9be63e5db456ed470f66b1ffb634c16d9e3ba4322ca8db18f",
-   "size": 6616,
+   "file": "packages/fpv_drone-0.2.0.resteep",
+   "sha256": "0ea6dfc682e21a898413af16d67b7028e27631b8935e8bf68efc757c752c4eec",
+   "size": 6737,
    "icon": "icons/fpv_drone.png",
    "downloads": []
   },
@@ -298,7 +298,7 @@
    "id": "example_helicopter",
    "name": "Example_Helicopter",
    "title": "Helicopter (example)",
-   "version": "0.1.0",
+   "version": "0.2.0",
    "description": "Fly the rider like a helicopter, inside the Alps' own Red Bull helicopter; Alaska and Japan get a copy of it, built against your install at game start.",
    "author": "ReSteep",
    "full_name": "ReSteep-Example_Helicopter",
@@ -307,9 +307,9 @@
    "kinds": [
     "script"
    ],
-   "file": "packages/example_helicopter-0.1.0.resteep",
-   "sha256": "75decff13ca64e0b2ec20012d7ca2f4bdd42770cdc2902000eefcb72e74c0332",
-   "size": 177155,
+   "file": "packages/example_helicopter-0.2.0.resteep",
+   "sha256": "cc65ba065b17af9c6b8e3481bb8f4edfbd99f9b7b1e858a791133ffe8fc03ee3",
+   "size": 179721,
    "icon": "icons/example_helicopter.png",
    "downloads": []
   },
