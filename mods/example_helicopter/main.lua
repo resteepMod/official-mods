@@ -22,7 +22,28 @@ local SKIDS = 1.2                  -- m: the lowest it goes over the ground (res
 -- (resteep.json, assets/helicopter_*.json: built at game start; without the build: no model there)
 local HELICOS = {0x1105920500E, 0x2F000001000}
 local SEAT = {x = -1.25, y = 0.4, z = 0.7}   -- the rider in the left sliding door, in the helicopter's frame
-                                   -- (x right, y nose, z up; metres from its origin under the skids; by eye)
+                                   -- (x right, y nose, z up; metres from its origin under the skids; by eye;
+                                   -- the cabin floor is 1.1 m up, the sitting rider's hips 0.44 m above its feet)
+-- The rotors turn as in the game's drop scenes (TODO 10 "The drop scenes decoded", tools/forge/cinematic.py on
+-- STP_ALP_HELICO_02/03): the main rotor -1000 deg/s, the tail rotor +2000 deg/s, each about its bone's own X axis.
+-- resteep.prop.set_bone puts each bone of a rotor (the hub and its blades: each bone has its own place in the pose)
+-- turned about the hub; they spin up and down over SPIN_UP seconds.
+local MAIN_ROTOR = {"Main_Rotor", "Rotor_Blade_A_01", "Rotor_Blade_A_02", "Rotor_Blade_A_03", "Rotor_Blade_B_01",
+                    "Rotor_Blade_B_02", "Rotor_Blade_B_03", "Rotor_Blade_C_01", "Rotor_Blade_C_02", "Rotor_Blade_C_03"}
+local TAIL_ROTOR = {"Tail_Rotor"}
+local MAIN_RATE, TAIL_RATE = math.rad(-1000), math.rad(2000)
+local SPIN_UP = 4                  -- s
+-- The rider sits while flying: the game's sitting idle (ID06 SIT_IDLE, in the rider templates, so it is loaded) plays
+-- instead of the standing idles of the rider on foot (resteep.rider.play_anim). Which clips a held rider plays is
+-- logged for the first seconds (resteep.rider.anim_seen): add any standing one this list misses.
+local SIT = {male = "ID06_PS00_male_SIT_IDLE", female = "ID06_PS00_female_SIT_IDLE"}
+local STANDING = {
+    male = {"ID05_PS00_male_STAND_IDLE_01", "ID05_PS00_male_STAND_IDLE_02", "ID05_PS00_male_STAND_IDLE_03",
+            "ID05_PS00_male_STAND_IDLE_04", "ID05_PS00_male_STAND_IDLE_BINOCULAR", "ID06_PS00_male_STAND_IDLE"},
+    female = {"ID05_PS00_female_STAND_IDLE_01", "ID05_PS00_female_STAND_IDLE_02", "ID05_PS00_female_STAND_IDLE_03",
+              "ID05_PS00_female_STAND_IDLE_04", "ID05_PS00_female_STAND_IDLE_BINOCULAR"},
+}
+local WATCH_CLIPS = 10             -- s after the start: the clips the game looks up are logged
 
 local on = false
 local v = {x = 0, y = 0, z = 0}    -- the model's velocity, world, Z up
@@ -34,8 +55,98 @@ local heli                         -- resteep.prop handle of the helicopter (nil
 local start_z = 0
 
 local held_before = {}             -- pad buttons held last frame (for presses)
+local rotors                       -- the rotors' bones as the parked helicopter has them (nil: not read / none)
+local spin, turned_main, turned_tail = 0, 0, 0   -- 0..1 of full speed; the angles turned so far
+local check_spin                   -- the hub's rotation just written, read back the next frame (once)
+local watching = 0                 -- s left of logging the rider's clips
 
 local function clamp(x, lo, hi) return x < lo and lo or (x > hi and hi or x) end
+
+-- quaternions {x, y, z, w} (the API's rotations)
+local function qmul(a, b)
+    return {x = a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y, y = a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+            z = a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w, w = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z}
+end
+local function qrot(q, v)                                    -- v turned by q
+    local r = qmul(qmul(q, {x = v.x, y = v.y, z = v.z, w = 0}), {x = -q.x, y = -q.y, z = -q.z, w = q.w})
+    return {x = r.x, y = r.y, z = r.z}
+end
+local function about(axis, angle)
+    local s = math.sin(angle / 2)
+    return {x = axis.x * s, y = axis.y * s, z = axis.z * s, w = math.cos(angle / 2)}
+end
+
+-- the rotors' bones as the parked helicopter has them: the hub's place is the centre, its own X axis the axis
+local function read_rotors()
+    local function group(names)
+        local g = {bones = {}}
+        for _, n in ipairs(names) do
+            local b, why = resteep.prop.bone(heli, n)
+            if not b then return nil, n .. ": " .. tostring(why) end
+            g.bones[n] = b
+        end
+        local hub = g.bones[names[1]]
+        g.center, g.axis = {x = hub.x, y = hub.y, z = hub.z}, qrot(hub.rot, {x = 1, y = 0, z = 0})
+        return g
+    end
+    local main, why = group(MAIN_ROTOR)
+    local tail, why2 = group(TAIL_ROTOR)
+    if main and tail then
+        rotors = {main = main, tail = tail}
+        resteep.log(string.format("helicopter: rotor axis (%.2f, %.2f, %.2f), hub (%.2f, %.2f, %.2f)", main.axis.x,
+                                  main.axis.y, main.axis.z, main.center.x, main.center.y, main.center.z))
+    else
+        resteep.log("helicopter: the rotors stay still: " .. tostring(why or why2))
+    end
+end
+
+-- a rotor's bones turned by angle about its hub; false + why when the game refuses
+local function turn(g, angle)
+    local q = about(g.axis, angle)
+    for n, b in pairs(g.bones) do
+        local d = qrot(q, {x = b.x - g.center.x, y = b.y - g.center.y, z = b.z - g.center.z})
+        local ok, why = resteep.prop.set_bone(heli, n, {x = g.center.x + d.x, y = g.center.y + d.y,
+                                                       z = g.center.z + d.z, rot = qmul(q, b.rot)})
+        if not ok then return false, why end
+    end
+    return true
+end
+
+-- every frame: towards full speed while flying, to a stop after; the first write is read back once (does the game
+-- keep it, or does its animation put the parked pose back before we look?)
+local function spin_rotors(dt)
+    if not (heli and rotors) then return end
+    if check_spin then
+        local b = resteep.prop.bone(heli, "Main_Rotor")
+        local d = b and (b.rot.x * check_spin.x + b.rot.y * check_spin.y + b.rot.z * check_spin.z
+                         + b.rot.w * check_spin.w) or 0
+        resteep.log("helicopter: the rotor pose written " .. (math.abs(d) > 0.9999 and "stayed" or
+                                                             "was put back by the game"))
+        check_spin = false
+    end
+    spin = clamp(spin + (on and 1 or -1) * dt / SPIN_UP, 0, 1)
+    if spin == 0 then return end
+    turned_main = (turned_main + MAIN_RATE * spin * dt) % (2 * math.pi)
+    turned_tail = (turned_tail + TAIL_RATE * spin * dt) % (2 * math.pi)
+    local ok, why = turn(rotors.main, turned_main)
+    if ok then ok, why = turn(rotors.tail, turned_tail) end
+    if not ok then resteep.log("helicopter: the rotors stop: " .. tostring(why)) rotors = nil return end
+    if check_spin == nil then
+        check_spin = qmul(about(rotors.main.axis, turned_main), rotors.main.bones.Main_Rotor.rot)
+    end
+end
+
+-- the rider sits (true) or stands again (false)
+local function seat(sit)
+    for g, clips in pairs(STANDING) do
+        for _, from in ipairs(clips) do
+            local ok, err
+            if sit then ok, err = pcall(resteep.rider.play_anim, from, SIT[g])
+            else ok, err = pcall(resteep.rider.play_anim, from) end
+            if not ok then resteep.log("helicopter: " .. from .. ": " .. tostring(err)) end
+        end
+    end
+end
 
 -- the real pad's buttons pressed since the last frame (a set of names), and the pad itself (nil without one)
 local function pad_presses()
@@ -100,6 +211,10 @@ local function start()
         if heli then break end
     end
     if not heli then resteep.log("helicopter: no model here: " .. tostring(why)) end
+    if heli and not rotors and spin == 0 then read_rotors() end   -- parked as the map has it: the bones at rest
+    seat(true)
+    watching = WATCH_CLIPS
+    resteep.rider.anim_seen()                                     -- starts the recording
     on = true
     resteep.notify("helicopter on: tilt = left stick or I J K L, turn = right stick or U O, "
                    .. "up / down = RT LT or Y H, let go = B or F8", 6)
@@ -108,6 +223,7 @@ end
 local function stop(why)
     on = false
     if rotor then resteep.sound.stop(rotor) rotor = nil end
+    seat(false)
     resteep.rider.hold(false)                -- the game takes the rider back where it is
     resteep.camera.release(0.6)
     resteep.notify("helicopter off" .. (why and (": " .. why) or ""), 3)
@@ -179,6 +295,12 @@ local function fly(p, dt, pad)
 
     resteep.text(0.5, 0.9, string.format("HELI  %+.0f m  %3.0f km/h  climb %+.1f m/s", pos.z - start_z, s * 3.6, v.z),
                  "#FFFFFF", 1.1)
+
+    if watching > 0 then                                     -- which clips the held rider plays (play_anim's names)
+        watching = watching - dt
+        local seen = resteep.rider.anim_seen()
+        if seen and #seen > 0 then resteep.log("helicopter: the rider plays " .. table.concat(seen, ", ")) end
+    end
 end
 
 resteep.on("key", function(k)
@@ -187,6 +309,7 @@ end)
 
 resteep.on("frame", function(dt)
     local pressed, pad = pad_presses()
+    spin_rotors(clamp(dt, 0.001, 0.05))
     if not on then
         if pressed.BACK then start() end
         return

@@ -38,8 +38,18 @@ matrix). F8 / B / BACK let go: the game takes the rider back and it falls from w
 there (a helipad) until the mod stops, then it goes back to where the map has it. Leaving the world, a crash or the
 mod switched off lets go too.
 
-Known limits: no wall or object check (only the terrain's height), the rider is shown as it is (standing, gliding),
-the rotors stand still, the helicopter has no collision, and Alaska and Japan have it only with this mod's world edits built (see below). The pad's sticks need the
+**Rotors and a seated rider (2026-11-15, not seen in the game yet):** the rotors spin up when the helicopter starts
+and down after it lets go, at the speeds of the game's own drop scenes (main rotor 1000 degrees a second clockwise
+seen from above, tail rotor 2000; TODO 10 "The drop scenes decoded"): `resteep.prop.set_bone` turns the hub and each
+blade's bones about the hub every frame. Whether the game draws those bones is the open question: the log says once
+`the rotor pose written stayed` or `was put back by the game` (then the rotors look still: say so). The rider sits:
+the standing idles of the rider on foot are redirected to the game's sitting idle (`ID06_PS00_male/female_SIT_IDLE`,
+`resteep.rider.play_anim`) while the mod flies; for the first 10 seconds the log names every clip the held rider
+plays (`helicopter: the rider plays ...`): a standing one not in `STANDING` (main.lua) needs adding there. The
+rider keeps the direction it faced at the start (the API cannot turn it), so it sits facing where the camera looked.
+
+Known limits: no wall or object check (only the terrain's height), the rider keeps its heading while the helicopter
+turns, the helicopter has no collision, and Alaska and Japan have it only with this mod's world edits built (see below). The pad's sticks need the
 pad to reach mods (`resteep.input.read`); in the test harness only the keyboard does.
 
 Checked in the game (test harness, Alps, 2026-11-11): held, climbed +32 m, flew 46 km/h and rolled right with the
