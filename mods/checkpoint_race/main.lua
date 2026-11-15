@@ -4,10 +4,13 @@
 --   F7        back to the start (teleport; only on the ground)
 -- The clock starts when you leave the start and stops at the finish; every checkpoint in between must be passed
 -- in order. Times go to the server's leaderboard for this course (each course has its own board).
+-- A run in which a mod held the rider (a helicopter, a drone), the world was frozen, or the rider jumped further
+-- than riding goes in one frame (a teleport) is timed but not sent.
 
 local RADIUS = 12            -- metres around a checkpoint that count as "passed"
+local JUMP, MAX_SPEED = 25, 150   -- a move beyond JUMP m + MAX_SPEED m/s * the frame's time is a teleport
 local course = {}            -- {x, y, z} ...
-local race = nil             -- {next = index, started = time, splits = {...}}
+local race = nil             -- {next = index, started = time, splits = {...}, last = {x, y, z, t}, foul = why}
 local result = nil           -- what the last finish showed: {lines, until}
 
 local function course_id()
@@ -83,9 +86,13 @@ resteep.on("zone_enter", function(name)
         local split = t - race.started
         race.splits[#race.splits + 1] = split
         if i == #course then
-            local time = split
+            local time, foul = split, race.foul
             race = nil
             result = {lines = {"FINISH  " .. fmt(time)}, ["until"] = t + 10}
+            if foul then
+                result.lines[2] = "(not sent to the server: " .. foul .. ")"
+                return
+            end
             resteep.post("/mods/board/submit",
                 {board = course_id(), value = time, lower_is_better = true, detail = {checkpoints = #course}},
                 function(ok, reply)
@@ -110,15 +117,40 @@ resteep.on("zone_enter", function(name)
     end
 end)
 
+local crashed = -100         -- the game's respawn after a crash moves the rider: no teleport
+resteep.on("crash", function() crashed = math.huge end)
+resteep.on("crash_end", function() crashed = resteep.time() end)
+
+-- What makes a run not count (nil: it counts so far).
+local function check_foul(p, t)
+    if p.held then return "a mod held the rider" end
+    local w = resteep.world.get()
+    if w and w.frozen then return "the world was frozen" end
+    local l = race.last
+    if l and t - crashed > 3 then
+        local d = math.sqrt((p.x - l.x) ^ 2 + (p.y - l.y) ^ 2 + (p.z - l.z) ^ 2)
+        if d > JUMP + MAX_SPEED * (t - l.t) then return string.format("the rider jumped %.0f m", d) end
+    end
+end
+
 resteep.on("frame", function()
     local p = resteep.player()
     local t = resteep.time()
+    if race then
+        if p then
+            race.foul = race.foul or check_foul(p, t)
+            race.last = {x = p.x, y = p.y, z = p.z, t = t}
+        else
+            race.last = nil                           -- no rider this frame (a sport change): compare afresh
+        end
+    end
     for i, c in ipairs(course) do
         local col = (race and i == race.next) and "#FFD34E" or "#5EC8F2"
         resteep.marker(c.x, c.y, c.z, label(i), col)
     end
     if race then
-        resteep.text(0.5, 0.06, fmt(t - race.started), "#FFFFFF", 2.2)
+        resteep.text(0.5, 0.06, fmt(t - race.started), race.foul and "#B0BCC8" or "#FFFFFF", 2.2)
+        if race.foul then resteep.text(0.5, 0.16, "NOT COUNTED: " .. race.foul, "#B0BCC8", 0.9) end
         local c = course[race.next]
         if p and c then
             local d = math.sqrt((c.x - p.x) ^ 2 + (c.y - p.y) ^ 2 + (c.z - p.z) ^ 2)

@@ -1,11 +1,14 @@
 -- Air-time contest: every landing after at least one second in the air counts; the longest goes to the server's
 -- board "longest_air" (higher is better) and the top 3 show for a few seconds. Also shows custom events: it sends
 -- "big_air" to every other mod, which can react with resteep.on("big_air", function(t) ... end).
+-- A landing after a mod held the rider in the air (a helicopter, a drone) does not count: that air time was the mod's.
 local best = (resteep.load() or {}).best or 0
 local shown = nil
+local held_at = -100         -- resteep.time() when a mod last held the rider
 
 resteep.on("landing", function(airtime)
     if airtime < 1 then return end
+    if resteep.time() - held_at <= airtime + 0.5 then return end
     resteep.emit("big_air", airtime)
     if airtime > best then
         best = airtime
@@ -22,6 +25,8 @@ resteep.on("landing", function(airtime)
 end)
 
 resteep.on("frame", function()
+    local p = resteep.player()
+    if p and p.held then held_at = resteep.time() end
     if not shown then return end
     if resteep.time() > shown.until_ then shown = nil return end
     for i, line in ipairs(shown.lines) do resteep.text(0.85, 0.3 + 0.03 * i, line, "#FFD34E") end
