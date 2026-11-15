@@ -57,11 +57,13 @@
      "unit": "%"},
     {"key": "sound_balance", "type": "slider", "label": "Rotor sound: close / far", "default": 0, "min": -100,
      "max": 100, "step": 10, "unit": "%", "info": "The two recorded loops are crossfaded by the camera's distance (close: next to it, far: a fly-by). Below 0 the far one is quieter, above 0 the close one; -100 / 100: only one."},
-    {"key": "hud", "type": "toggle", "label": "Flight HUD", "default": true,
+    {"key": "hide_game_hud", "type": "toggle", "label": "Hide the game's HUD", "default": true,
+     "info": "While flying, the game's own HUD (the activity card, prompts, markers) is hidden; it comes back when you let go. Applies at once."},
+    {"key": "hud", "type": "toggle", "label": "Helicopter HUD", "default": true,
      "info": "A small flight display at the bottom: attitude, heading, speed, vertical speed, height above the sea and the ground; realistic adds the collective and torque bars, the g load and the warnings."},
-    {"key": "hud_size", "type": "slider", "label": "Flight HUD: size", "default": 100, "min": 50, "max": 200,
+    {"key": "hud_size", "type": "slider", "label": "Helicopter HUD: size", "default": 100, "min": 50, "max": 200,
      "step": 10, "unit": "%", "info": "Grows or shrinks about its bottom centre."},
-    {"key": "hud_opacity", "type": "slider", "label": "Flight HUD: opacity", "default": 100, "min": 20,
+    {"key": "hud_opacity", "type": "slider", "label": "Helicopter HUD: opacity", "default": 100, "min": 20,
      "max": 100, "step": 5, "unit": "%"}
   ]
 }

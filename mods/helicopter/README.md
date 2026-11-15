@@ -69,9 +69,10 @@ extreme, 0 % switches an effect off.
 | Rotor speed (picture) (`rotor_speed`) | 50-150 % | 100 % | 100 %: the game's drop scenes' rate |
 | Rotor volume (`volume`) | 0-100 % | 60 % | |
 | Rotor sound: close / far (`sound_balance`) | -100-100 % | 0 | below 0 the far loop quieter, above 0 the close one; +-100: only one |
-| Flight HUD (`hud`) | on / off | on | the mod's flight display (below); off: nothing drawn |
-| Flight HUD: size (`hud_size`) | 50-200 % | 100 % | about its bottom centre |
-| Flight HUD: opacity (`hud_opacity`) | 20-100 % | 100 % | |
+| Hide the game's HUD (`hide_game_hud`) | on / off | on | the game's own HUD (activity card, prompts) hidden while flying; applies at once |
+| Helicopter HUD (`hud`) | on / off | on | the mod's flight display (below); off: nothing drawn |
+| Helicopter HUD: size (`hud_size`) | 50-200 % | 100 % | about its bottom centre |
+| Helicopter HUD: opacity (`hud_opacity`) | 20-100 % | 100 % | |
 
 0.6.0 replaced "Stick sensitivity" (both axes) with the cyclic and pedal rates.
 
@@ -139,7 +140,7 @@ attitude indicator (the horizon, a pitch ladder every 10 degrees, dimmer below t
 right the height above the sea (`ALT`, the world's z) and above the ground (`AGL`, a ray straight down); in the realistic
 model also the g load, the `COL` (lever) and `TQ` (0-120 %, a mark at 100 %; amber over 100, red at the limit) bars and
 the warnings in red (`OVER-TORQUE`, `LOW G`, `VORTEX RING`, `BLADE STALL`, `VNE`). The arcade model shows the attitude,
-heading, speeds and heights. The setting Flight HUD turns it off; its size and opacity are settings too.
+heading, speeds and heights. The setting Helicopter HUD turns it off; its size and opacity are settings too.
 
 ## Ground, rocks and crashes
 

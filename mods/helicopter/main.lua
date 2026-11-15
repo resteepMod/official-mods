@@ -251,11 +251,12 @@ local DEFAULTS = {realistic = false, assist = 20, momentum = 100, damping = 100,
                   torque = 100, lever_rate = 100, thrust = 100, power = 100, altitude = 100, etl = 100,
                   ground_effect = 100, vortex_ring = 100, blade_stall = 100, low_g = 100, tail_fin = 100, flare = 100,
                   arcade_speed = 100, arcade_turn = 100, arcade_climb = 100, rotor_speed = 100, volume = 60,
-                  sound_balance = 0, hud = true, hud_size = 100, hud_opacity = 100}
+                  sound_balance = 0, hud = true, hud_size = 100, hud_opacity = 100, hide_game_hud = true}
 local K = {}
 local HUD_COLORS = {ink = "#FFE8F0F8", dim = "#90E8F0F8", amber = "#FFFFC040", red = "#FFFF5040", back = "#50000000",
                     down = "#90FFB070", slot = "#40FFFFFF", lever = "#C0A0D8FF", torque = "#C080F0A0"}
 local PAL = {}                     -- HUD_COLORS at the HUD's opacity
+local game_hud_hidden = false      -- this flight hid the game's HUD (the setting hide_game_hud)
 local function load_settings()
     local c = {}
     for k, d in pairs(DEFAULTS) do c[k] = setting(k, d) end
@@ -278,6 +279,11 @@ local function load_settings()
     local b = clamp(c.sound_balance / 100, -1, 1)                -- -1: the close loop alone .. +1: the far one alone
     K.close, K.far = math.min(1, 1 - b), math.min(1, 1 + b)
     K.hud, K.hud_size = c.hud ~= false, clamp(c.hud_size / 100, 0.3, 2.5)
+    K.hide_game_hud = c.hide_game_hud ~= false
+    if on and game_hud_hidden ~= K.hide_game_hud then                -- switched in flight: at once
+        pcall(resteep.hud.hide, K.hide_game_hud)
+        game_hud_hidden = K.hide_game_hud
+    end
     local o = clamp(c.hud_opacity / 100, 0, 1)
     for k, col in pairs(HUD_COLORS) do
         PAL[k] = string.format("#%02X%s", math.floor(tonumber(col:sub(2, 3), 16) * o + 0.5), col:sub(4))
@@ -879,7 +885,10 @@ local function start()
     seat(true)
     watching = WATCH_CLIPS
     resteep.rider.anim_seen()                                     -- starts the recording
-    pcall(resteep.hud.hide, true)                                 -- the game's HUD (activity card, prompts) goes
+    if K.hide_game_hud then                                       -- the game's HUD (activity card, prompts) goes
+        pcall(resteep.hud.hide, true)
+        game_hud_hidden = true
+    end
     on = true
     resteep.notify((realistic and "helicopter on (realistic)" or "helicopter on")
                    .. ": tilt = left stick or I J K L, turn = right stick or U O, "
@@ -893,7 +902,7 @@ local function stop(why, on_ground)
     seat(false)
     resteep.rider.hold(false)                -- the game takes the rider back where it is
     resteep.camera.release(0.6)
-    pcall(resteep.hud.hide, false)
+    if game_hud_hidden then pcall(resteep.hud.hide, false) game_hud_hidden = false end
     hovering = org ~= nil and not on_ground
     if hovering then hold_z = org[3] end
     resteep.notify("helicopter off" .. (why and (": " .. why) or "") .. (hovering and " (it hovers there)" or ""), 3)
