@@ -318,7 +318,8 @@ end
 local function launch()
     local p = resteep.player()
     if not p or not p.real then resteep.notify("drone: no rider", 2) return end
-    if p.air then resteep.notify("drone: land first", 2) return end
+    -- in the air only after a real moment there, and never on foot: the flag flickers standing on a slope
+    if p.air and (p.airtime or 0) > 0.4 and p.activity ~= 6 then resteep.notify("drone: land first", 2) return end
     home = {x = p.x, y = p.y, z = p.z}
     local g = resteep.world.ground(p.x, p.y)
     home.floor = g and (p.z - g) or nil

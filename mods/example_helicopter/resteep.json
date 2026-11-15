@@ -14,7 +14,7 @@
      "max": 200, "step": 5, "unit": "%", "info": "How hard the cyclic and the pedals turn it."},
     {"key": "rotor_speed", "type": "slider", "label": "Rotor speed (picture)", "default": 100, "min": 50, "max": 150,
      "step": 5, "unit": "%", "info": "100 %: as in the game's own drop scenes (the main rotor 1000 degrees a second)."},
-    {"key": "volume", "type": "slider", "label": "Rotor volume", "default": 90, "min": 0, "max": 100, "step": 5,
+    {"key": "volume", "type": "slider", "label": "Rotor volume", "default": 60, "min": 0, "max": 100, "step": 5,
      "unit": "%"}
   ]
 }

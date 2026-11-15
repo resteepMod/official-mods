@@ -114,6 +114,7 @@ local WATCH_CLIPS = 10             -- s after the start: the clips the game look
 -- and tail rotor (rotor_turbine.wav) and the main rotor's blade slap (rotor_slap.wav, 3 blades at the drop scenes'
 -- 2.78 turns a second), mixed by rotor speed and load; rotor_loop.wav (both in one) when the layers are missing.
 local SOUND_RANGE = 500
+local MIX = 0.45                   -- the layers' overall level (the player: "very loud" at 0.9 each, 2026-11-15)
 local SPEED_OF_SOUND = 343
 
 local on = false                   -- the rider is held and flies
@@ -383,7 +384,7 @@ local function sound_update(dt, load)
         end
     end
     local where = {x = at[1], y = at[2], z = at[3]}
-    local vol = setting("volume", 90) / 100
+    local vol = MIX * setting("volume", 60) / 100              -- two layers at once: the mix keeps them moderate
     local spool = 0.45 + 0.55 * spin                                      -- the turbine winds up with the rotor
     local function set(id, volume, p)
         resteep.sound.set(id, {loop = true, volume = clamp(volume, 0, 1), range = SOUND_RANGE, at = where,
@@ -673,7 +674,7 @@ end
 local ON_FOOT = 6                  -- walking (seen in the game, 2026-11-11)
 local RIDING = {[0] = "snowboard", [1] = "wingsuit", [2] = "ski", [3] = "paraglider", [5] = "speed riding",
                 [7] = "a crash", [9] = "sled", [10] = "rocket wingsuit", [11] = "free fall"}
-local STILL = 1.0                  -- m/s: "stopped"
+local STILL = 3.0                  -- m/s: on foot that is standing or walking (a slope reads ~1 m/s standing still)
 
 local function find_heli()
     if heli then return end
@@ -689,7 +690,8 @@ local function start()
     local p = resteep.player()
     if not p then resteep.notify("helicopter: no rider", 2) return end
     local riding = p.activity ~= ON_FOOT and (RIDING[p.activity] or ("activity " .. tostring(p.activity))) or nil
-    if riding or p.air or (p.speed or 0) > STILL then
+    local airborne = p.air and (p.airtime or 0) > 0.4               -- the flag flickers on slopes
+    if riding or airborne or (p.speed or 0) > STILL then
         resteep.log(string.format("helicopter: not started (activity %s, speed %.1f, air %s)", tostring(p.activity),
                                   p.speed or 0, tostring(p.air)))
         resteep.notify(riding and ("helicopter: get off first (" .. riding .. "): walk, stand still, then F8 / BACK")
@@ -755,8 +757,18 @@ local function camera_follow(dt, p)
                                        fov = 70} end
 end
 
+local aboard_hover = false          -- the helicopter holds itself in the air, the rider still in the side door
+
 local function fly(dt, pad)
     local f, r, pedal, coll = controls(pad)
+    if aboard_hover then                                     -- any stick or trigger takes the controls back
+        if math.abs(f) + math.abs(r) + math.abs(pedal) + math.abs(coll) > 0 then
+            aboard_hover = false
+            resteep.notify("helicopter: you fly again", 2)
+        else
+            f, r, pedal, coll = autopilot()
+        end
+    end
     grounded = step_model(dt, f, r, pedal, coll)
     local s = body(SEAT)
     local ok, why = resteep.rider.set_position(s[1], s[2], s[3])
@@ -786,8 +798,18 @@ local function sound_load()
     return clamp(math.abs(last_coll) * 0.8 + 0.15 * len(W) + (v[3] < -4 and 0.3 or 0), 0, 1)
 end
 
+-- B / BACK / F8 while flying: on the ground it parks; in the air the first press hovers with the rider aboard, the
+-- second one is the jump out (the helicopter goes on hovering alone)
+local function leave_pressed()
+    if grounded then aboard_hover = false stop("parked", true)
+    elseif not aboard_hover then
+        aboard_hover, hold_z = true, org and org[3] or hold_z
+        resteep.notify("helicopter: hovering (press again to jump out, a stick to fly on)", 3)
+    else aboard_hover = false stop("jumped out", false) end
+end
+
 resteep.on("key", function(k)
-    if k == "F8" then if on then stop(nil, grounded) else start() end end
+    if k == "F8" then if on then leave_pressed() else start() end end
 end)
 
 resteep.on("frame", function(dt)
@@ -802,7 +824,7 @@ resteep.on("frame", function(dt)
         if pressed.BACK then start() end
         return
     end
-    if pressed.BACK or pressed.B then stop("dropped", grounded) return end
+    if pressed.BACK or pressed.B then leave_pressed() if not on then return end end
     local p = resteep.player()
     if not p or p.ragdoll then stop(p and "crashed" or "no rider", grounded) return end
     if not resteep.rider.held() then stop("the rider was let go", grounded) return end
@@ -813,6 +835,7 @@ end)
 resteep.on("world_leave", function()
     if on then stop(nil, true) end
     hovering, heli, rotors, rotor_way, local_check = false, nil, nil, nil, nil
+    aboard_hover = false
     spin, turned_main, turned_tail, org = 0, 0, 0, nil
     sound_stop()
 end)
