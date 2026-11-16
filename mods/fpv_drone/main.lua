@@ -11,9 +11,10 @@
 -- In the game's replay (resteep.world.replay): G starts the drone where the replay's camera is, at once and without
 -- the rider (the replay's rider is left alone: no hold); it flies the same, also while the replay is paused,
 -- and B / G hands the picture back to the replay's camera. The replay's controls get no input meanwhile.
--- The model (Alps only for now): the game's own drone mesh (STP_V_Drone_001_GoPro, rebuilt from the player's install
+-- The model, on every map (content.worlds "map": "*": the open worlds and every mod map): the game's own drone mesh
+-- with its own colour textures (STP_V_Drone_001_GoPro, rebuilt from the player's install
 -- at game start) or the mod's own quad (assets/drone.glb, tools/fpv_drone/make_drone.py), both placed by
--- assets/drone_Alpes.json in the root cell with fixed ids and parked under the ground; resteep.prop moves the one
+-- assets/drone.json in each map's root cell with fixed ids and parked under the ground; resteep.prop moves the one
 -- the settings pick. The motor sound (sounds/motor_loop.wav, generated) follows the throttle.
 -- Collision: resteep.world.spherecast / raycast (the game's collision world) when this ReSteep has them, else the
 -- terrain raster (resteep.world.ground: the ground only, about 4 m apart, not trees, rocks or buildings).
@@ -32,7 +33,7 @@ local REPEAT_DELAY, REPEAT_EVERY = 0.4, 0.12       -- s: a d-pad button held rep
 local SPIN_UP, RISE_END, HOVER_END, TO_FPV = 0.7, 2.1, 2.5, 0.8
 local TO_THIRD, RETURN_MAX, DESCEND, SPIN_DOWN = 0.7, 3.0, 0.8, 0.6
 local FAR = 25                                     -- a drone further out comes back from this far (out of view)
--- the models (resteep.prop ids from assets/drone_Alpes.json): which way their nose points, where their origin sits
+-- the models (resteep.prop ids from assets/drone.json): which way their nose points, where their origin sits
 -- and where its camera is (from the drone's centre: forward, up; the game's drone has its GoPro under the nose)
 local MODELS = {
     game = {id = 0x2FD00001000, flip = true, lift = -SKID, park = {x = 3, y = 0, z = -5}, cam = {0.29, 0.05}},
@@ -161,7 +162,8 @@ local function find_model()
             if key ~= want then resteep.log("drone: no " .. want .. " model here, the " .. key .. " one flies") end
             return
         end
-        resteep.log("drone: no " .. key .. " model here (the Alps only; built at game start): " .. tostring(why))
+        resteep.log("drone: no " .. key .. " model here (built at game start; a map added since needs a restart): "
+                    .. tostring(why))
     end
 end
 

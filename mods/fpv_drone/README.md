@@ -42,13 +42,14 @@ range from the rider.
 
 ## The model and the sound
 
-- The model is placed in the Alps' root cell (always loaded) when the game starts and parked under the ground; the
-  mod moves it with `resteep.prop`. The game's drone (`STP_V_Drone_001_GoPro`, the GoPro drone of the game's own drone
-  scenes) is rebuilt from your own install by ReSteep's build, never shipped here; ReSteep's quad is
-  `assets/drone.glb`. Both are drawn with a borrowed bench's materials (the game's drone material is a character
-  material, which crashed on a static model), so they look like the shape in wood and snow for now. Alaska, Japan
-  and custom maps have no model yet (the drone flies without one there). The mod has world content, so changing
-  its version needs a game restart, and on a server it is a synced mod (every player needs it).
+- The model is on every map: the Alps, Alaska, Japan and every mod map you have on (`"map": "*"`), placed in each
+  map's root cell (always loaded) when the game starts and parked under the ground; the mod moves it with
+  `resteep.prop`. The game's drone (`STP_V_Drone_001_GoPro`, the GoPro drone of the game's own drone scenes) is
+  rebuilt from your own install by ReSteep's build, never shipped here, with its own colour textures on a plain
+  material (`"materials": "textures"`: its own material is a character's, which crashed on a static model; its
+  normal and shine maps are left out). ReSteep's quad is `assets/drone.glb`, still drawn with a borrowed prop's
+  materials. The mod has world content, so changing its version needs a game restart, and on a server it is a
+  synced mod (every player needs it).
 - The motor sound (`sounds/motor_loop.wav`) plays at the drone; its pitch and volume follow the throttle.
 - Both files come from `tools/fpv_drone/make_drone.py` in this repository (formulas, no game data, CC0).
 

@@ -15,9 +15,11 @@ without its AnimComponent (`"drop"`), under the fixed id `0x2F000001000` that `m
 original's; its meshes come along from the Alps' archives (world.py apply: an add from another map, an add's `"id"`).
 Built against your install at game start like every content mod (the launcher's mod build); the setting takes effect
 at the next game start. Its pilot's and ski box's closest models (LOD0) stay in `DataPC_extra_chr_onboarding` (G:
-loaded in every world). The WhiteRoom is the menu world (nothing to fly in) and a mod's custom maps are worlds of their
-own that a world edit of the shipped maps does not reach: there, and wherever the model is not loaded, the mod flies
-without a model (the camera closer) and keeps looking for it every 2 s while flying.
+loaded in every world). Mod maps (worlds of their own, such as the proving ground) get the same copy with the setting
+**Helicopter on mod maps** (`custom_maps`, off by default: experimental, copies of another map's objects have crashed
+a mod map on loading before; `assets/helicopter_maps.json`, a `"map": "*"` entry for the mod maps only). The WhiteRoom
+is the menu world (nothing to fly in); there, and wherever the model is not loaded, the mod flies without a model
+(the camera closer) and keeps looking for it every 2 s while flying.
 
 **Why Japan crashed (2026-11-11/12) and what changed (2026-11-16, offline):** the copies of then were broken by
 ReSteep's world.py, not by Japan: an add into a root cell from another cell cut the cell's prefetch list short (fixed
@@ -84,6 +86,7 @@ extreme, 0 % switches an effect off.
 | Helicopter HUD: size (`hud_size`) | 50-200 % | 100 % | about its bottom centre |
 | Helicopter HUD: opacity (`hud_opacity`) | 20-100 % | 100 % | |
 | Helicopter in Japan (`japan`) | on / off | on | builds the copy into Japan (above); the next game start, not at once; Japan crashing on load: switch it off |
+| Helicopter on mod maps (`custom_maps`) | on / off | off | builds the copy into every mod map that is on (experimental); the next game start; a mod map crashing on load: switch it off |
 
 0.6.0 replaced "Stick sensitivity" (both axes) with the cyclic and pedal rates.
 

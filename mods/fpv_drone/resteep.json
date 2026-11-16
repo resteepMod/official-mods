@@ -7,9 +7,9 @@
   "script": "main.lua",
   "content": {
     "worlds": [
-      {"map": "Alpes", "edits": "assets/drone_Alpes.json",
+      {"map": "*", "edits": "assets/drone.json",
        "models": {"drone_game": {"from": {"map": "DataPC", "entry": "0x800",
-                                          "mesh": "STP_V_Drone_001_GoPro_LOD0"}, "materials": "like"},
+                                          "mesh": "STP_V_Drone_001_GoPro_LOD0"}, "materials": "textures"},
                   "drone": {"glb": "assets/drone.glb"}}}
     ]
   },

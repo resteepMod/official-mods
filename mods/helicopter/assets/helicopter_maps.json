@@ -1,0 +1,1 @@
+{"edits": [{"n": 1, "map": "Alaska", "op": "add", "name": "helicopter", "cell": "root", "id": "0x2F000001000", "src": {"map": "Alpes", "layer": 0, "cell": 21844, "id": "0x1105920500E"}, "pos": [-0.24, 0.02, 0.0], "yaw": 0, "drop": ["AnimComponent"]}]}
