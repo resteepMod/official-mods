@@ -894,7 +894,9 @@ local function start()
     resteep.input.pad{}            -- puts the pad hook in, so input.read() has the real pad from now on
     heli_gone, heli_look = false, 2                               -- a new flight tries the model again
     find_heli()
-    if heli and not rotors and spin == 0 then read_rotors() end   -- parked as the map has it: the bones at rest
+    -- parked (the rotors at rest): the bones read again and the local pose's turn checked again each flight; a second
+    -- flight after a fast travel kept the first one's and its rotors stood still, unnoticed (2026-11-16)
+    if heli and spin == 0 then rotors = nil read_rotors() end
     seat(true)
     watching = WATCH_CLIPS
     resteep.rider.anim_seen()                                     -- starts the recording
