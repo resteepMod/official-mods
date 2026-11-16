@@ -9,7 +9,7 @@ around it, the rider seated in its open left door. Folders starting with `_` are
 
 **In every map that can have one (0.7.0):** the Alps place the helicopter themselves (`STP_Helico` 0x1105920500E in
 their root cell). **Alaska** gets a copy of it from this mod's world edit (`assets/helicopter_Alaska.json`), **Japan**
-only with the setting **Helicopter in Japan (experimental)** (`japan`, off by default; `assets/helicopter_Japan.json`):
+too (`assets/helicopter_Japan.json`; the setting **Helicopter in Japan**, `japan`, on by default, switches it off):
 each copies the Alps' `STP_Helico` into the map's root cell (always loaded), parked at the origin like the original,
 without its AnimComponent (`"drop"`), under the fixed id `0x2F000001000` that `main.lua` looks for after the
 original's; its meshes come along from the Alps' archives (world.py apply: an add from another map, an add's `"id"`).
@@ -25,7 +25,7 @@ ReSteep's world.py, not by Japan: an add into a root cell from another cell cut 
 bytes after its last component along with the AnimComponent (and left its component flag in the game state): every
 dropped copy was malformed, so it crashed somewhere else every run. World.py now cuts exactly the 73-byte component, its
 record and its flag, and a copy from another map's root cell (the same entry id in every map) brings its prefetch
-records. Not run in the game since: Japan stays opt-in until someone has loaded it with the copy.
+records. Seen in the game 2026-11-16: Japan loaded with the copy and the helicopter flew there; on by default since.
 
 ## Controls
 
@@ -83,7 +83,7 @@ extreme, 0 % switches an effect off.
 | Helicopter HUD (`hud`) | on / off | on | the mod's flight display (below); off: nothing drawn |
 | Helicopter HUD: size (`hud_size`) | 50-200 % | 100 % | about its bottom centre |
 | Helicopter HUD: opacity (`hud_opacity`) | 20-100 % | 100 % | |
-| Helicopter in Japan (experimental) (`japan`) | on / off | off | builds the copy into Japan (above); the next game start, not at once; Japan crashing on load: switch it off |
+| Helicopter in Japan (`japan`) | on / off | on | builds the copy into Japan (above); the next game start, not at once; Japan crashing on load: switch it off |
 
 0.6.0 replaced "Stick sensitivity" (both axes) with the cyclic and pedal rates.
 
@@ -223,7 +223,7 @@ ReSteep) and a loopable stretch found by ear: not done.
 
 No collision with objects until `resteep.world.raycast` exists (see above), the rider keeps its heading and stays
 upright while the helicopter turns, the helicopter itself has no collision for others, and Alaska and Japan have it
-only with this mod's world edits built (Japan with its setting on); without its AnimComponent the copy may not take the
+only with this mod's world edits built (Japan unless its setting is off); without its AnimComponent the copy may not take the
 rotors' turn (G: then they stand still, the rest flies the same). The pad's sticks need the pad to reach mods (`resteep.input.read`); in the
 test harness only the keyboard does.
 

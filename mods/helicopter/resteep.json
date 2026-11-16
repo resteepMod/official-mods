@@ -12,8 +12,8 @@
     ]
   },
   "settings": [
-    {"key": "japan", "type": "toggle", "label": "Helicopter in Japan (experimental)", "default": false,
-     "info": "Puts a copy of the Alps' helicopter into Japan (Alaska always gets one). Off by default: Japan crashed with an earlier copy (2026-11-11) and this one is checked offline only. Takes effect at the next game start; if Japan crashes on loading, switch it off again."},
+    {"key": "japan", "type": "toggle", "label": "Helicopter in Japan", "default": true,
+     "info": "Puts a copy of the Alps' helicopter into Japan (Alaska always gets one); seen working in the game 2026-11-16. Takes effect at the next game start; switch it off if Japan ever crashes on loading."},
     {"key": "realistic", "type": "toggle", "label": "Realistic flight", "default": false,
      "info": "Off: arcade (the disc tilts with the stick and springs back, it never tips over). On: a light helicopter (H125): a collective lever that stays where set (~50 % hovers), power limit, torque yaw, vortex ring, blade stall, low g. Momentum and inertia: at speed it carries on, slowing or turning tightly takes a flare and a bank (a J-hook). The Realistic sliders below tune it. Switches in flight too."},
     {"key": "assist", "type": "slider", "label": "Realistic: assist", "default": 20, "min": 0, "max": 100, "step": 5,
