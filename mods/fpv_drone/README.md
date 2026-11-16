@@ -33,7 +33,8 @@ replay's own controls get no input from you and the HUD is hidden. The range cou
 
 ## Settings
 
-Launch key, throttle mode (stick centre hovers, full-range stick, right trigger), stick mode 1 / 2, Betaflight rates
+Launch key, **Take-off and landing** (off: G puts the drone up in its FPV camera at once and brings it back at once),
+throttle mode (stick centre hovers, full-range stick, right trigger), stick mode 1 / 2, Betaflight rates
 (RC rate, super rate, expo), stick dead zone, thrust to weight, camera tilt and field of view (also on the d-pad),
 **Drone model** (the game's drone, ReSteep's quad, or off), **Drone model in the FPV view** (off: put away while
 you fly first-person, in case its props show at the picture's edges), **Motor sound** and **Motor volume**, and the

@@ -332,6 +332,13 @@ local function launch()
     kb_thr, last_buttons, rep = hover_throttle(), {}, {}
     find_model()
     state, t0 = "launch", resteep.time()
+    if not setting("sequence", true) then          -- no take-off: up and in its FPV camera at once
+        d.p.z = spot.z + 1.7
+        face(v3(math.cos(d.yaw1), math.sin(d.yaw1), 0))
+        state = "fly"
+        resteep.notify("drone: up (throttle low arms it; B or G brings it back; d-pad: FOV / camera angle)", 4)
+        return
+    end
     resteep.notify("drone: launching", 2)
 end
 
@@ -350,6 +357,11 @@ local function land()
     if replay then                                 -- no rider to fly back to: the replay's camera takes over again
         finish()
         resteep.notify("drone: back to the replay", 2)
+        return
+    end
+    if not setting("sequence", true) then          -- no landing: the rider's camera at once
+        finish()
+        resteep.notify("drone: back", 2)
         return
     end
     back = {from = fpv_view(), t_cam = state == "fly" and TO_THIRD or 0}
