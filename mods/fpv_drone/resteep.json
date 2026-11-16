@@ -39,7 +39,7 @@
     {"key": "fov", "type": "slider", "label": "Field of view (vertical)", "default": 90, "min": 60, "max": 150, "step": 1,
      "unit": "deg", "info": "In flight the d-pad's left / right (or the arrow keys) change it in 5 degree steps; the last value stays."},
     {"key": "model", "type": "choice", "label": "Drone model", "default": "game",
-     "info": "The drone seen in the world while it launches, flies and comes back (the Alps only for now; built when the game starts). The game's drone is rebuilt from your install; both are drawn with a borrowed bench's materials.",
+     "info": "The drone seen in the world while it launches, flies and comes back, on every map (built when the game starts). The game's drone is rebuilt from your install with its own colours; ReSteep's quad borrows a nearby prop's materials (a bench, crate or power box).",
      "options": [{"value": "game", "label": "The game's drone"},
                  {"value": "own", "label": "ReSteep's quad"},
                  {"value": "off", "label": "Off"}]},
