@@ -1,5 +1,5 @@
--- FPV drone, acro (rate mode): launch a drone the way the game's own drone takes off (the rider's STAND_IDLE_DRONE
--- pose, the drone rising in front of them, seen from behind the rider), then fly it first-person like a real FPV
+-- FPV drone, acro (rate mode): launch a drone the way the game's own drone takes off (the drone rising in front of
+-- the rider, seen from behind them), then fly it first-person like a real FPV
 -- quad: the sticks set how fast it turns about its own axes (Betaflight rates: RC rate, super rate, expo), nothing
 -- levels it, the motors push along its top, gravity and drag do the rest. The camera is tilted up like an FPV camera.
 -- Gamepad, mode 2: left stick throttle (up/down) and yaw, right stick pitch and roll; Y sets it upright where it is
@@ -9,7 +9,7 @@
 -- the d-pad. G (a setting) launches and brings it back. While the drone is out the rider is held where it stood and
 -- the game gets no input.
 -- In the game's replay (resteep.world.replay): G starts the drone where the replay's camera is, at once and without
--- the rider (the replay's rider is left alone: no hold, no pose); it flies the same, also while the replay is paused,
+-- the rider (the replay's rider is left alone: no hold); it flies the same, also while the replay is paused,
 -- and B / G hands the picture back to the replay's camera. The replay's controls get no input meanwhile.
 -- The model (Alps only for now): the game's own drone mesh (STP_V_Drone_001_GoPro, rebuilt from the player's install
 -- at game start) or the mod's own quad (assets/drone.glb, tools/fpv_drone/make_drone.py), both placed by
@@ -30,10 +30,6 @@ local FOV_MIN, FOV_MAX, TILT_MIN, TILT_MAX, STEP_DEG = 60, 150, 0, 60, 5
 local REPEAT_DELAY, REPEAT_EVERY = 0.4, 0.12       -- s: a d-pad button held repeats
 -- the launch and the landing (s)
 local SPIN_UP, RISE_END, HOVER_END, TO_FPV = 0.7, 2.1, 2.5, 0.8
--- the rider's throw (STAND_IDLE_DRONE: 2 s, the right arm up and the drone let go ~0.8 s in): the game starts it at
--- the rider's next idle switch, so the drone waits spun up on the ground for it (at most THROW_WAIT) and rises
--- with the release; once thrown the idles are the game's again (else every idle switch threw once more)
-local THROW, RELEASE, THROW_WAIT, THROW_GIVE_UP = 2.0, 0.8, 3.0, 12.0
 local TO_THIRD, RETURN_MAX, DESCEND, SPIN_DOWN = 0.7, 3.0, 0.8, 0.6
 local FAR = 25                                     -- a drone further out comes back from this far (out of view)
 -- the models (resteep.prop ids from assets/drone_Alpes.json): which way their nose points, where their origin sits
@@ -44,51 +40,6 @@ local MODELS = {
 }
 local SOUND = "sounds/motor_loop.wav"
 local SOUND_RANGE = 160                            -- full volume within 40 m, silent beyond
-
--- The rider's drone pose: every standing idle -> the matching STAND_IDLE_DRONE clip (the names from `python -m
--- resteep anims find STAND_IDLE`): skis (ID01) to the ski pose (its _STEEP variant from the _STEEP idles), everything
--- else to the snowboard's. Those not listed here are caught when the game looks them up (resteep.rider.anim_seen).
-local function drone_clip(name)
-    local act, g = name:match("^(ID%d%d)_PS%d%d_(%a+)_")
-    if not act or (g ~= "male" and g ~= "female") or not name:find("STAND_IDLE", 1, true) then return nil end
-    if name:find("DRONE", 1, true) or name:find("BINOCULAR", 1, true) then return nil end
-    if act == "ID01" then
-        return "ID01_PS00_" .. g .. (name:find("STEEP", 1, true) and "_STAND_IDLE_STEEP_DRONE" or "_STAND_IDLE_DRONE")
-    end
-    return "ID00_PS00_" .. g .. "_STAND_IDLE_DRONE"
-end
-
-local IDLES = {}
-for _, g in ipairs({"male", "female"}) do
-    for ps = 0, 4 do
-        local p, br = string.format("_PS%02d_", ps), ps == 4 and "breaker" or "Breaker"
-        IDLES[#IDLES + 1] = "ID00" .. p .. g .. "_STAND_IDLE"
-        IDLES[#IDLES + 1] = "ID01" .. p .. g .. "_STAND_IDLE_LEFT"
-        IDLES[#IDLES + 1] = "ID01" .. p .. g .. "_STAND_IDLE_LEFT_STEEP"
-        for k = 1, 4 do
-            IDLES[#IDLES + 1] = string.format("ID00%s%s_STAND_IDLE_%s_%02d", p, g, br, k)
-            IDLES[#IDLES + 1] = string.format("ID01%s%s_STAND_IDLE_%s_%02d_LEFT", p, g, br, k)
-            IDLES[#IDLES + 1] = string.format("ID01%s%s_STAND_IDLE_%s_%02d_LEFT_STEEP", p, g, br, k)
-        end
-    end
-    for k = 1, 4 do IDLES[#IDLES + 1] = string.format("ID05_PS00_%s_STAND_IDLE_%02d", g, k) end
-    IDLES[#IDLES + 1] = "ID06_PS00_" .. g .. "_STAND_IDLE"
-end
-
-local posed = {}                                   -- clip -> its drone pose, while redirected
-
-local function pose(name)
-    if posed[name] then return end
-    local to = drone_clip(name)
-    if not to then return end
-    local ok, set = pcall(resteep.rider.play_anim, name, to)   -- raises for a clip this game does not have
-    if ok and set then posed[name] = to end
-end
-
-local function unpose()
-    for name in pairs(posed) do pcall(resteep.rider.play_anim, name) end
-    posed = {}
-end
 
 local function setting(key, default)
     local ok, v = pcall(resteep.config.get, key)
@@ -132,8 +83,6 @@ local spin = 0                                     -- the motors' speed for the 
 local motor, mute = nil, false                     -- the sound's id; no audio here (asked once per flight)
 local model, model_key, parked = nil, nil, nil     -- the prop handle, which model, its parked transform
 local caster_broken = false
-local seen_until = 0
-local throw = nil                                  -- this launch's throw: {from = G pressed, at = when it started}
 local replay = false                               -- this flight is in the game's replay: no rider, camera only
 local last_t = 0                                   -- resteep.time() of the last frame (the replay flight's own dt)
 
@@ -367,14 +316,6 @@ local function launch()
     home.floor = g and (p.z - g) or nil
     local ok, why = resteep.rider.hold(true)
     if not ok then resteep.notify("drone: " .. tostring(why), 3) return end
-    posed = {}
-    for _, name in ipairs(IDLES) do pose(name) end
-    if next(posed) == nil then resteep.log("drone: no launch pose on this game build") end
-    if resteep.rider.anim_seen then resteep.rider.anim_seen() end   -- starts the recording: its idles get posed too
-    seen_until = resteep.time() + 10
-    -- without anim_played (older ReSteep) the pose stays for the flight, as before
-    throw = type(resteep.rider.anim_played) == "function" and {from = resteep.time()} or nil
-    if throw then resteep.rider.anim_played() end  -- what an earlier flight left
     -- the game's HUD off while flying (the activity card, challenge markers and prompts): only the drone's view
     hid_hud = resteep.hud.hide(true) == true
     local c = resteep.camera()
@@ -399,10 +340,7 @@ local function finish()                            -- the drone is back: everyth
     park()
     if hid_hud then resteep.hud.hide(false) hid_hud = false end
     resteep.camera.release(0.6)
-    if not replay then
-        unpose()
-        resteep.rider.hold(false)
-    end
+    if not replay then resteep.rider.hold(false) end
     replay = false
     state = "off"
 end
@@ -419,35 +357,7 @@ local function land()
     resteep.notify("drone: coming back", 2)
 end
 
--- the throw: started (anim_played names one of the posed idles), done (its length passed: the idles go back to the
--- game's), or given up (not seen in THROW_GIVE_UP s)
-local function watch_throw(now)
-    if not throw or throw.done then return end
-    local played = resteep.rider.anim_played()
-    if not throw.at and type(played) == "table" then
-        local mine = {}
-        for name in pairs(posed) do mine[name:lower()] = true end
-        for _, name in ipairs(played) do
-            if mine[name:lower()] then throw.at = now break end
-        end
-    end
-    if (throw.at and now >= throw.at + THROW) or (not throw.at and now >= throw.from + THROW_GIVE_UP) then
-        throw.done = true
-        unpose()
-    end
-end
-
 local function launching(t, dt)
-    local now = resteep.time()
-    if throw and not throw.rising then             -- spun up on the ground until the rider lets it go
-        local waiting = (not throw.at and now < throw.from + THROW_WAIT) or (throw.at and now < throw.at + RELEASE)
-        if t <= SPIN_UP and waiting then
-            t = math.min(t, SPIN_UP)
-            t0 = now - t
-        else
-            throw.rising = true
-        end
-    end
     local k = smooth((t - SPIN_UP) / (RISE_END - SPIN_UP))
     d.p.z = spot.z + 1.7 * k                       -- rises in front of the rider, as the game's drone intro does
     local yaw = d.yaw0 + (d.yaw1 - d.yaw0) * k     -- and turns away from them
@@ -708,43 +618,8 @@ local function fly(dt, pad)
     osd(thr, pad)
 end
 
-local function watch_poses()                       -- the idles the game looks up get the drone pose too
-    if throw and throw.done then return end
-    local seen = resteep.rider.anim_seen and resteep.rider.anim_seen()
-    if type(seen) ~= "table" then return end
-    for _, name in ipairs(seen) do
-        if resteep.time() < seen_until and not posed[name] and drone_clip(name) then
-            resteep.log("drone: the rider plays " .. name .. " -> " .. drone_clip(name))
-        end
-        pose(name)
-    end
-end
-
--- The drone poses looked up in the game's memory as soon as the rider is in the world (resteep.rider.preload_anim,
--- ReSteep's newer overlays): set at G, the search took ~2.4 s and the rider took the pose after the drone was up.
--- Again after a load (the rider gone a moment), once per world; a clip that world has not loaded is just not found.
-local preloaded = false
-local function preload_poses()
-    local p = resteep.player()
-    if not p or not p.real then preloaded = false return end
-    if preloaded then return end
-    preloaded = true
-    if type(resteep.rider.preload_anim) ~= "function" then return end
-    local done = {}
-    for _, name in ipairs(IDLES) do
-        local to = drone_clip(name)
-        if to and not done[to] then
-            done[to] = true
-            pcall(resteep.rider.preload_anim, to)
-        end
-    end
-end
-
 resteep.on("frame", function(dt)
-    if state == "off" then
-        if not replay then preload_poses() end
-        return
-    end
+    if state == "off" then return end
     if replay then
         if not in_replay() then                    -- the replay ended (or was left): the game's camera again
             finish()
@@ -757,8 +632,6 @@ resteep.on("frame", function(dt)
     hold_input()
     local pad = resteep.input.read()
     if note and resteep.time() < note_until then resteep.text(0.5, 0.80, note, "#FFFFFF", 1.4) end
-    if state ~= "landing" and not replay then watch_poses() end
-    if not replay then watch_throw(resteep.time()) end
     local t = resteep.time() - t0
     if state == "launch" then
         launching(t, dt)

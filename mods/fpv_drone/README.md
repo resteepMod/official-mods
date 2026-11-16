@@ -2,8 +2,8 @@
 
 Launch a drone the way Steep's own drone takes off and fly it first-person like a real FPV quad in acro (rate)
 mode: the sticks set how fast it turns, nothing levels it, the motors push along its top. Stand still on the ground
-and press **G**: the drone spins up in front of the rider, who throws it once (the game's own throw, at the rider's
-next idle switch: the drone waits up to 3 s for it), it rises, turns away, and the camera blends into its FPV camera. **G** or **B** brings it back: the camera returns to the rider, the drone flies
+and press **G**: the drone spins up in front of the rider, rises, turns away, and the camera blends into its FPV
+camera. **G** or **B** brings it back: the camera returns to the rider, the drone flies
 back (from out of view if it was far), lands and spins down.
 
 ## Controls
@@ -43,7 +43,7 @@ range from the rider.
 
 - The model is placed in the Alps' root cell (always loaded) when the game starts and parked under the ground; the
   mod moves it with `resteep.prop`. The game's drone (`STP_V_Drone_001_GoPro`, the GoPro drone of the game's own drone
-  scenes, whose rider poses this mod borrows) is rebuilt from your own install by ReSteep's build, never shipped here; ReSteep's quad is
+  scenes) is rebuilt from your own install by ReSteep's build, never shipped here; ReSteep's quad is
   `assets/drone.glb`. Both are drawn with a borrowed bench's materials (the game's drone material is a character
   material, which crashed on a static model), so they look like the shape in wood and snow for now. Alaska, Japan
   and custom maps have no model yet (the drone flies without one there). The mod has world content, so changing
