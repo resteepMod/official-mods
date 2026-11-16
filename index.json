@@ -320,7 +320,7 @@
    "id": "hello-config",
    "name": "Hello_Config",
    "title": "Hello Config",
-   "version": "1.0.1",
+   "version": "1.0.2",
    "description": "Settings test for scripts: press F9 in the game to see the strength you set. Changing a setting writes a line to the console (config_change).",
    "author": "ReSteep",
    "full_name": "ReSteep-Hello_Config",
@@ -330,9 +330,9 @@
     "script",
     "settings"
    ],
-   "file": "packages/hello-config-1.0.1.resteep",
-   "sha256": "03cbcae3cf434b085f5368ed0c14756caae05e9d3862a3d3c11c9a0895f1119c",
-   "size": 2305,
+   "file": "packages/hello-config-1.0.2.resteep",
+   "sha256": "741f3cb3c3b053d6af40f70f7120e7235f0222b5d62fe8eacac1110f34bba6a6",
+   "size": 1578,
    "icon": "icons/hello-config.png",
    "downloads": []
   },
