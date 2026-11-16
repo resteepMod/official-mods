@@ -2,8 +2,8 @@
 
 Launch a drone the way Steep's own drone takes off and fly it first-person like a real FPV quad in acro (rate)
 mode: the sticks set how fast it turns, nothing levels it, the motors push along its top. Stand still on the ground
-and press **G**: the rider takes the drone pose, the drone spins up in front of them, rises, turns away, and the
-camera blends into its FPV camera. **G** or **B** brings it back: the camera returns to the rider, the drone flies
+and press **G**: the drone spins up in front of the rider, who throws it once (the game's own throw, at the rider's
+next idle switch: the drone waits up to 3 s for it), it rises, turns away, and the camera blends into its FPV camera. **G** or **B** brings it back: the camera returns to the rider, the drone flies
 back (from out of view if it was far), lands and spins down.
 
 ## Controls
