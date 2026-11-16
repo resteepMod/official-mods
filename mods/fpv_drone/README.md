@@ -42,14 +42,17 @@ range from the rider.
 
 ## The model and the sound
 
-- The model is on every map: the Alps, Alaska, Japan and every mod map you have on (`"map": "*"`), placed in each
-  map's root cell (always loaded) when the game starts and parked under the ground; the mod moves it with
-  `resteep.prop`. The game's drone (`STP_V_Drone_001_GoPro`, the GoPro drone of the game's own drone scenes) is
-  rebuilt from your own install by ReSteep's build, never shipped here, with its own colour textures on a plain
-  material (`"materials": "textures"`: its own material is a character's, which crashed on a static model; its
-  normal and shine maps are left out). ReSteep's quad is `assets/drone.glb`, still drawn with a borrowed prop's
-  materials. The mod has world content, so changing its version needs a game restart, and on a server it is a
-  synced mod (every player needs it).
+- The model is on every map: the Alps, Alaska, Japan and every mod map you have on.
+  - The game's drone (`STP_V_Drone_001_GoPro`, the one the rider throws in the game's idle) is the game's own, with
+    its own look: at the launch the mod copies its entity template from the game's global data (Game Bootstrap
+    Settings, loaded on every map) with `resteep.prop.spawn` (`show = true`: the template is stored hidden), and
+    takes the copy away after the landing. Nothing of it is built or shipped. The copy keeps one frame of the
+    template's launch clip, so the mod places it where the drone body's rest pose comes out at the drone. A ReSteep
+    without `show` makes an invisible copy: the mod sees that and flies the quad instead.
+  - ReSteep's quad (`assets/drone.glb`) is placed in each map's root cell (always loaded, `"map": "*"`) when the
+    game starts and parked under the ground; it is drawn with a borrowed prop's materials.
+  - The quad is world content, so changing the mod's version needs a game restart, and on a server it is a synced
+    mod (every player needs it).
 - The motor sound (`sounds/motor_loop.wav`) plays at the drone; its pitch and volume follow the throttle.
 - Both files come from `tools/fpv_drone/make_drone.py` in this repository (formulas, no game data, CC0).
 

@@ -11,11 +11,12 @@
 -- In the game's replay (resteep.world.replay): G starts the drone where the replay's camera is, at once and without
 -- the rider (the replay's rider is left alone: no hold); it flies the same, also while the replay is paused,
 -- and B / G hands the picture back to the replay's camera. The replay's controls get no input meanwhile.
--- The model, on every map (content.worlds "map": "*": the open worlds and every mod map): the game's own drone mesh
--- with its own colour textures (STP_V_Drone_001_GoPro, rebuilt from the player's install
--- at game start) or the mod's own quad (assets/drone.glb, tools/fpv_drone/make_drone.py), both placed by
--- assets/drone.json in each map's root cell with fixed ids and parked under the ground; resteep.prop moves the one
--- the settings pick. The motor sound (sounds/motor_loop.wav, generated) follows the throttle.
+-- The model, on every map: the game's own drone is a copy (resteep.prop.spawn with show) of its entity template in
+-- Game Bootstrap Settings (STP_V_Drone_001_GoPro, the one the rider's idle gesture throws), which every map has
+-- loaded, made at the launch and taken away after the landing; the mod's own quad (assets/drone.glb,
+-- tools/fpv_drone/make_drone.py) is placed by assets/drone.json in each map's root cell (content.worlds "map": "*")
+-- with a fixed id and parked under the ground. resteep.prop moves the one the settings pick. The motor sound
+-- (sounds/motor_loop.wav, generated) follows the throttle.
 -- Collision: resteep.world.spherecast / raycast (the game's collision world) when this ReSteep has them, else the
 -- terrain raster (resteep.world.ground: the ground only, about 4 m apart, not trees, rocks or buildings).
 -- Culling and level of detail follow the game's own camera (the rider): far from it things pop in.
@@ -33,12 +34,16 @@ local REPEAT_DELAY, REPEAT_EVERY = 0.4, 0.12       -- s: a d-pad button held rep
 local SPIN_UP, RISE_END, HOVER_END, TO_FPV = 0.7, 2.1, 2.5, 0.8
 local TO_THIRD, RETURN_MAX, DESCEND, SPIN_DOWN = 0.7, 3.0, 0.8, 0.6
 local FAR = 25                                     -- a drone further out comes back from this far (out of view)
--- the models (resteep.prop ids from assets/drone.json): which way their nose points, where their origin sits
--- and where its camera is (from the drone's centre: forward, up; the game's drone has its GoPro under the nose)
+-- the models: the game's drone copied from its template, the quad by its id from assets/drone.json; which way their
+-- nose points, where their origin sits and where its camera is (from the drone's centre: forward, up; the game's drone
+-- has its GoPro under the nose)
 local MODELS = {
-    game = {id = 0x2FD00001000, flip = true, lift = -SKID, park = {x = 3, y = 0, z = -5}, cam = {0.29, 0.05}},
+    game = {template = 0x8AF921706C, flip = true, lift = -SKID, cam = {0.29, 0.05}},
     own = {id = 0x2FD00002000, flip = false, lift = 0, park = {x = 6, y = 0, z = -5}, cam = {0.07, 0.02}},
 }
+-- The copy keeps one frame of the template's launch clip (its body 1.7 m aside and 5.9 m up, turned): the mesh hangs
+-- on this bone (crc32 of its name), so the copy is placed where that bone's rest pose comes out where the drone is
+local BODY_BONE = 0x84BBD96A
 local SOUND = "sounds/motor_loop.wav"
 local SOUND_RANGE = 160                            -- full volume within 40 m, silent beyond
 
@@ -83,6 +88,7 @@ local note, note_until = nil, 0                    -- a short on-screen note (FO
 local spin = 0                                     -- the motors' speed for the sound, 0..1
 local motor, mute = nil, false                     -- the sound's id; no audio here (asked once per flight)
 local model, model_key, parked = nil, nil, nil     -- the prop handle, which model, its parked transform
+local copied, rest = false, nil                    -- the model is this mod's copy; its body bone's rest pose
 local caster_broken = false
 local replay = false                               -- this flight is in the game's replay: no rider, camera only
 local last_t = 0                                   -- resteep.time() of the last frame (the replay flight's own dt)
@@ -144,26 +150,65 @@ local function model_wanted()
     return m
 end
 
-local function park()                              -- back where the world edit put it, under the ground
+local function park()                              -- back where it was put, under the ground
     if model then resteep.prop.set(model, parked and {matrix = parked} or MODELS[model_key].park) end
+end
+
+local function drop_model()                        -- the copy goes (made again at the next launch); the quad parks
+    if model and copied then pcall(resteep.prop.unspawn, model) else park() end
+    model, model_key, parked, copied = nil, nil, nil, false
+end
+
+-- rigid transforms {X, Y, Z (where the axes go), T}: from a bone's {x, y, z, rot = quaternion}, applied, chained
+local function from_bone(b)
+    local x, y, z, w = b.rot.x, b.rot.y, b.rot.z, b.rot.w
+    return {X = v3(1 - 2 * (y * y + z * z), 2 * (x * y + z * w), 2 * (x * z - y * w)),
+            Y = v3(2 * (x * y - z * w), 1 - 2 * (x * x + z * z), 2 * (y * z + x * w)),
+            Z = v3(2 * (x * z + y * w), 2 * (y * z - x * w), 1 - 2 * (x * x + y * y)), T = v3(b.x, b.y, b.z)}
+end
+local function turn(a, v) return add(add(mul(a.X, v.x), a.Y, v.y), a.Z, v.z) end
+local function chain(a, b) return {X = turn(a, b.X), Y = turn(a, b.Y), Z = turn(a, b.Z), T = add(turn(a, b.T), a.T)} end
+local function invert(a)
+    local i = {X = v3(a.X.x, a.Y.x, a.Z.x), Y = v3(a.X.y, a.Y.y, a.Z.y), Z = v3(a.X.z, a.Y.z, a.Z.z)}
+    i.T = mul(turn(i, a.T), -1)
+    return i
+end
+
+-- a copy of the game's drone, out of sight under the rider until it flies: its handle, or nil + why
+local function copy_drone(template)
+    if type(resteep.prop.spawn) ~= "function" then return nil, "this ReSteep has no resteep.prop.spawn" end
+    local t, why = resteep.prop.find(template)
+    if not t then return nil, why end
+    local b = resteep.prop.bone(t, BODY_BONE)
+    if not b then return nil, "the template has no body bone" end
+    local p = resteep.player()
+    local at = p and {x = p.x, y = p.y, z = p.z - 50, show = true} or {show = true}
+    local h, shown = resteep.prop.spawn(t, at)
+    if not h then return nil, shown end
+    if shown ~= true then                          -- an older ReSteep: its copy of the template stays hidden
+        pcall(resteep.prop.unspawn, h)
+        return nil, "this ReSteep can't show a copy of the game's drone (update ReSteep)"
+    end
+    rest = from_bone(b)
+    return h
 end
 
 local function find_model()
     local want = setting("model", "game")
-    if want == "off" then park() model, model_key = nil, nil return end
+    if want == "off" then drop_model() return end
     if model and model_key == want then return end
-    park()
-    model, model_key, parked = nil, nil, nil
+    drop_model()
     for _, key in ipairs(want == "own" and {"own", "game"} or {"game", "own"}) do   -- the other one if it is missing
-        local h, why = resteep.prop.find(MODELS[key].id)
+        local m, h, why = MODELS[key], nil, nil
+        if m.template then h, why = copy_drone(m.template) else h, why = resteep.prop.find(m.id) end
         if h then
             local at = resteep.prop.get(h)
-            model, model_key, parked = h, key, at and at.matrix
+            model, model_key, parked, copied = h, key, at and at.matrix, m.template ~= nil
             if key ~= want then resteep.log("drone: no " .. want .. " model here, the " .. key .. " one flies") end
             return
         end
-        resteep.log("drone: no " .. key .. " model here (built at game start; a map added since needs a restart): "
-                    .. tostring(why))
+        resteep.log("drone: no " .. key .. " model here: " .. tostring(why)
+                    .. (m.template and "" or " (built at game start; a map added since needs a restart)"))
     end
 end
 
@@ -173,10 +218,14 @@ local function show_model()
     local m = MODELS[model_key]
     local r, f, u = d.r, d.f, d.u
     if m.flip then r, f = mul(r, -1), mul(f, -1) end
-    local o = add(d.p, u, m.lift)
-    local ok, why = resteep.prop.set(model, {matrix = {r.x, r.y, r.z, 0, f.x, f.y, f.z, 0, u.x, u.y, u.z, 0,
-                                                       o.x, o.y, o.z, 1}})
-    if not ok then resteep.log("drone: the model stays behind: " .. tostring(why)) model = nil end
+    local at = {X = r, Y = f, Z = u, T = add(d.p, u, m.lift)}
+    if copied then                                 -- where the body's rest pose comes out at the drone
+        local b = resteep.prop.bone(model, BODY_BONE)
+        if b then at = chain(chain(at, rest), invert(from_bone(b))) end
+    end
+    local ok, why = resteep.prop.set(model, {matrix = {at.X.x, at.X.y, at.X.z, 0, at.Y.x, at.Y.y, at.Y.z, 0,
+                                                       at.Z.x, at.Z.y, at.Z.z, 0, at.T.x, at.T.y, at.T.z, 1}})
+    if not ok then resteep.log("drone: the model stays behind: " .. tostring(why)) model, copied = nil, false end
 end
 
 -- ---- the sound ---------------------------------------------------------------------------------------------------
@@ -346,7 +395,7 @@ end
 
 local function finish()                            -- the drone is back: everything to the game again
     silence()
-    park()
+    drop_model()
     if hid_hud then resteep.hud.hide(false) hid_hud = false end
     resteep.camera.release(0.6)
     if not replay then resteep.rider.hold(false) end

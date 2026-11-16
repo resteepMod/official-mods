@@ -7,10 +7,7 @@
   "script": "main.lua",
   "content": {
     "worlds": [
-      {"map": "*", "edits": "assets/drone.json",
-       "models": {"drone_game": {"from": {"map": "DataPC", "entry": "0x800",
-                                          "mesh": "STP_V_Drone_001_GoPro_LOD0"}, "materials": "textures"},
-                  "drone": {"glb": "assets/drone.glb"}}}
+      {"map": "*", "edits": "assets/drone.json", "models": {"drone": {"glb": "assets/drone.glb"}}}
     ]
   },
   "settings": [
@@ -39,7 +36,7 @@
     {"key": "fov", "type": "slider", "label": "Field of view (vertical)", "default": 90, "min": 60, "max": 150, "step": 1,
      "unit": "deg", "info": "In flight the d-pad's left / right (or the arrow keys) change it in 5 degree steps; the last value stays."},
     {"key": "model", "type": "choice", "label": "Drone model", "default": "game",
-     "info": "The drone seen in the world while it launches, flies and comes back, on every map (built when the game starts). The game's drone is rebuilt from your install with its own colours; ReSteep's quad borrows a nearby prop's materials (a bench, crate or power box).",
+     "info": "The drone seen in the world while it launches, flies and comes back, on every map. The game's drone is the game's own, with its own look (needs an up-to-date ReSteep; with an older one the quad flies). ReSteep's quad is built into each map when the game starts and borrows a nearby prop's materials (a bench, crate or power box).",
      "options": [{"value": "game", "label": "The game's drone"},
                  {"value": "own", "label": "ReSteep's quad"},
                  {"value": "off", "label": "Off"}]},
