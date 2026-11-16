@@ -683,8 +683,31 @@ local function watch_poses()                       -- the idles the game looks u
     end
 end
 
+-- The drone poses looked up in the game's memory as soon as the rider is in the world (resteep.rider.preload_anim,
+-- ReSteep's newer overlays): set at G, the search took ~2.4 s and the rider took the pose after the drone was up.
+-- Again after a load (the rider gone a moment), once per world; a clip that world has not loaded is just not found.
+local preloaded = false
+local function preload_poses()
+    local p = resteep.player()
+    if not p or not p.real then preloaded = false return end
+    if preloaded then return end
+    preloaded = true
+    if type(resteep.rider.preload_anim) ~= "function" then return end
+    local done = {}
+    for _, name in ipairs(IDLES) do
+        local to = drone_clip(name)
+        if to and not done[to] then
+            done[to] = true
+            pcall(resteep.rider.preload_anim, to)
+        end
+    end
+end
+
 resteep.on("frame", function(dt)
-    if state == "off" then return end
+    if state == "off" then
+        if not replay then preload_poses() end
+        return
+    end
     if replay then
         if not in_replay() then                    -- the replay ended (or was left): the game's camera again
             finish()

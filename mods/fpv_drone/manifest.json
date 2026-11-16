@@ -1,6 +1,6 @@
 {
   "name": "FPV_Drone",
-  "version_number": "0.4.0",
+  "version_number": "0.4.1",
   "website_url": "https://github.com/resteepMod/ReSteep",
   "description": "Launch a drone like the game's own and fly it first-person, also through the game's replays: gamepad or keyboard, d-pad for FOV and camera angle, a model and motor sound.",
   "dependencies": []

@@ -236,7 +236,7 @@
    "id": "fpv_drone",
    "name": "FPV_Drone",
    "title": "FPV drone",
-   "version": "0.4.0",
+   "version": "0.4.1",
    "description": "Launch a drone like the game's own and fly it first-person, also through the game's replays: gamepad or keyboard, d-pad for FOV and camera angle, a model and motor sound.",
    "author": "ReSteep",
    "full_name": "ReSteep-FPV_Drone",
@@ -247,9 +247,9 @@
     "script",
     "settings"
    ],
-   "file": "packages/fpv_drone-0.4.0.resteep",
-   "sha256": "3015b0c3b2e119e039db6ee09b882126ac619d0cd6d3ebba74f64e44936115a5",
-   "size": 117376,
+   "file": "packages/fpv_drone-0.4.1.resteep",
+   "sha256": "72cede3f1c4584ac862fe9eab0a12cee95f5521397f0a6d94ee60e06999dd8ec",
+   "size": 117621,
    "icon": "icons/fpv_drone.png",
    "downloads": []
   },
