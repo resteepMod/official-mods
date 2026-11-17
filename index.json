@@ -587,7 +587,7 @@
    "id": "yard_sale",
    "name": "Yard_Sale",
    "title": "Yard Sale",
-   "version": "0.1.0",
+   "version": "0.2.0",
    "description": "Crash on purpose and score the wreck: every hit the game counts scores (more for the head, trees, rocks and buildings), broken bones show on a see-through skeleton, and the best goes to one leaderboard for everyone.",
    "author": "ReSteep",
    "full_name": "ReSteep-Yard_Sale",
@@ -599,9 +599,9 @@
     "script",
     "settings"
    ],
-   "file": "packages/yard_sale-0.1.0.resteep",
-   "sha256": "fa1373cdfe28aab387b14784d16f392721e1bef06a3ed1d966e554a7ed2cfddb",
-   "size": 8087,
+   "file": "packages/yard_sale-0.2.0.resteep",
+   "sha256": "845a0dc4087c62796e16ea075f5098063f53238108d3c5534793d3738b52745f",
+   "size": 8608,
    "icon": "icons/yard_sale.png",
    "downloads": []
   }

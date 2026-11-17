@@ -1,7 +1,7 @@
 # Yard Sale
 
 Crash on purpose and score the wreck. Ride into a tree, cartwheel down a cliff, clip a rock at speed: every hit
-the game counts while your rider tumbles scores, and the card at the end says what broke.
+the game counts while your rider tumbles scores, and the banner at the end says what broke.
 
 ## Scoring
 
@@ -16,13 +16,15 @@ the game counts while your rider tumbles scores, and the card at the end says wh
 While the rider is down, a see-through skeleton is drawn over the body: white, bruised yellow, broken red (it shows
 through everything, like a marker). The running score shows at the top; each hit pops up where it happened.
 
-When the rider gets up, a card shows the score and its parts, the broken bones and the surfaces hit. The personal
-best is kept, and the score goes to the server's board `yard_sale`: one leaderboard for everyone, the top 5 on the
-card.
+When the rider gets up, the game's own red crash banner shows the score and the personal best, and the
+game's notifications say each broken bone and your place on the server's board `yard_sale` (one leaderboard for
+everyone). **Detailed card** adds the card with every part of the score and the board's top 5. With a ReSteep older
+than 2026-11-17 (no game popups) that card shows instead of the banner.
 
 ## Settings
 
-**See-through skeleton** (on), **Result card** (how long it shows, 8 s), **Send scores to the leaderboard** (on).
+**See-through skeleton** (on), **Result card** (how long the banner and card show, 8 s), **Detailed card** (off),
+**Send scores to the leaderboard** (on).
 
 ## Needs
 

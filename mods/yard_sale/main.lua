@@ -43,12 +43,20 @@ local function setting(key, default)
 end
 
 local supported = type(resteep.rider.bones) == "function"
+-- the game's own popups (ReSteep 2026-11-17: resteep.hud.banner / notify): the result as its red crash banner, the
+-- broken bones and the board's rank as its notifications; an older ReSteep draws the card over the picture instead
+local native = type(resteep.hud) == "table" and type(resteep.hud.banner) == "function"
 local best = (resteep.load() or {}).best or 0
 local recent = {}                                  -- impacts before a crash: {t, info}
 local run = nil                                    -- the crash being scored
 local card = nil                                   -- the result card: {until_, lines, top}
 local popups = {}                                  -- {text, x, y, z, until_, color}
 local last = {speed = 0, airtime = 0}              -- the rider while riding (the crash event's speed is the last frame's)
+
+local function say(text, seconds, icon)
+    if native and resteep.hud.notify(text, {seconds = seconds, icon = icon}) then return end
+    resteep.notify(text, seconds)
+end
 
 local function state_of(dmg)
     if dmg >= BROKEN then return "broken" elseif dmg >= BRUISED then return "bruised" end
@@ -71,7 +79,7 @@ local function add_damage(part, amount)
                 local bonus = BREAK_BONUS * (p == "head" and 2 or 1)
                 run.broken[#run.broken + 1] = PART_NAMES[p]
                 run.bonus = run.bonus + bonus
-                resteep.notify(string.format("Broken: %s  +%d", PART_NAMES[p], bonus), 2)
+                say(string.format("Broken: %s  +%d", PART_NAMES[p], bonus), 3)
             end
         end
     end
@@ -115,14 +123,19 @@ local function show_card(r)
     local hit = {}
     for s in pairs(r.surfaces) do hit[#hit + 1] = s end
     if #hit > 0 then table.sort(hit) lines[#lines + 1] = {"hit: " .. table.concat(hit, ", "), "#FFFF8A3D"} end
-    if t.total > best then
+    local new_best = t.total > best
+    if new_best then
         best = t.total
         resteep.save({best = best})
         lines[#lines + 1] = {"new personal best!", "#FF7CFC00"}
     else
         lines[#lines + 1] = {string.format("personal best %d", best), "#FFBBBBBB"}
     end
-    card = {until_ = resteep.time() + setting("card_seconds", 8), lines = lines, top = nil, damage = r.damage}
+    local seconds = setting("card_seconds", 8)
+    local banner = native and resteep.hud.banner(string.format("YARD SALE  %d", t.total),   -- (the bones: notifications)
+        new_best and "new personal best" or string.format("personal best %d", best), {style = "crash", seconds = seconds})
+    card = {until_ = resteep.time() + seconds, lines = lines, top = nil, damage = r.damage,
+            drawn = not banner or setting("detailed", false)}
     if setting("board", true) and t.total > 0 then
         local mine = card
         resteep.post("/mods/board/submit", {board = BOARD, value = t.total, lower_is_better = false, limit = 5,
@@ -133,6 +146,12 @@ local function show_card(r)
                 for i, e in ipairs(reply.top or {}) do top[i] = string.format("%d. %s  %d", i, tostring(e.name), e.value) end
                 if reply.rank then top[#top + 1] = string.format("you: #%d", reply.rank) end
                 mine.top = top
+                if reply.rank and not mine.drawn then
+                    local first = (reply.top or {})[1]
+                    say(string.format("Yard Sale board: #%d", reply.rank)
+                        .. (first and reply.rank > 1 and string.format("  (top: %s %d)", tostring(first.name), first.value)
+                            or ""), 6, "people")
+                end
             end)
     end
 end
@@ -229,6 +248,7 @@ resteep.on("frame", function()
     if card then
         if now > card.until_ then card = nil return end
         draw_skeleton(card.damage)
+        if not card.drawn then return end
         local n = #card.lines + (card.top and #card.top + 1 or 0)
         resteep.box(0.66, 0.24, 0.32, 0.05 + 0.032 * n, "#B0000000")
         local y = 0.27

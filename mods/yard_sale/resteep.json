@@ -11,6 +11,8 @@
      "info": "While the rider is down and on the result card: the bones over the body, white, bruised yellow, broken red."},
     {"key": "card_seconds", "type": "slider", "label": "Result card", "default": 8, "min": 3, "max": 20, "step": 1,
      "unit": "s"},
+    {"key": "detailed", "type": "toggle", "label": "Detailed card", "default": false,
+     "info": "Also the card with every part of the score (hits, speed, air, tumble, time) and the board's top 5, beside the game's banner."},
     {"key": "board", "type": "toggle", "label": "Send scores to the leaderboard", "default": true,
      "info": "The server's board \"yard_sale\": one for everyone, the top 5 show on the card."}
   ]
