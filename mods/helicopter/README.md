@@ -16,8 +16,9 @@ original's; its meshes come along from the Alps' archives (world.py apply: an ad
 Built against your install at game start like every content mod (the launcher's mod build); the setting takes effect
 at the next game start. Its pilot's and ski box's closest models (LOD0) stay in `DataPC_extra_chr_onboarding` (G:
 loaded in every world). Mod maps (worlds of their own, such as the proving ground) get the same copy with the setting
-**Helicopter on mod maps** (`custom_maps`, off by default: experimental, copies of another map's objects have crashed
-a mod map on loading before; `assets/helicopter_maps.json`, a `"map": "*"` entry for the mod maps only). The WhiteRoom
+**Helicopter on mod maps** (`custom_maps`, on by default since 0.8.1: loaded on the proving ground 2026-11-17; copies of
+another map's objects once crashed a mod map on loading, so it can be switched off; `assets/helicopter_maps.json`, a
+`"map": "*"` entry for the mod maps only). The WhiteRoom
 is the menu world (nothing to fly in); there, and wherever the model is not loaded, the mod flies without a model
 (the camera closer) and keeps looking for it every 2 s while flying.
 
@@ -86,7 +87,7 @@ extreme, 0 % switches an effect off.
 | Helicopter HUD: size (`hud_size`) | 50-200 % | 100 % | about its bottom centre |
 | Helicopter HUD: opacity (`hud_opacity`) | 20-100 % | 100 % | |
 | Helicopter in Japan (`japan`) | on / off | on | builds the copy into Japan (above); the next game start, not at once; Japan crashing on load: switch it off |
-| Helicopter on mod maps (`custom_maps`) | on / off | off | builds the copy into every mod map that is on (experimental); the next game start; a mod map crashing on load: switch it off |
+| Helicopter on mod maps (`custom_maps`) | on / off | on | builds the copy into every mod map that is on; the next game start; a mod map crashing on load: switch it off |
 
 0.6.0 replaced "Stick sensitivity" (both axes) with the cyclic and pedal rates.
 
@@ -231,6 +232,10 @@ rotors' turn (G: then they stand still, the rest flies the same). The pad's stic
 test harness only the keyboard does.
 
 ## Tested
+
+In the game (test harness, 2026-11-17, 0.8.0 with `custom_maps` on): the proving ground (a mod map from Alaska)
+loaded with the copy, `prop.find(0x2F000001000)` found it at the map's origin, moved in front of the rider it showed
+the whole model (screenshot); not flown there (the harness's rider was on a board).
 
 Offline (2026-11-16, 0.7.0, the other maps; with ReSteep's world.py fixes of that day): `world.py apply` of both edit
 files on the install: Alaska and Japan each 1 cell written, 0 warnings; the copy is the Alps' entity with its ids

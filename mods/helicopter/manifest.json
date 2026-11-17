@@ -1,6 +1,6 @@
 {
   "name": "Helicopter",
-  "version_number": "0.8.0",
+  "version_number": "0.8.1",
   "website_url": "https://github.com/resteepMod/ReSteep",
   "description": "Fly the rider like a helicopter, inside the Alps' own Red Bull helicopter; Alaska gets a copy of it (Japan with an experimental setting), built against your install at game start.",
   "dependencies": []

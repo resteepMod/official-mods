@@ -15,8 +15,8 @@
   "settings": [
     {"key": "japan", "type": "toggle", "label": "Helicopter in Japan", "default": true,
      "info": "Puts a copy of the Alps' helicopter into Japan (Alaska always gets one); seen working in the game 2026-11-16. Takes effect at the next game start; switch it off if Japan ever crashes on loading."},
-    {"key": "custom_maps", "type": "toggle", "label": "Helicopter on mod maps", "default": false,
-     "info": "Puts a copy of the Alps' helicopter into every mod map you have on (the proving ground and others), as in Alaska and Japan. Experimental: copies of another map's objects have crashed a mod map on loading before. Takes effect at the next game start; switch it off if a mod map crashes on loading."},
+    {"key": "custom_maps", "type": "toggle", "label": "Helicopter on mod maps", "default": true,
+     "info": "Puts a copy of the Alps' helicopter into every mod map you have on (the proving ground and others), as in Alaska and Japan; seen working on the proving ground 2026-11-17. Takes effect at the next game start; switch it off if a mod map crashes on loading."},
     {"key": "realistic", "type": "toggle", "label": "Realistic flight", "default": false,
      "info": "Off: arcade (the disc tilts with the stick and springs back, it never tips over). On: a light helicopter (H125): a collective lever that stays where set (~50 % hovers), power limit, torque yaw, vortex ring, blade stall, low g. Momentum and inertia: at speed it carries on, slowing or turning tightly takes a flare and a bank (a J-hook). The Realistic sliders below tune it. Switches in flight too."},
     {"key": "assist", "type": "slider", "label": "Realistic: assist", "default": 20, "min": 0, "max": 100, "step": 5,
