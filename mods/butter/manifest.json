@@ -1,0 +1,7 @@
+{
+  "name": "Butter",
+  "version_number": "0.1.0",
+  "website_url": "https://github.com/resteepMod/official-mods",
+  "description": "Nose and tail butters on the snow: hold RB while riding and push the left stick forward (nose) or back (tail); the further, the more the rider and the board lean onto it.",
+  "dependencies": []
+}

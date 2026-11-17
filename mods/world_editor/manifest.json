@@ -1,0 +1,7 @@
+{
+  "name": "World_Editor",
+  "version_number": "0.2.0",
+  "website_url": "https://github.com/resteepMod/official-mods",
+  "description": "Add, move, turn, scale and remove objects in the world from the MODS page or a free camera with Blender's keys; the server keeps the edits, they show at once.",
+  "dependencies": []
+}

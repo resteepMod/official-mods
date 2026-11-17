@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "id": "butter",
+  "title": "Butter",
+  "author": "ReSteep",
+  "license": "AGPL-3.0",
+  "resteep": "0.1",
+  "script": "main.lua",
+  "settings": [
+    {"key": "button", "type": "choice", "label": "Hold to butter", "default": "RB",
+     "info": "While it is held on the snow, the left stick's forward / back leans the rider and the board onto the nose / tail instead of tucking or braking. The game does not see this button then (RB alone opens the sport wheel when stopped, so a press while standing still or walking stays the game's).",
+     "options": [{"value": "RB", "label": "RB"}, {"value": "LB", "label": "LB"}, {"value": "L3", "label": "L3 (left stick click)"},
+                 {"value": "R3", "label": "R3 (right stick click)"}]},
+    {"key": "board_tilt", "type": "slider", "label": "Board tilt at full stick", "default": 45, "min": 0, "max": 60, "step": 1,
+     "unit": "deg", "info": "The board's pitch the game is asked for (its own right stick asks up to 45 degrees); the game's pitch curves scale it down by speed and how deep the board sits."},
+    {"key": "body_lean", "type": "slider", "label": "Weight shift at full stick", "default": 45, "min": 0, "max": 60, "step": 1,
+     "unit": "deg", "info": "How far the rider's weight goes over the nose / tail (the game's own forward lean at speed: 45)."},
+    {"key": "response", "type": "slider", "label": "Stick response", "default": 1.0, "min": 0.5, "max": 3.0, "step": 0.1,
+     "info": "1 = the lean follows the stick evenly; more = finer near the middle, the full lean only at the end of the stick."},
+    {"key": "deadzone", "type": "slider", "label": "Stick dead zone", "default": 0.15, "min": 0.0, "max": 0.5, "step": 0.01},
+    {"key": "min_speed", "type": "slider", "label": "Start from", "default": 1.0, "min": 0.0, "max": 5.0, "step": 0.25,
+     "unit": "m/s", "info": "A press slower than this belongs to the game (RB: the sport wheel)."},
+    {"key": "invert", "type": "toggle", "label": "Stick back = nose", "default": false},
+    {"key": "ski", "type": "toggle", "label": "Also on skis", "default": true,
+     "info": "Skis lean onto their tips / tails the same way."},
+    {"key": "debug", "type": "toggle", "label": "Log butters and animation clips", "default": false,
+     "info": "Writes each butter and every animation clip the game picks meanwhile to the iSteep log (powder_overlay.log), and shows the lean."}
+  ]
+}

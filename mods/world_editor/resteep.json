@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "id": "world_editor",
+  "title": "World editor",
+  "author": "ReSteep",
+  "license": "AGPL-3.0",
+  "resteep": "0.1",
+  "script": "main.lua",
+  "server": "mod.lua",
+  "settings": [
+    {"key": "edit_key", "type": "key", "label": "Free camera edit mode: hotkey", "default": "F4",
+     "info": "Press it in the game to enter the free camera's edit mode (as the panel's Free camera button), again (or Esc) to leave. F3, F5-F9, G, N and Home are taken by the trainer and other mods."},
+    {"key": "instant_adds", "type": "toggle", "label": "Instant adds (experimental)", "default": false,
+     "info": "A duplicate (Shift+D) or a placed prop shows at once: the game copies the loaded object (resteep.prop.spawn) and the copy stands where the add goes until the edited cell brings the real one. Not tried in the game yet; without it an add shows once its cell is read again."}
+  ]
+}

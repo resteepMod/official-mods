@@ -44,6 +44,28 @@
    "downloads": []
   },
   {
+   "id": "butter",
+   "name": "Butter",
+   "title": "Butter",
+   "version": "0.1.0",
+   "description": "Nose and tail butters on the snow: hold RB while riding and push the left stick forward (nose) or back (tail); the further, the more the rider and the board lean onto it.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-Butter",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script",
+    "settings"
+   ],
+   "file": "packages/butter-0.1.0.resteep",
+   "sha256": "d1bd5e823d1eeb47ec8b8a0dff3aa7b0a0de4d62c707d69975237f1f37046cd7",
+   "size": 9744,
+   "icon": "icons/butter.png",
+   "downloads": []
+  },
+  {
    "id": "camera_fx",
    "name": "Camera_Fx",
    "title": "Camera effects",
@@ -581,6 +603,29 @@
    "sha256": "03d7579cb5a16215b8ccee534348e21721866a4317c367f98c1ea7c0e8aee945",
    "size": 10008,
    "icon": "icons/gopro_stabilized.png",
+   "downloads": []
+  },
+  {
+   "id": "world_editor",
+   "name": "World_Editor",
+   "title": "World editor",
+   "version": "0.2.0",
+   "description": "Add, move, turn, scale and remove objects in the world from the MODS page or a free camera with Blender's keys; the server keeps the edits, they show at once.",
+   "author": "ReSteep",
+   "full_name": "ReSteep-World_Editor",
+   "website_url": "https://github.com/resteepMod/official-mods",
+   "dependencies": [
+    "ReSteep-ReSteep-0.1.0"
+   ],
+   "kinds": [
+    "script",
+    "server",
+    "settings"
+   ],
+   "file": "packages/world_editor-0.2.0.resteep",
+   "sha256": "a199e0b267a7949e8c3abc1c635dae9bd8ed98a0868ae31ff6b9b4b5b6945038",
+   "size": 52219,
+   "icon": "icons/world_editor.png",
    "downloads": []
   },
   {
