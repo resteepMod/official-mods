@@ -1,0 +1,17 @@
+{
+  "format": 1,
+  "id": "yard_sale",
+  "title": "Yard Sale",
+  "author": "ReSteep",
+  "license": "AGPL-3.0",
+  "resteep": "0.1",
+  "script": "main.lua",
+  "settings": [
+    {"key": "skeleton", "type": "toggle", "label": "See-through skeleton", "default": true,
+     "info": "While the rider is down and on the result card: the bones over the body, white, bruised yellow, broken red."},
+    {"key": "card_seconds", "type": "slider", "label": "Result card", "default": 8, "min": 3, "max": 20, "step": 1,
+     "unit": "s"},
+    {"key": "board", "type": "toggle", "label": "Send scores to the leaderboard", "default": true,
+     "info": "The server's board \"yard_sale\": one for everyone, the top 5 show on the card."}
+  ]
+}
