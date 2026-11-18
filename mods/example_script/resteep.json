@@ -1,6 +1,7 @@
 {
   "format": 1,
   "id": "example_script",
+  "tags": ["developer"],
   "title": "Script (example)",
   "author": "ReSteep",
   "license": "AGPL-3.0",

@@ -1,6 +1,7 @@
 {
   "format": 1,
   "id": "challenge-example",
+  "tags": ["developer"],
   "title": "Challenge Example",
   "author": "ReSteep",
   "settings": [
