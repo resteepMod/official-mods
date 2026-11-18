@@ -47,6 +47,10 @@ The docs for writing mods are in ReSteep's repository: `MODDING.md` and `docs/mo
    removes packages no folder makes any more and refuses mods with code in them.
 3. Commit the mod, `packages/`, `icons/` and `index.json` together. The launcher reads `index.json` from `main`.
 
+**Tools for mod makers** (log viewers, frame stepping, examples) carry `"tags": ["developer"]` in their
+`resteep.json`: the index copies the tags, and the in-game menu marks those mods "developer" and hides them with
+"Hide developer mods". Tag every new tool the same way (ReSteep's `docs/modding/format.md`, "Tags").
+
 Dependencies are Thunderstore-style (`"ReSteep-Base_Lib-1.0.0"` in `manifest.json`); the launcher installs the
 listed ones first. `ReSteep-ReSteep-X.Y.Z` (the ReSteep version a mod needs) is added by `pack` from
 `resteep.json`'s `"resteep"` and is never installed.

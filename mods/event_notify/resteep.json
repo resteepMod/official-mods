@@ -1,6 +1,7 @@
 {
   "format": 1,
   "id": "event_notify",
+  "tags": ["developer"],
   "title": "Event notifications",
   "author": "ReSteep",
   "license": "AGPL-3.0",

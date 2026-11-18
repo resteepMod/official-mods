@@ -1,6 +1,7 @@
 {
   "format": 1,
   "id": "framestep",
+  "tags": ["developer"],
   "title": "Frame step",
   "author": "ReSteep",
   "license": "AGPL-3.0",

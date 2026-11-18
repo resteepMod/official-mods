@@ -1,6 +1,7 @@
 {
   "format": 1,
   "id": "example-animation",
+  "tags": ["developer"],
   "title": "Example: Animations",
   "author": "ReSteep",
   "settings": [

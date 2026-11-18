@@ -16,6 +16,7 @@
    "kinds": [
     "script"
    ],
+   "tags": [],
    "file": "packages/airtime_contest-1.0.1.resteep",
    "sha256": "eb9ec3ad463c2025f552639c4716025196190a0c22f8f49c4f6946cede38b661",
    "size": 2396,
@@ -37,6 +38,7 @@
    "kinds": [
     "script"
    ],
+   "tags": [],
    "file": "packages/boost-1.0.1.resteep",
    "sha256": "fb08f8fa079de5d9b405ac6c318c27570487b908ff3cd173de6290648eadc3d1",
    "size": 2378,
@@ -59,6 +61,7 @@
     "script",
     "settings"
    ],
+   "tags": [],
    "file": "packages/butter-0.1.0.resteep",
    "sha256": "d1bd5e823d1eeb47ec8b8a0dff3aa7b0a0de4d62c707d69975237f1f37046cd7",
    "size": 9744,
@@ -80,6 +83,7 @@
    "kinds": [
     "script"
    ],
+   "tags": [],
    "file": "packages/camera_fx-1.0.1.resteep",
    "sha256": "f2207a2c09ab5d76adc2ef11948d02257fb85e51ba50f8936387794944eda6d5",
    "size": 2215,
@@ -102,9 +106,12 @@
     "music",
     "settings"
    ],
+   "tags": [
+    "developer"
+   ],
    "file": "packages/challenge-example-1.0.1.resteep",
-   "sha256": "93da5ab3d337fc9ae7270d831adefa1fa900ae6c90f1400f23e19d8e00d4b495",
-   "size": 234498,
+   "sha256": "8446d1aa021247dd4fa74831bb23066a2dcf24f40109f476315a116241fa5664",
+   "size": 234511,
    "icon": "icons/challenge-example.png",
    "downloads": []
   },
@@ -123,6 +130,7 @@
    "kinds": [
     "script"
    ],
+   "tags": [],
    "file": "packages/checkpoint_race-1.0.1.resteep",
    "sha256": "0b0699d8c1888d8584ae1939d63c8a255794bf9501f7081bf25c9d19c8d26536",
    "size": 4394,
@@ -144,9 +152,12 @@
    "kinds": [
     "script"
    ],
+   "tags": [
+    "developer"
+   ],
    "file": "packages/crash_log-1.0.1.resteep",
-   "sha256": "2e6ba14a0043f4c3a9a5b0d82f16ff9654dc8c388be7dd4f9e301d21e625d081",
-   "size": 2046,
+   "sha256": "707130a7c91da78dfa0018a562a6737cd50ee0c9161cbb4b69bb15684dddeb16",
+   "size": 2066,
    "icon": "icons/crash_log.png",
    "downloads": []
   },
@@ -165,9 +176,12 @@
    "kinds": [
     "script"
    ],
+   "tags": [
+    "developer"
+   ],
    "file": "packages/devtools-1.0.1.resteep",
-   "sha256": "1968df5f5bdf2101dc73efb0a24668ff1ee84695af1d2ab06fa2e989bd340cd6",
-   "size": 2129,
+   "sha256": "505cb12a325057773f479a9a940ed8c044d51fd4f9472d7b38f45b53c1a05006",
+   "size": 2146,
    "icon": "icons/devtools.png",
    "downloads": []
   },
@@ -185,6 +199,7 @@
     "world",
     "script"
    ],
+   "tags": [],
    "file": "packages/domino_playground-0.1.1.resteep",
    "sha256": "903f81349029111b21811252090c44d39d25e785d1f19b62c34130d43a3cc8e6",
    "size": 4681,
@@ -206,6 +221,7 @@
     "script",
     "settings"
    ],
+   "tags": [],
    "file": "packages/domino_showcase-0.1.1.resteep",
    "sha256": "e94ffe0fff578b27340143a34b188af42447b4ac7af7fd97e342dac9a8995162",
    "size": 9602,
@@ -227,9 +243,12 @@
    "kinds": [
     "script"
    ],
+   "tags": [
+    "developer"
+   ],
    "file": "packages/event_notify-1.0.1.resteep",
-   "sha256": "76ef2403debd33a0a73b37cb24f1ab458d6825fff08a42ab5dcdfd5327685b48",
-   "size": 2190,
+   "sha256": "afe993cb5a7d47a9251ee388d16e652db6fd19190423523586c66cf41c8845e9",
+   "size": 2207,
    "icon": "icons/event_notify.png",
    "downloads": []
   },
@@ -248,9 +267,12 @@
     "script",
     "settings"
    ],
+   "tags": [
+    "developer"
+   ],
    "file": "packages/example-animation-1.0.1.resteep",
-   "sha256": "2b442a8dbc5b4e051763f0ac6adcc5a3c48e68667ff0a7265ee3801a3621e9b8",
-   "size": 2567,
+   "sha256": "c377dc5dcf55d2da72bc83c5fa7dabdd18a3823b15643ebcac486294d6de755a",
+   "size": 2577,
    "icon": "icons/example-animation.png",
    "downloads": []
   },
@@ -269,6 +291,7 @@
     "script",
     "settings"
    ],
+   "tags": [],
    "file": "packages/fpv_drone-0.6.0.resteep",
    "sha256": "b3b313dae5bf115c23a3a96044d0546d04b222ac462e892f2395bcdde2e58f18",
    "size": 117737,
@@ -290,9 +313,12 @@
    "kinds": [
     "script"
    ],
+   "tags": [
+    "developer"
+   ],
    "file": "packages/framestep-1.0.1.resteep",
-   "sha256": "186217ec872904d2125f5927d2d8f0905868413550b1bd573393c2612c350da7",
-   "size": 1708,
+   "sha256": "f4eaed9c4c1c385e762278b1face50d0a6f7fd48269710c09eba6a8a9b93c770",
+   "size": 1728,
    "icon": "icons/framestep.png",
    "downloads": []
   },
@@ -311,6 +337,7 @@
    "kinds": [
     "script"
    ],
+   "tags": [],
    "file": "packages/golden_hour-1.0.1.resteep",
    "sha256": "083878723e75c6ce3f930bcac1cc6c3f3677ea23c7ab23721f4ce82b026907d0",
    "size": 1742,
@@ -332,6 +359,7 @@
     "script",
     "settings"
    ],
+   "tags": [],
    "file": "packages/helicopter-0.8.1.resteep",
    "sha256": "975475ffcebada86b5c5fdc1fd017405e9d52fc490a95e4ecbef452ec9756862",
    "size": 1257231,
@@ -352,9 +380,12 @@
     "script",
     "settings"
    ],
+   "tags": [
+    "developer"
+   ],
    "file": "packages/hello-config-1.0.2.resteep",
-   "sha256": "741f3cb3c3b053d6af40f70f7120e7235f0222b5d62fe8eacac1110f34bba6a6",
-   "size": 1578,
+   "sha256": "e0293ba818a143be69ec3ae6d1fee75f0c7828ac3d367e951829250ec2a28341",
+   "size": 1591,
    "icon": "icons/hello-config.png",
    "downloads": []
   },
@@ -374,9 +405,12 @@
     "items",
     "settings"
    ],
+   "tags": [
+    "developer"
+   ],
    "file": "packages/bluebird.lua-hat-demo-1.0.1.resteep",
-   "sha256": "1169e45b1534bf972b3a8d7ad4132bb1b91ae1078632722b89ae83e4ef846a28",
-   "size": 31488,
+   "sha256": "b07ad3f08c92b181dd3767929507998fac49e09a1ca1817e5beb8e75448aa6b6",
+   "size": 31499,
    "icon": "icons/bluebird.lua-hat-demo.png",
    "downloads": []
   },
@@ -395,6 +429,7 @@
    "kinds": [
     "script"
    ],
+   "tags": [],
    "file": "packages/markers-1.0.1.resteep",
    "sha256": "61bc569e7400dfc429fc5c360e5e7bfc7e348fa670ad1d3db93f15fe13a619f8",
    "size": 1758,
@@ -414,6 +449,7 @@
    "kinds": [
     "costumes"
    ],
+   "tags": [],
    "file": "packages/master_chief_costume-0.2.1.resteep",
    "sha256": "d4180a88ee68fff37fe2b54a35464888a572bb50bc90c9a54aa1c78569a8300f",
    "size": 63855,
@@ -440,6 +476,7 @@
    "kinds": [
     "script"
    ],
+   "tags": [],
    "file": "packages/physics_playground-0.1.1.resteep",
    "sha256": "7ee0ffb56fafea7fd0f71ab6dfcbe301a9eda4a0165bcd5d527b4715eb4d4b7e",
    "size": 4120,
@@ -461,9 +498,12 @@
    "kinds": [
     "items"
    ],
+   "tags": [
+    "developer"
+   ],
    "file": "packages/bluebird.boxes-1.0.1.resteep",
-   "sha256": "031a95c987fd2097d959ed1d3812b135571b8bbd8d59c03c709f46ca78bebe39",
-   "size": 83339,
+   "sha256": "4d81fc37d3b82c039e106572d2617262b6c582b5bb3074ca7eee46ab456ede07",
+   "size": 83354,
    "icon": "icons/bluebird.boxes.png",
    "downloads": []
   },
@@ -480,6 +520,7 @@
    "kinds": [
     "map"
    ],
+   "tags": [],
    "file": "packages/resteep_hill-0.1.1.resteep",
    "sha256": "c2f5f17868eb0b6c4eada87dfc7d94c8c17017567b23f30b61f0fa13c0537e12",
    "size": 387983,
@@ -499,6 +540,7 @@
    "kinds": [
     "map"
    ],
+   "tags": [],
    "file": "packages/resteep_mountains-0.1.1.resteep",
    "sha256": "5efcaef10a91ce146317d6e54a77871fab9a6491e2a7f55c894b0692feaac86c",
    "size": 4597,
@@ -518,6 +560,7 @@
    "kinds": [
     "map"
    ],
+   "tags": [],
    "file": "packages/resteep_park-0.1.1.resteep",
    "sha256": "34a59e3284310f8ecad181358ac64e9c8319e0568ec757b48927ea0f6e65a112",
    "size": 5207,
@@ -538,6 +581,7 @@
     "textures",
     "settings"
    ],
+   "tags": [],
    "file": "packages/rider-colors-1.0.1.resteep",
    "sha256": "eeee6bf82a3ac02dd478ecec993575d34853eac926667b67169275bc2e74581e",
    "size": 77629,
@@ -558,9 +602,12 @@
     "world",
     "script"
    ],
+   "tags": [
+    "developer"
+   ],
    "file": "packages/example_script-0.1.1.resteep",
-   "sha256": "e99e74f84f59c6e648c843df25d36a0cb6f6988d5d96dd3a02fad2d7f812344b",
-   "size": 5850,
+   "sha256": "367a9f7dc3e403813779e66047a9170a034ba9d556579266dd6d56d82b99c2ea",
+   "size": 5865,
    "icon": "icons/example_script.png",
    "downloads": []
   },
@@ -579,6 +626,7 @@
    "kinds": [
     "script"
    ],
+   "tags": [],
    "file": "packages/speedometer-1.0.1.resteep",
    "sha256": "4e669b3c11c6dfc296880360b285220125c1265bd783b9b9ac65466c7028a3e6",
    "size": 1620,
@@ -599,6 +647,7 @@
     "script",
     "settings"
    ],
+   "tags": [],
    "file": "packages/gopro_stabilized-0.1.1.resteep",
    "sha256": "03d7579cb5a16215b8ccee534348e21721866a4317c367f98c1ea7c0e8aee945",
    "size": 10008,
@@ -622,6 +671,7 @@
     "server",
     "settings"
    ],
+   "tags": [],
    "file": "packages/world_editor-0.2.0.resteep",
    "sha256": "a199e0b267a7949e8c3abc1c635dae9bd8ed98a0868ae31ff6b9b4b5b6945038",
    "size": 52219,
@@ -644,6 +694,7 @@
     "script",
     "settings"
    ],
+   "tags": [],
    "file": "packages/yard_sale-0.2.0.resteep",
    "sha256": "845a0dc4087c62796e16ea075f5098063f53238108d3c5534793d3738b52745f",
    "size": 8608,

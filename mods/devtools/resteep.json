@@ -1,6 +1,7 @@
 {
   "format": 1,
   "id": "devtools",
+  "tags": ["developer"],
   "title": "Dev tools for mod authors",
   "author": "ReSteep",
   "license": "AGPL-3.0",
