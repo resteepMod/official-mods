@@ -20,15 +20,16 @@ tools/              authors' generators that are not part of a package (e.g. too
 effects, Crash log, Dev tools, Event notifications, Frame step, Golden hour, Markers, Boost, Checkpoint race, Hello
 Config, Example Script, Example Animation, Example Helicopter, Challenge Example, Lua Hat Demo, Rider Colors, ReSteep
 Boxes. **Content**: ReSteep Park, ReSteep Mountains, ReSteep Hill (the three are one world: enable one),
-Domino Playground, Domino Showcase, Physics Playground, FPV Drone, GoPro Stabilized, Master Chief Costume.
+Domino Playground, Domino Showcase, Physics Playground, FPV Drone, GoPro Stabilized.
 
 **Multiplayer.** Each mod's README ends with what it means on a server (**Multiplayer:** only you need it / others
 see ... / every player needs the same mod / single player only); ReSteep's `docs/mods.md` ("Mods on a server") has
 them in one table.
 
-**Files a mod may not ship.** A mod can name a file the player downloads themselves (resteep.json `downloads`; e.g.
-Master Chief's model, CC-BY on Sketchfab): its package holds no copy, the launcher's tile asks for the file, checks
-it (data files only) and keeps it per player; ReSteep's build then fits it on the player's PC.
+**Files a mod may not ship.** A mod can name a file the player downloads themselves (resteep.json `downloads`, for
+example a model whose licence lets players use it but not a mod pass it on): its package holds no copy, the
+launcher's tile asks for the file, checks it (data files only) and keeps it per player; ReSteep's build then fits it
+on the player's PC.
 
 The docs for writing mods are in ReSteep's repository: `MODDING.md` and `docs/modding/`.
 

@@ -437,33 +437,6 @@
    "downloads": []
   },
   {
-   "id": "master_chief_costume",
-   "name": "Master_Chief_Costume",
-   "title": "Master Chief Costume",
-   "version": "0.2.1",
-   "description": "Master Chief as a costume of his own, owned by every player. You download the model (free, CC-BY); ReSteep fits it to Steep's skeleton on your PC.",
-   "author": "ReSteep (model: HarrisonHag1)",
-   "full_name": "ReSteep-Master_Chief_Costume",
-   "website_url": "https://sketchfab.com/3d-models/master-chief-high-poly-18f5ee1d13904939971601055102c91b",
-   "dependencies": [],
-   "kinds": [
-    "costumes"
-   ],
-   "tags": [],
-   "file": "packages/master_chief_costume-0.2.1.resteep",
-   "sha256": "d4180a88ee68fff37fe2b54a35464888a572bb50bc90c9a54aa1c78569a8300f",
-   "size": 63855,
-   "icon": "icons/master_chief_costume.png",
-   "downloads": [
-    {
-     "title": "Master Chief High Poly",
-     "author": "HarrisonHag1",
-     "license": "CC-BY-4.0",
-     "host": "sketchfab.com"
-    }
-   ]
-  },
-  {
    "id": "physics_playground",
    "name": "Physics_Playground",
    "title": "Physics playground",
